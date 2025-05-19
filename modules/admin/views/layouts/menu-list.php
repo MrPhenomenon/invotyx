@@ -44,7 +44,7 @@
   </a>
 </li>
 <li class="pc-item">
-  <a href="../elements/bc_typography.html" class="pc-link">
+  <a href="/admin/mcq/import-mcq" class="pc-link">
   <i class="bi bi-file-earmark-plus"></i>
     <span class="pc-mtext">Import from File</span>
   </a>

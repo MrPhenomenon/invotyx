@@ -3,19 +3,31 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 ?>
 <style>
-#preview-table {
-  position: relative;
+    #preview-table {
+  position: relative; 
+  border-collapse: collapse;
 }
 
-#preview-table td, #preview-table th {
-  max-width: 250px;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+#preview-table td,
+#preview-table th {
+  max-width: 250px; 
   position: relative;
+  border: 1px solid #ccc;
+  padding: 5px;
+  vertical-align: top;
 }
 
-#preview-table td:hover::after {
+#preview-table td .cell-content,
+#preview-table th .cell-content {
+  display: block;        
+  width: 100%; 
+  overflow: hidden; 
+  white-space: nowrap;  
+  text-overflow: ellipsis; 
+}
+
+#preview-table td:hover::after,
+#preview-table th:hover::after {
   content: attr(data-full);
   position: absolute;
   background: rgba(0, 0, 0, 0.85);
@@ -29,8 +41,9 @@ use yii\helpers\Url;
   width: max-content;
   max-width: 400px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  margin-top: 5px;
+  pointer-events: none;
 }
-
 </style>
 <h3>📂 Import MCQs from Excel</h3>
 
@@ -85,12 +98,18 @@ use yii\helpers\Url;
                 const mcq = {};
                 const $tr = $('<tr>');
                 headers.forEach((col, j) => {
-                    let fullValue = row[j] || '';
-                    let displayValue = fullValue.length > 100 ? fullValue.slice(0, 100) + '…' : fullValue;
-                    mcq[col] = row[j] || '';
-                    $tr.append($('<td>')
-                        .text(displayValue)
-                        .attr('data-full', fullValue));
+                    let fullValue = row[j] || ''; 
+                    mcq[col] = fullValue;
+
+                    const $td = $('<td>')
+                        .attr('data-full', fullValue);
+
+                    const $cellContentDiv = $('<div>')
+                        .addClass('cell-content')
+                        .text(fullValue);
+
+                    $td.append($cellContentDiv);
+                    $tr.append($td);
                 });
                 mcqData.push(mcq);
                 $tbody.append($tr);
