@@ -4,8 +4,8 @@
 <li class="pc-item pc-caption">
   <label>Statics</label>
 </li>
-<li class="pc-item active">
-  <a href="../dashboard/index.html" class="pc-link ">
+<li class="pc-item">
+  <a href="/admin" class="pc-link ">
   <i class="bi bi-bar-chart-line"></i>
     <span class="pc-mtext ">User Analytics</span>
   </a>
@@ -38,7 +38,7 @@
   <label>MCQs Management</label>
 </li>
 <li class="pc-item">
-  <a href="../elements/bc_typography.html" class="pc-link">
+  <a href="/admin/mcq/add" class="pc-link">
   <i class="bi bi-file-spreadsheet"></i>
     <span class="pc-mtext">Add MCQs</span>
   </a>

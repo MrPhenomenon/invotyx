@@ -5,9 +5,9 @@ namespace app\modules\admin\controllers;
 use yii\web\Controller;
 
 /**
- * Default controller for the `admin` module
+ * Subscription controller for the `admin` module
  */
-class DefaultController extends Controller
+class SubscriptionController extends Controller
 {
     /**
      * Renders the index view for the module
