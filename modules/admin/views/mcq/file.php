@@ -3,6 +3,7 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 ?>
 <style>
+<<<<<<< HEAD
     #preview-table {
   position: relative; 
   border-collapse: collapse;
@@ -28,6 +29,21 @@ use yii\helpers\Url;
 
 #preview-table td:hover::after,
 #preview-table th:hover::after {
+=======
+#preview-table {
+  position: relative;
+}
+
+#preview-table td, #preview-table th {
+  max-width: 250px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  position: relative;
+}
+
+#preview-table td:hover::after {
+>>>>>>> c1bff774257c1b973e028a91933b9cf16fec08c7
   content: attr(data-full);
   position: absolute;
   background: rgba(0, 0, 0, 0.85);
@@ -41,9 +57,14 @@ use yii\helpers\Url;
   width: max-content;
   max-width: 400px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+<<<<<<< HEAD
   margin-top: 5px;
   pointer-events: none;
 }
+=======
+}
+
+>>>>>>> c1bff774257c1b973e028a91933b9cf16fec08c7
 </style>
 <h3>📂 Import MCQs from Excel</h3>
 
@@ -98,6 +119,7 @@ use yii\helpers\Url;
                 const mcq = {};
                 const $tr = $('<tr>');
                 headers.forEach((col, j) => {
+<<<<<<< HEAD
                     let fullValue = row[j] || ''; 
                     mcq[col] = fullValue;
 
@@ -110,6 +132,14 @@ use yii\helpers\Url;
 
                     $td.append($cellContentDiv);
                     $tr.append($td);
+=======
+                    let fullValue = row[j] || '';
+                    let displayValue = fullValue.length > 100 ? fullValue.slice(0, 100) + '…' : fullValue;
+                    mcq[col] = row[j] || '';
+                    $tr.append($('<td>')
+                        .text(displayValue)
+                        .attr('data-full', fullValue));
+>>>>>>> c1bff774257c1b973e028a91933b9cf16fec08c7
                 });
                 mcqData.push(mcq);
                 $tbody.append($tr);
