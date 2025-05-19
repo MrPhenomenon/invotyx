@@ -20,6 +20,11 @@ class McqController extends Controller
         return $this->render('add');
     }
 
+    public function actionImportMcq()
+    {
+        return $this->render('file');
+    }
+
     public function actionSaveMultiple()
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
