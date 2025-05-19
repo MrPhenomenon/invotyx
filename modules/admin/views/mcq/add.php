@@ -84,7 +84,7 @@ use yii\widgets\ActiveForm;
 <?php ActiveForm::end(); ?>
 
 <?php
-// For incrementing form indexes
+
 $js = <<<JS
 let mcqIndex = 1;
 
