@@ -2,6 +2,7 @@
 
 namespace app\modules\admin\controllers;
 
+use app\models\Topics;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use yii\web\UploadedFile;
 use yii\web\Response;
@@ -28,6 +29,11 @@ class McqController extends Controller
         return $this->render('file');
     }
 
+    public function actionManage()
+    {
+        return $this->render('manage');
+    }
+
     public function actionSaveMultiple()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
@@ -47,6 +53,7 @@ class McqController extends Controller
             }
 
             $mcq = new Mcqs();
+            $mcq->question_id = $mcqData['question_id'];
             $mcq->question_text = $mcqData['question_text'];
             $mcq->question_hash = $hash;
             $mcq->option_a = $mcqData['option_a'];
@@ -83,44 +90,118 @@ class McqController extends Controller
     public function actionSaveFile()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-    
+
         $uploadedFile = UploadedFile::getInstanceByName('excelFile');
         if (!$uploadedFile) {
             return ['success' => false, 'message' => 'No file uploaded.'];
         }
-    
+
         try {
+            $topics = Topics::find()
+                ->select(['id', 'name'])
+                ->indexBy('name')
+                ->asArray()
+                ->all();
+
             $spreadsheet = IOFactory::load($uploadedFile->tempName);
             $sheet = $spreadsheet->getActiveSheet();
             $rows = $sheet->toArray();
-    
-            unset($rows[0]);
-    
-            foreach ($rows as $row) {
-                $model = new Mcqs();
-                $model->question_text     = $row[2];
-                $model->question_hash     = md5($row[2]);
-                $model->option_a          = $row[3];
-                $model->option_b          = $row[4];
-                $model->option_c          = $row[5];
-                $model->option_d          = $row[6];
-                $model->option_e          = $row[7];
-                $model->correct_option    = $row[8];
-                $model->explanation       = $row[9];
-                $model->reference         = $row[10];
-                $model->topic_id          = $row[1];
-                $model->created_by        = Yii::$app->user->id ?? null;
-                $model->created_at        = date('Y-m-d H:i:s');
-                $model->updated_at        = date('Y-m-d H:i:s');
-    
-                $model->save(false);
+
+            unset($rows[0]); // Remove headers
+
+            $userId = Yii::$app->user->id ?? null;
+            $batchSize = 100;
+            $success = 0;
+            $duplicates = 0;
+            $failed = 0;
+            $batch = [];
+
+            foreach ($rows as $i => $row) {
+                $questionText = trim($row[3] ?? '');
+                $questionHash = hash('sha256', strtolower(preg_replace('/\s+/', ' ', $questionText)));
+
+                if (Mcqs::find()->where(['question_hash' => $questionHash])->exists()) {
+                    $duplicates++;
+                    continue;
+                }
+
+                $topicName = trim($row[2] ?? '');
+                $topicId = $topics[$topicName]['id'] ?? null;
+                if (!$topicId) {
+                    $failed++;
+                    continue;
+                }
+
+                $mcq = new Mcqs();
+                $mcq->question_id = $row[1];
+                $mcq->question_text = $questionText;
+                $mcq->question_hash = $questionHash;
+                $mcq->option_a = $row[4];
+                $mcq->option_b = $row[5];
+                $mcq->option_c = $row[6];
+                $mcq->option_d = $row[7];
+                $mcq->option_e = $row[8];
+                $mcq->correct_option = strtoupper(trim($row[9]));
+                $mcq->explanation = $row[10] ?? null;
+                $mcq->reference = $row[11] ?? null;
+                $mcq->topic_id = $topicId;
+                $mcq->created_by = $userId;
+
+                $batch[] = $mcq;
+
+                if (count($batch) === $batchSize || $i === array_key_last($rows)) {
+                    foreach ($batch as $mcqModel) {
+                        if ($mcqModel->save()) {
+                            $success++;
+                        } else {
+                            $failed++;
+                        }
+                    }
+                    $batch = [];
+                }
             }
-    
-            return ['success' => true, 'message' => 'Excel data imported successfully.'];
-    
-        } catch (\Exception $e) {
-            return ['success' => false, 'message' => $e->getMessage()];
+
+            return [
+                'success' => true,
+                'message' => "Imported: {$success}, Duplicates: {$duplicates}, Failed: {$failed}."
+            ];
+
+        } catch (\Throwable $e) {
+            return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
         }
+    }
+
+    public function actionSearch()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $params = Yii::$app->request->post();
+        $query = Mcqs::find()->with('topics');
+
+        if (!empty($params['question_id'])) {
+            $query->andWhere(['question_id' => $params['question_id']]);
+        }
+
+        if (!empty($params['topic'])) {
+
+            $query->andWhere(['topic_id' => $params['topic']]);
+
+        }
+
+        if (!empty($params['dates'])) {
+            $parts = explode(' to ', $params['dates']);
+
+            if (count($parts) === 2) {
+                $dateFrom = trim($parts[0]);
+                $dateTo = trim($parts[1]);
+
+                $query->andWhere(['between', 'created_at', $dateFrom . ' 00:00:00', $dateTo . ' 23:59:59']);
+            }
+        }
+
+        $mcqs = $query->orderBy(['created_at' => SORT_DESC])->asArray()->all();
+
+        return ['data' => $mcqs];
     }
 
 }

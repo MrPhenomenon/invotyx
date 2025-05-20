@@ -19,6 +19,10 @@ use yii\widgets\ActiveForm;
   <div class=" card-body mcq-block">
     <h5>MCQ #1</h5>
     <div class="mb-2">
+      <label class="form-label">Question ID</label>
+      <input type="text" name="mcqs[0][question_id]" class="form-control" required>
+    </div>
+    <div class="mb-2">
       <label class="form-label">Question Text</label>
       <input type="text" name="mcqs[0][question_text]" class="form-control" required>
     </div>

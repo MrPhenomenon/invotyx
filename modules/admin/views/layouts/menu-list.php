@@ -38,8 +38,14 @@
   <label>MCQs Management</label>
 </li>
 <li class="pc-item">
+  <a href="/admin/mcq/manage" class="pc-link">
+  <i class="bi bi-gear-fill"></i>
+    <span class="pc-mtext">Manage MCQs</span>
+  </a>
+</li>
+<li class="pc-item">
   <a href="/admin/mcq/add" class="pc-link">
-  <i class="bi bi-file-spreadsheet"></i>
+  <i class="bi bi-plus-circle"></i>
     <span class="pc-mtext">Add MCQs</span>
   </a>
 </li>
