@@ -132,3 +132,20 @@
   });
 
 })();
+
+$(document).on({
+  ajaxStart: function () {
+    $('#global-loader').fadeIn(100);
+  },
+  ajaxStop: function () {
+    $('#global-loader').fadeOut(200);
+  }
+});
+
+function showloader(){
+  $('#global-loader').fadeIn();
+}
+
+function hideloader(){
+  $('#global-loader').fadeOut(); 
+}

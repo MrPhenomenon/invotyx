@@ -28,6 +28,7 @@ class DashboardAsset extends AssetBundle
         'dassets/css/landing.css',
     ];
     public $js = [
+        'https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js',
         'dassets/js/plugins/apexcharts.min.js',
         'dassets/js/pages/dashboard-default.js',
         'dassets/js/plugins/popper.min.js',

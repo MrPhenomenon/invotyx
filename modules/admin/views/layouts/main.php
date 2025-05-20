@@ -1,4 +1,3 @@
-
 <?php
 
 /** @var yii\web\View $this */
@@ -22,26 +21,30 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
 <html lang="en">
 
 <head>
-<title>
-  <?= Html::encode($this->title) ?></title>
-    <?php $this->head() ?>
+  <title>
+    <?= Html::encode($this->title) ?>
+  </title>
+  <?php $this->head() ?>
   <link rel="icon" href="dassets/images/favicon.svg" type="image/x-icon">
 </head>
 
 <body>
-<?php $this->beginBody() ?>
+  <?php $this->beginBody() ?>
 
-<?php include 'sidebar.php'; ?>
-<?php include 'header.php'; ?>
-<div class="pc-container">
+  <?php include 'toast.php'; ?>
+  <?php include 'loader.php'; ?>
+  <?php include 'sidebar.php'; ?>
+  <?php include 'header.php'; ?>
+  <div class="pc-container">
 
-    <main class="pc-content" role="main">
-    <?= $content ?>
+    <main class="pc-content pb-5" role="main">
+      <?= $content ?>
     </main>
   </div>
 
   <?php $this->endBody() ?>
 
 </body>
+
 </html>
 <?php $this->endPage() ?>

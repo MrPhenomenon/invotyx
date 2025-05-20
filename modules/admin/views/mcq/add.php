@@ -73,13 +73,11 @@ use yii\widgets\ActiveForm;
 
 </div>
 
-<div class="mb-3">
-  <button type="button" id="add-mcq-btn" class="btn btn-success">➕ Add Another MCQ</button>
+<div class="pb-5 d-flex justify-content-between">
+  <button type="button" id="add-mcq-btn" class="btn btn-primary"><i class="bi bi-plus-circle-fill"></i> Add Another MCQ</button>
+  <?= Html::submitButton('Save All MCQs', ['class' => 'btn btn-success ']) ?>
 </div>
 
-<div class="text-end pb-5">
-  <?= Html::submitButton('Save All MCQs', ['class' => 'btn btn-primary ']) ?>
-</div>
 
 <?php ActiveForm::end(); ?>
 
