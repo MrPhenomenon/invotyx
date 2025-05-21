@@ -1,6 +1,7 @@
 <?php
 use yii\helpers\Html;
 use yii\helpers\Url;
+use yii\widgets\LinkPager;
 ?>
 <style>
   table td,
@@ -24,10 +25,9 @@ use yii\helpers\Url;
       <label class="form-label">Topic</label>
       <select name="topic" class="form-select">
         <option value="">-- All Topics --</option>
-        <option value="Physiology">Physiology</option>
-        <option value="Pathology">Pathology</option>
-        <option value="Anatomy">Anatomy</option>
-        <!-- Populate dynamically -->
+        <?php foreach ($topics as $topic): ?>
+          <option value="<?= $topic['id'] ?>"><?= $topic['name'] ?></option>
+        <?php endforeach ?>
       </select>
     </div>
 
@@ -37,13 +37,14 @@ use yii\helpers\Url;
     </div>
 
     <div class="col-md-3 align-self-center pt-4">
-      <button type="submit" class="btn btn-primary h-100 w-25"> Search</button>
+      <button type="submit" class="btn btn-primary h-100 w-25 me-5"> Search</button>
+      <button type="button" onclick="location.reload()" class="btn btn-secondary h-100 ms-auto"> Show All Entries</button>
     </div>
   </form>
 </div>
 
 <!-- Results Table -->
-<div id="results-container" style="display:none;">
+<div id="results-container">
   <h5>Search Results</h5>
   <div class="table-responsive">
     <table class="table table-bordered table-striped">
@@ -57,12 +58,39 @@ use yii\helpers\Url;
         </tr>
       </thead>
       <tbody id="results-body">
+        <?php foreach ($mcqs as $mcq): ?>
+          <tr>
+            <td><?= $mcq['question_id'] ?></td>
+            <td><?= $mcq['topic']['name'] ?></td>
+            <td><?= $mcq['question_text'] ?></td>
+            <td><?= $mcq['created_at'] ?></td>
 
+            <td class="text-center">
+              <button class="btn btn-sm btn-success view-details"
+                data-mcq="<?= htmlspecialchars(json_encode($mcq), ENT_QUOTES, 'UTF-8') ?>">Details</button>
+              <button class="btn btn-sm btn-info">Update</button>
+              <button class="btn btn-sm btn-danger btn-delete" data-id="<?= $mcq['id'] ?>"
+                data-item="<?= $mcq['question_id'] ?> MCQ" data-url="/admin/mcq/delete-mcq">Delete</button>
+            </td>
+          </tr>
+        <?php endforeach ?>
       </tbody>
     </table>
   </div>
 </div>
 
+<?php
+echo LinkPager::widget([
+  'pagination' => $pagination,
+  'options' => ['class' => 'pagination justify-content-center mt-4'],
+  'linkOptions' => ['class' => 'page-link'],
+  'disabledPageCssClass' => 'disabled',
+  'activePageCssClass' => 'active ',
+  'prevPageLabel' => '&laquo;',
+  'nextPageLabel' => '&raquo;',
+]);
+
+?>
 <div class="modal fade" id="mcqModal" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
@@ -160,86 +188,46 @@ $('#search-form').on('submit', function(e) {
   e.preventDefault()
   const formData = new FormData(this);
 
-$.ajax({
+  $.ajax({
   type: "POST",
   url: "/admin/mcq/search",
   data: formData,
   processData: false,
   contentType: false,
   success: function (response) {
-    
-    console.log('Success:', response);
-  },
-  error: function (xhr) {
-    console.log('Error:', xhr.responseText);
-  }
-});
-  
-  const html = `
-    <tr>
-      <td>12345</td>
-      <td>Physiology</td>
-      <td>What is the resting membrane potential?</td>
-      <td>2024-10-01</td>
-      <td class="text-center">
-        <button class="btn btn-sm btn-secondary">Edit</button>
-        <button class="btn btn-sm btn-primary">Full Details</button>
-        <button class="btn btn-sm btn-danger">Delete</button>
-      </td>
-    </tr>
-  `;
+  const data = response.data;
+  let html = '';
+
+  data.forEach(mcq => {
+    const mcqJson = JSON.stringify(mcq)
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+
+    html += `
+      <tr>
+        <td>\${mcq.question_id}</td>
+        <td>\${mcq.topic.name || '—'}</td>
+        <td>\${mcq.question_text}</td>
+        <td>\${mcq.created_at}</td>
+
+        <td class="text-center">
+          <button class="btn btn-sm btn-success view-details" data-mcq="\${mcqJson}">Details</button>
+          <button class="btn btn-sm btn-info">Update</button>
+          <button class="btn btn-sm btn-danger btn-delete" data-id="\${mcq.id}" data-item="MCQ \${mcq.question_id}" data-url="/admin/mcq/delete-mcq">Delete</button>
+        </td>
+      </tr>
+    `;
+  });
 
   $('#results-body').html(html);
   $('#results-container').fadeIn();
-});
-
-const sampleData = [
-  {
-    question_id: "MCQ001",
-    question_text: "A 30-year-old male presents with muscle pain and weakness after an intense workout. He reports no history of trauma, and his creatine kinase (CK) levels are elevated. Which of the following biomarkers would be most useful for assessing muscle injury?",
-    option_a: "Dopamine",
-    option_b: "Serotonin",
-    option_c: "Acetylcholine",
-    option_d: "GABA",
-    option_e: "Norepinephrine",
-    correct_option: "C",
-    explanation: "The most appropriate biomarker for assessing muscle injury is myoglobin. Myoglobin is released into the bloodstream following muscle injury, as it is a protein found in muscle tissue that binds oxygen. It is highly sensitive and can be detected shortly after muscle damage, making it useful for early detection of muscle injury.Option B: CKMB is more specific to myocardial injury and is used to assess cardiac muscle damage. It is not the best choice for muscle injury assessment.Option C: CKBB is predominantly found in the brain and is not typically used for muscle injury assessmentOption D: CKMM is the isoenzyme of creatine kinase found in skeletal muscle, and although it is elevated in muscle injury, it is less sensitive than myoglobin and does not provide as rapid an indication of muscle damage.Option E: LDH (Lactate Dehydrogenase) is an enzyme found in many tissues, including muscle, but it is not as specific or sensitive for muscle injury as myoglobin.",
-    reference: "Guyton and Hall Textbook of Medical Physiology, 13th Edition, Chapter 67, 'Muscle Physiology and Pathophysiology', p. 1056-1060.",
-    topic: { id: 2, name: "Pathology" },
-    created_at: "2025-05-10 12:30:00"
-  },
-  {
-    question_id: "MCQ002",
-    question_text: "Which vitamin deficiency leads to rickets in children?",
-    option_a: "Vitamin A",
-    option_b: "Vitamin B12",
-    option_c: "Vitamin C",
-    option_d: "Vitamin D",
-    option_e: "Vitamin E",
-    correct_option: "D",
-    explanation: "Vitamin D deficiency impairs calcium absorption, leading to rickets in children.",
-    reference: "Nelson Textbook of Pediatrics",
-    topic: { id: 2, name: "Pathology" },
-    created_at: "2025-05-15 09:45:00"
-  },
-  {
-    question_id: "MCQ003",
-    question_text: "The muscle responsible for abduction of the shoulder is:",
-    option_a: "Deltoid",
-    option_b: "Biceps brachii",
-    option_c: "Trapezius",
-    option_d: "Latissimus dorsi",
-    option_e: "Supraspinatus",
-    correct_option: "A",
-    explanation: "The deltoid muscle primarily abducts the arm at the shoulder joint.",
-    reference: "Gray's Anatomy",
-    topic: { id: 3, name: "Anatomy" },
-    created_at: "2025-05-18 14:20:00"
+},
+error: function (xhr) {
+    console.log('Error:', xhr.responseText);
   }
-];
+});
+});
 
 JS;
 $this->registerJS($js, yii\web\View::POS_END)
   ?>
-
-

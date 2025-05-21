@@ -26,7 +26,7 @@ use Yii;
  * @property string $created_at
  * @property string $updated_at
  *
- * @property Users $createdBy
+ * @property ManagementTeam $createdBy
  * @property Topics $topic
  * @property UserMcqInteractions[] $userMcqInteractions
  */
@@ -68,7 +68,7 @@ class Mcqs extends \yii\db\ActiveRecord
             ['correct_option', 'in', 'range' => array_keys(self::optsCorrectOption())],
             [['question_hash'], 'unique'],
             [['topic_id'], 'exist', 'skipOnError' => true, 'targetClass' => Topics::class, 'targetAttribute' => ['topic_id' => 'id']],
-            [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Users::class, 'targetAttribute' => ['created_by' => 'id']],
+            [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => ManagementTeam::class, 'targetAttribute' => ['created_by' => 'id']],
         ];
     }
 
@@ -106,7 +106,7 @@ class Mcqs extends \yii\db\ActiveRecord
      */
     public function getCreatedBy()
     {
-        return $this->hasOne(Users::class, ['id' => 'created_by']);
+        return $this->hasOne(ManagementTeam::class, ['id' => 'created_by']);
     }
 
     /**

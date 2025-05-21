@@ -181,8 +181,8 @@ $js = <<<JS
             data: formData,
             contentType: false,
             processData: false,
-            success: function (response) {
-                alert(response.message || 'Import successful');
+            success: function (res) {
+                res.success ? showToast(res.message, 'success') : showToast(res.message, 'danger');
             },
             error: function (xhr) {
                 alert('Import failed: ' + xhr.responseText);

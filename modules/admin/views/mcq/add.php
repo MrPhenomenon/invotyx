@@ -22,6 +22,16 @@ use yii\widgets\ActiveForm;
       <label class="form-label">Question ID</label>
       <input type="text" name="mcqs[0][question_id]" class="form-control" required>
     </div>
+
+    <div class="mb-2">
+      <label class="form-label">Topic</label>
+      <select name="mcqs[0][topic_id]" class="form-select" required>
+        <?php foreach ($topics as $topic): ?>
+          <option value="<?= $topic['id'] ?>"><?= $topic['name'] ?></option>
+        <?php endforeach ?>
+      </select>
+    </div>
+
     <div class="mb-2">
       <label class="form-label">Question Text</label>
       <input type="text" name="mcqs[0][question_text]" class="form-control" required>
@@ -56,20 +66,16 @@ use yii\widgets\ActiveForm;
     </div>
 
     <div class="mb-2">
+      <label class="form-label">Reference</label>
+      <textarea name="mcqs[0][reference]" class="form-control"></textarea>
+    </div>
+
+    <div class="mb-2">
       <label class="form-label">Topic</label>
       <select name="mcqs[0][topic_id]" class="form-select" required>
         <?php foreach ($topics as $topic): ?>
           <option value="<?= $topic['id'] ?>"><?= $topic['name'] ?></option>
         <?php endforeach ?>
-      </select>
-    </div>
-
-    <div class="mb-2">
-      <label class="form-label">Difficulty</label>
-      <select name="mcqs[0][difficulty_level]" class="form-select" required>
-        <option value="1">Easy</option>
-        <option value="2">Moderate</option>
-        <option value="3">Difficult</option>
       </select>
     </div>
   </div>
@@ -113,11 +119,11 @@ $('#mcq-form').on('submit', function(e) {
     data: formData,
     processData: false,
     contentType: false,
-    success: function (response) {
-      console.log('Success:', response);
+    success: function (res) {
+      res.success === 'warning' || false ? showToast(res.message, 'warning') : showToast(res.message, 'success');
     },
     error: function (xhr) {
-      console.log('Error:', xhr.responseText);
+      showToast('There was an error sending the request to server', 'danger')
     }
   });
 });

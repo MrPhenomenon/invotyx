@@ -803,3 +803,42 @@ $('#sidebarToggle').on('click', function () {
   $('nav.pc-sidebar').toggleClass('pc-sidebar-hide');
   $('header').toggleClass('collapsed');
 });
+
+$.ajax({
+  type: "POST",
+  url: "/admin/mcq/search",
+  data: formData,
+  processData: false,
+  contentType: false,
+  success: function (response) {
+  const data = response.data;
+  let html = '';
+
+  data.forEach(mcq => {
+    const mcqJson = JSON.stringify(mcq)
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+
+    html += `
+      <tr>
+        <td>\${mcq.question_id}</td>
+        <td>\${mcq.topic.name || '—'}</td>
+        <td>\${mcq.question_text}</td>
+        <td>\${mcq.created_at}</td>
+
+        <td class="text-center">
+          <button class="btn btn-sm btn-success view-details" data-mcq="\${mcqJson}">Details</button>
+          <button class="btn btn-sm btn-info">Update</button>
+          <button class="btn btn-sm btn-danger btn-delete" data-id="\${mcq.id}" data-item="MCQ \${mcq.question_id}" data-url="/admin/mcq/delete-mcq">Delete</button>
+        </td>
+      </tr>
+    `;
+  });
+
+  $('#results-body').html(html);
+  $('#results-container').fadeIn();
+},
+error: function (xhr) {
+    console.log('Error:', xhr.responseText);
+  }
+});

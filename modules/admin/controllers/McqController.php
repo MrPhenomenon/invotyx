@@ -10,6 +10,7 @@ use yii\web\Response;
 use app\models\Mcqs;
 use Yii;
 use yii\web\Controller;
+use yii\data\Pagination;
 
 /**
  * Mcq controller for the `admin` module
@@ -35,7 +36,27 @@ class McqController extends Controller
 
     public function actionManage()
     {
-        return $this->render('manage');
+        $topics = Topics::find()->asArray()->all();
+
+        $query = Mcqs::find()->with('topic');
+
+        $pagination = new Pagination([
+            'totalCount' => $query->count(),
+            'pageSize' => 20,
+        ]);
+
+        $mcqs = $query
+            ->offset($pagination->offset)
+            ->limit($pagination->limit)
+            ->orderBy(['created_at' => SORT_DESC])
+            ->asArray()
+            ->all();
+
+        return $this->render('manage', [
+            'mcqs' => $mcqs,
+            'topics' => $topics,
+            'pagination' => $pagination,
+        ]);
     }
 
     public function actionManageTopics()
@@ -50,12 +71,12 @@ class McqController extends Controller
             ->leftJoin(['t' => 'topics'], 't.chapter_id = c.id')
             ->groupBy('c.id')
             ->all();
-            $topics = Topics::find()
+        $topics = Topics::find()
             ->select(['topics.*', 'chapters.name AS chapter_name'])
             ->leftJoin('chapters', 'chapters.id = topics.chapter_id')
             ->asArray()
             ->all();
-        
+
         return $this->render('topics', [
             'topics' => $topics,
             'chapters' => $chapters,
@@ -114,8 +135,7 @@ class McqController extends Controller
             $mcq->explanation = $mcqData['explanation'] ?? null;
             $mcq->reference = $mcqData['reference'] ?? null;
             $mcq->topic_id = $mcqData['topic_id'];
-            $mcq->difficulty_level = $mcqData['difficulty_level'];
-            $mcq->created_by = 0;
+            $mcq->created_by = Yii::$app->admin->identity->id;
 
             if ($mcq->save()) {
                 $successCount++;
@@ -127,13 +147,19 @@ class McqController extends Controller
                 ];
             }
         }
-
-        return [
-            'success' => true,
-            'saved' => $successCount,
-            'duplicates' => $duplicateCount,
-            'message' => "{$successCount} MCQs saved, {$duplicateCount} duplicates skipped."
-        ];
+        if ($duplicateCount > 0) {
+            return [
+                'success' => 'warning',
+                'saved' => $successCount,
+                'message' => "{$successCount} MCQs saved, {$duplicateCount} duplicates skipped."
+            ];
+        } else {
+            return [
+                'success' => true,
+                'saved' => $successCount,
+                'message' => "{$successCount} MCQs saved"
+            ];
+        }
     }
 
     public function actionSaveFile()
@@ -156,9 +182,11 @@ class McqController extends Controller
             $sheet = $spreadsheet->getActiveSheet();
             $rows = $sheet->toArray();
 
-            unset($rows[0]); // Remove headers
+            unset($rows[0]);
 
-            $userId = Yii::$app->user->id ?? null;
+            Yii::debug('Row count after header removal: ' . count($rows), 'mcq-import');
+
+            $userId = Yii::$app->admin->identity->id;
             $batchSize = 100;
             $success = 0;
             $duplicates = 0;
@@ -166,47 +194,60 @@ class McqController extends Controller
             $batch = [];
 
             foreach ($rows as $i => $row) {
-                $questionText = trim($row[3] ?? '');
+                if (empty(array_filter($row))) {
+                    continue;
+                }
+                $questionText = trim($row[2] ?? '');
                 $questionHash = hash('sha256', strtolower(preg_replace('/\s+/', ' ', $questionText)));
 
                 if (Mcqs::find()->where(['question_hash' => $questionHash])->exists()) {
+                    Yii::debug('Duplicate found');
                     $duplicates++;
                     continue;
                 }
 
-                $topicName = trim($row[2] ?? '');
+                $topicName = trim($row[1] ?? '');
                 $topicId = $topics[$topicName]['id'] ?? null;
                 if (!$topicId) {
+                    Yii::debug('Topic not found' . $row[0] . $row[1]);
                     $failed++;
                     continue;
                 }
 
                 $mcq = new Mcqs();
-                $mcq->question_id = $row[1];
+                $mcq->question_id = $row[0];
                 $mcq->question_text = $questionText;
                 $mcq->question_hash = $questionHash;
-                $mcq->option_a = $row[4];
-                $mcq->option_b = $row[5];
-                $mcq->option_c = $row[6];
-                $mcq->option_d = $row[7];
-                $mcq->option_e = $row[8];
-                $mcq->correct_option = strtoupper(trim($row[9]));
-                $mcq->explanation = $row[10] ?? null;
-                $mcq->reference = $row[11] ?? null;
+                $mcq->option_a = $row[3];
+                $mcq->option_b = $row[4];
+                $mcq->option_c = $row[5];
+                $mcq->option_d = $row[6];
+                $mcq->option_e = $row[7];
+                $mcq->correct_option = strtoupper(trim($row[8]));
+                $mcq->explanation = $row[9] ?? null;
+                $mcq->reference = $row[10] ?? null;
                 $mcq->topic_id = $topicId;
                 $mcq->created_by = $userId;
 
                 $batch[] = $mcq;
 
-                if (count($batch) === $batchSize || $i === array_key_last($rows)) {
+                if (count($batch) <= $batchSize || $i === array_key_last($rows)) {
                     foreach ($batch as $mcqModel) {
                         if ($mcqModel->save()) {
                             $success++;
                         } else {
+                            var_dump($mcqModel->getErrors());
                             $failed++;
+                            return [
+                                'success' => false,
+                                'message' => "Imported: {$success}, Duplicates: {$duplicates}, Failed: {$failed}.",
+                                'errors' => $mcqModel->getErrors(),
+                            ];
                         }
                     }
                     $batch = [];
+                } else {
+                    Yii::debug('Not running save model ');
                 }
             }
 
@@ -214,7 +255,6 @@ class McqController extends Controller
                 'success' => true,
                 'message' => "Imported: {$success}, Duplicates: {$duplicates}, Failed: {$failed}."
             ];
-
         } catch (\Throwable $e) {
             return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
         }
@@ -225,16 +265,14 @@ class McqController extends Controller
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         $params = Yii::$app->request->post();
-        $query = Mcqs::find()->with('topics');
+        $query = Mcqs::find()->with('topic');
 
         if (!empty($params['question_id'])) {
             $query->andWhere(['question_id' => $params['question_id']]);
         }
 
         if (!empty($params['topic'])) {
-
             $query->andWhere(['topic_id' => $params['topic']]);
-
         }
 
         if (!empty($params['dates'])) {
@@ -253,4 +291,16 @@ class McqController extends Controller
         return ['data' => $mcqs];
     }
 
+    public function actionDeleteMcq()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $id = Yii::$app->request->post();
+        $mcq = Mcqs::findOne($id);
+        if(!$mcq){
+            return ['success' => false , 'message' => 'MCQ not found'];
+        }
+        return $mcq->delete()
+        ?  ['success' => true , 'message' => 'MCQ Deleted']
+        :   ['success' => false , 'message' => "MCQ could'nt be deleted"];
+    }
 }
