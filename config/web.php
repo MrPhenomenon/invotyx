@@ -55,6 +55,7 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                '/admin/team-management' => '/admin/default/team-management'
             ],
         ],
 

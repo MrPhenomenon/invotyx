@@ -11,10 +11,10 @@ use Yii;
  * @property string $name
  * @property string $email
  * @property string $password
- * @property int $role
+ * @property int $role 0 - User
  * @property int|null $subscription_id
  * @property string|null $exam_type
- * @property int|null $specialty_id
+ * @property int|null $speciality_id
  * @property string|null $expected_exam_date
  * @property string $created_at
  * @property string $updated_at
@@ -22,7 +22,7 @@ use Yii;
  * @property ExamSessions[] $examSessions
  * @property Mcqs[] $mcqs
  * @property Payments[] $payments
- * @property ExamSpecialties $specialty
+ * @property ExamSpecialties $speciality
  * @property Subscriptions $subscription
  * @property UserMcqInteractions[] $userMcqInteractions
  */
@@ -50,10 +50,10 @@ class Users extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['subscription_id', 'exam_type', 'specialty_id', 'expected_exam_date'], 'default', 'value' => null],
+            [['subscription_id', 'exam_type', 'speciality_id', 'expected_exam_date'], 'default', 'value' => null],
             [['role'], 'default', 'value' => 0],
             [['name', 'email', 'password'], 'required'],
-            [['role', 'subscription_id', 'specialty_id'], 'integer'],
+            [['role', 'subscription_id', 'speciality_id'], 'integer'],
             [['exam_type'], 'string'],
             [['expected_exam_date', 'created_at', 'updated_at'], 'safe'],
             [['name'], 'string', 'max' => 50],
@@ -62,7 +62,7 @@ class Users extends \yii\db\ActiveRecord
             ['exam_type', 'in', 'range' => array_keys(self::optsExamType())],
             [['email'], 'unique'],
             [['subscription_id'], 'exist', 'skipOnError' => true, 'targetClass' => Subscriptions::class, 'targetAttribute' => ['subscription_id' => 'id']],
-            [['specialty_id'], 'exist', 'skipOnError' => true, 'targetClass' => ExamSpecialties::class, 'targetAttribute' => ['specialty_id' => 'id']],
+            [['speciality_id'], 'exist', 'skipOnError' => true, 'targetClass' => ExamSpecialties::class, 'targetAttribute' => ['speciality_id' => 'id']],
         ];
     }
 
@@ -79,7 +79,7 @@ class Users extends \yii\db\ActiveRecord
             'role' => 'Role',
             'subscription_id' => 'Subscription ID',
             'exam_type' => 'Exam Type',
-            'specialty_id' => 'Specialty ID',
+            'speciality_id' => 'Speciality ID',
             'expected_exam_date' => 'Expected Exam Date',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
@@ -117,13 +117,13 @@ class Users extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[Specialty]].
+     * Gets query for [[Speciality]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getSpecialty()
+    public function getSpeciality()
     {
-        return $this->hasOne(ExamSpecialties::class, ['id' => 'specialty_id']);
+        return $this->hasOne(ExamSpecialties::class, ['id' => 'speciality_id']);
     }
 
     /**

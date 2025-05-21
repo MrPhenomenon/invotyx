@@ -5,7 +5,7 @@ use yii\helpers\Url;
 <style>
   table td,
   table th {
-    max-width: 300px;
+    max-width: 450px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -115,8 +115,10 @@ function renderMCQTable(data) {
         <td>\${mcq.topic.name || '—'}</td>
         <td>\${mcq.question_text}</td>
         <td>\${mcq.created_at}</td>
-        <td>
-          <button class="btn btn-sm btn-info view-details">Details</button>
+        <td class="text-center">
+        <button class="btn btn-sm btn-success view-details">Details</button>
+          <button class="btn btn-sm btn-info">Update</button>
+          <button class="btn btn-sm btn-danger">Delete</button>
         </td>
       </tr>
     `);
@@ -179,7 +181,7 @@ $.ajax({
       <td>Physiology</td>
       <td>What is the resting membrane potential?</td>
       <td>2024-10-01</td>
-      <td>
+      <td class="text-center">
         <button class="btn btn-sm btn-secondary">Edit</button>
         <button class="btn btn-sm btn-primary">Full Details</button>
         <button class="btn btn-sm btn-danger">Delete</button>

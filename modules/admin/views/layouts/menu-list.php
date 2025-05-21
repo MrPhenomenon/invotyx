@@ -65,3 +65,12 @@
     <span class="pc-mtext">Handle Tickets</span>
   </a>
 </li>
+<li class="pc-item pc-caption">
+  <label>Team Management</label>
+</li>
+<li class="pc-item">
+  <a href="/admin/team-management" class="pc-link">
+  <i class="bi bi-person-gear"></i>
+    <span class="pc-mtext">Manage Team</span>
+  </a>
+</li>

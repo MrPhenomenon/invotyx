@@ -8,6 +8,7 @@ use Yii;
  * This is the model class for table "mcqs".
  *
  * @property int $id
+ * @property string|null $question_id
  * @property string $question_text
  * @property string $question_hash
  * @property string $option_a
@@ -55,17 +56,17 @@ class Mcqs extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['option_d', 'option_e', 'explanation', 'reference', 'image_path'], 'default', 'value' => null],
+            [['question_id', 'option_d', 'option_e', 'explanation', 'reference', 'image_path'], 'default', 'value' => null],
             [['difficulty_level'], 'default', 'value' => 1],
-            [['id', 'question_text', 'question_hash', 'option_a', 'option_b', 'option_c', 'correct_option', 'topic_id', 'created_by'], 'required'],
-            [['id', 'topic_id', 'difficulty_level', 'created_by'], 'integer'],
+            [['question_text', 'question_hash', 'option_a', 'option_b', 'option_c', 'correct_option', 'topic_id', 'created_by'], 'required'],
             [['question_text', 'correct_option', 'explanation', 'reference'], 'string'],
+            [['topic_id', 'difficulty_level', 'created_by'], 'integer'],
             [['created_at', 'updated_at'], 'safe'],
+            [['question_id'], 'string', 'max' => 20],
             [['question_hash'], 'string', 'max' => 64],
             [['option_a', 'option_b', 'option_c', 'option_d', 'option_e', 'image_path'], 'string', 'max' => 255],
             ['correct_option', 'in', 'range' => array_keys(self::optsCorrectOption())],
             [['question_hash'], 'unique'],
-            [['id'], 'unique'],
             [['topic_id'], 'exist', 'skipOnError' => true, 'targetClass' => Topics::class, 'targetAttribute' => ['topic_id' => 'id']],
             [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Users::class, 'targetAttribute' => ['created_by' => 'id']],
         ];
@@ -78,6 +79,7 @@ class Mcqs extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
+            'question_id' => 'Question ID',
             'question_text' => 'Question Text',
             'question_hash' => 'Question Hash',
             'option_a' => 'Option A',

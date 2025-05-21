@@ -758,5 +758,39 @@ function showToast(message, type = 'success') {
   toast.show();
 }
 
-// =======================================================
-// =======================================================
+let deleteTargetId = null;
+let deleteEndpoint = null;
+
+
+$(document).on('click', '.btn-delete', function () {
+  deleteTargetId = $(this).data('id');
+  deleteEndpoint = $(this).data('url');
+  const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+  modal.show();
+});
+
+$('#confirm-delete-btn').on('click', function () {
+  if (!deleteTargetId || !deleteEndpoint) return;
+
+  $.ajax({
+    type: 'POST',
+    url: deleteEndpoint,
+    data: { id: deleteTargetId },
+    success: function (res) {
+      if (res.success) {
+        showToast(res.message || 'Deleted successfully.', 'success');
+        $(`[data-id="${deleteTargetId}"]`).closest('tr').remove();
+      } else {
+        showToast(res.message || 'Delete failed.', 'danger');
+      }
+    },
+    error: function () {
+      showToast('Server error during delete.', 'danger');
+    },
+    complete: function () {
+      const modalEl = document.getElementById('deleteConfirmModal');
+      const modal = bootstrap.Modal.getInstance(modalEl);
+      modal.hide();
+    }
+  });
+});

@@ -32,6 +32,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
   <?php $this->beginBody() ?>
 
   <?php include 'toast.php'; ?>
+  <?php include 'delete-modal.php'; ?>
   <?php include 'loader.php'; ?>
   <?php include 'sidebar.php'; ?>
   <?php include 'header.php'; ?>
