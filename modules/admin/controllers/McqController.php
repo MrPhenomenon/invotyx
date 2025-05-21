@@ -2,6 +2,7 @@
 
 namespace app\modules\admin\controllers;
 
+use app\models\Chapters;
 use app\models\Topics;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use yii\web\UploadedFile;
@@ -32,6 +33,51 @@ class McqController extends Controller
     public function actionManage()
     {
         return $this->render('manage');
+    }
+
+    public function actionManageTopics()
+    {
+        $chapters = (new \yii\db\Query())
+            ->select([
+                'c.id',
+                'c.name',
+                'COUNT(t.id) AS topic_count'
+            ])
+            ->from(['c' => 'chapters'])
+            ->leftJoin(['t' => 'topics'], 't.chapter_id = c.id')
+            ->groupBy('c.id')
+            ->all();
+            $topics = Topics::find()
+            ->select(['topics.*', 'chapters.name AS chapter_name'])
+            ->leftJoin('chapters', 'chapters.id = topics.chapter_id')
+            ->asArray()
+            ->all();
+        
+        return $this->render('topics', [
+            'topics' => $topics,
+            'chapters' => $chapters,
+        ]);
+    }
+
+    public function actionAddTopic()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $data = Yii::$app->request->post();
+        $model = new Topics();
+        $model->name = $data['name'];
+        $model->chapter_id = $data['chapter_id'];
+        return $model->save()
+            ? ['success' => true, 'message' => 'Added Topic']
+            : ['success' => false, 'message' => 'Topic couldnt be added'];
+    }
+    public function actionAddChapter()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $model = new Chapters();
+        $model->name = Yii::$app->request->post('name');
+        return $model->save()
+            ? ['success' => true, 'message' => 'Added Chapter']
+            : ['success' => false, 'message' => 'Chapter couldnt be added'];
     }
 
     public function actionSaveMultiple()

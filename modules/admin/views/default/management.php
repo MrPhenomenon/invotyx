@@ -2,12 +2,14 @@
 use yii\helpers\Html;
 ?>
 
-<h3>👥 Management Team</h3>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Team Management</h3>
 
-<div class="mb-3">
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#teamModal">
-        ➕ Add Member
-    </button>
+    <div>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#teamModal">
+        <i class="bi bi-person-plus-fill"></i> Add Member
+        </button>
+    </div>
 </div>
 
 <!-- Team Table -->
@@ -29,10 +31,11 @@ use yii\helpers\Html;
                     <td><?= $mem['name'] ?></td>
                     <td><?= $mem['role'] ?></td>
                     <td><?= $mem['email'] ?></td>
-                    
+
                     <td>
                         <button class="btn btn-sm btn-primary" data-id="<?= $mem['id'] ?>">Edit</button>
-                        <button class="btn btn-sm btn-danger btn-delete" data-id="<?= $mem['id'] ?>" data-url="/admin/default/delete-user">Delete</button>
+                        <button class="btn btn-sm btn-danger btn-delete" data-id="<?= $mem['id'] ?>" data-item="a member <?= $mem['name'] ?>"
+                            data-url="/admin/default/delete-user">Delete</button>
                     </td>
                 </tr>
             <?php endforeach ?>

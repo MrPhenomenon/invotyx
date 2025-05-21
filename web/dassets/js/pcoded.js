@@ -763,8 +763,12 @@ let deleteEndpoint = null;
 
 
 $(document).on('click', '.btn-delete', function () {
+ const modalbody = $('#deleteConfirmModal .modal-body');
   deleteTargetId = $(this).data('id');
   deleteEndpoint = $(this).data('url');
+  const itemLabel = $(this).data('item') || 'this item';
+
+  modalbody.html(` <strong> You're deleting ${itemLabel}</strong>. Are you sure you want to continue?`);
   const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
   modal.show();
 });

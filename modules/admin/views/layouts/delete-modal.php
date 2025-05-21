@@ -6,7 +6,7 @@
         <h5 class="modal-title text-danger">Confirm Delete</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body fs-5">
         Are you sure you want to delete this item?
       </div>
       <div class="modal-footer">

@@ -35,7 +35,7 @@
 
 
 <li class="pc-item pc-caption">
-  <label>MCQs Management</label>
+  <label>Data Entry</label>
 </li>
 <li class="pc-item">
   <a href="/admin/mcq/manage" class="pc-link">
@@ -53,6 +53,12 @@
   <a href="/admin/mcq/import-mcq" class="pc-link">
   <i class="bi bi-file-earmark-plus"></i>
     <span class="pc-mtext">Import from File</span>
+  </a>
+</li>
+<li class="pc-item">
+  <a href="/admin/mcq/manage-topics" class="pc-link">
+  <i class="bi bi-database-gear"></i>
+    <span class="pc-mtext">Manage Chapters & Topics</span>
   </a>
 </li>
 
