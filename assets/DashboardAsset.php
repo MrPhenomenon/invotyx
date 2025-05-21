@@ -33,7 +33,9 @@ class DashboardAsset extends AssetBundle
         'https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js',
         'dassets/js/plugins/apexcharts.min.js',
         'dassets/js/plugins/simplebar.min.js',
+        'dassets/js/pages/dashboard-default.js',
         'dassets/js/pcoded.js',
+        'dassets/js/plugins/feather.min.js',
     ];
     public $depends = [
         'yii\web\YiiAsset',

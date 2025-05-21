@@ -798,3 +798,8 @@ $('#confirm-delete-btn').on('click', function () {
     }
   });
 });
+
+$('#sidebarToggle').on('click', function () {
+  $('nav.pc-sidebar').toggleClass('pc-sidebar-hide');
+  $('header').toggleClass('collapsed');
+});

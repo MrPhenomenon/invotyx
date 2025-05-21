@@ -28,8 +28,17 @@ $config = [
             'class' => 'yii\caching\FileCache',
         ],
         'user' => [
-            'identityClass' => 'app\models\User',
+            'identityClass' => 'app\models\Users',
             'enableAutoLogin' => true,
+            'loginUrl' => ['site/login'],
+        ],
+        'admin' => [ //for admin
+            'class' => 'yii\web\User',
+            'identityClass' => 'app\models\ManagementTeam',
+            'enableAutoLogin' => false,
+            'loginUrl' => ['site/admin-login'],
+            'idParam' => '_adminId',
+            'identityCookie' => ['name' => '_adminIdentity', 'httpOnly' => true],
         ],
         'errorHandler' => [
             'errorAction' => 'site/error',

@@ -58,10 +58,9 @@ use yii\widgets\ActiveForm;
     <div class="mb-2">
       <label class="form-label">Topic</label>
       <select name="mcqs[0][topic_id]" class="form-select" required>
-        <!-- Load topics dynamically -->
-        <option value="1">Physiology</option>
-        <option value="2">Pathology</option>
-        <option value="3">Anatomy</option>
+        <?php foreach ($topics as $topic): ?>
+          <option value="<?= $topic['id'] ?>"><?= $topic['name'] ?></option>
+        <?php endforeach ?>
       </select>
     </div>
 
@@ -78,7 +77,8 @@ use yii\widgets\ActiveForm;
 </div>
 
 <div class="pb-5 d-flex justify-content-between">
-  <button type="button" id="add-mcq-btn" class="btn btn-primary"><i class="bi bi-plus-circle-fill"></i> Add Another MCQ</button>
+  <button type="button" id="add-mcq-btn" class="btn btn-primary"><i class="bi bi-plus-circle-fill"></i> Add Another
+    MCQ</button>
   <?= Html::submitButton('Save All MCQs', ['class' => 'btn btn-success ']) ?>
 </div>
 

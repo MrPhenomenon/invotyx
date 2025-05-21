@@ -35,11 +35,16 @@ class DefaultController extends Controller
     public function actionAddManagement()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-
+        $data = Yii::$app->request->post();
         $model = new ManagementTeam();
 
-        if ($model->load(Yii::$app->request->post(), '') && $model->validate()) {
+        if ($model->load($data, '') && $model->validate()) {
             $model->created_at = date('Y-m-d H:i:s');
+
+            unset($model->password);
+            $model->password = Yii::$app->security->generatePasswordHash($data['password']);
+
+            $model->auth_key = Yii::$app->security->generateRandomString();
 
             if ($model->save()) {
                 return ['response' => 'success', 'message' => 'Team member added successfully.'];

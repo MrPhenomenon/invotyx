@@ -22,7 +22,10 @@ class McqController extends Controller
      */
     public function actionAdd()
     {
-        return $this->render('add');
+        $topics = Topics::find()->asArray()->all();
+        return $this->render('add', [
+            'topics' => $topics,
+        ]);
     }
 
     public function actionImportMcq()

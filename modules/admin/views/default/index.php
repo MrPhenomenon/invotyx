@@ -159,7 +159,6 @@ function floatchart() {
     var chart = new ApexCharts(document.querySelector('#users-chart'), options);
     chart.render();
    
-
   })();
 }
 JS;

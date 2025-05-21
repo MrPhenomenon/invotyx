@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\ManagementTeam;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -124,5 +125,29 @@ class SiteController extends Controller
     public function actionAbout()
     {
         return $this->render('about');
+    }
+
+    public function actionAdminLogin()
+    {
+        return $this->render('admin-login');
+    }
+
+    public function actionLoginAdmin()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $request = Yii::$app->request;
+        $email = $request->post('email');
+        $password = $request->post('password');
+
+        $admin = ManagementTeam::findOne(['email' => $email]);
+
+        if (!$admin || !Yii::$app->getSecurity()->validatePassword($password, $admin->password)) {
+            return ['success' => false, 'message' => 'Invalid username or password.'];
+        }
+
+        Yii::$app->admin->login($admin, 3600 * 3);
+
+        return ['success' => true];
     }
 }
