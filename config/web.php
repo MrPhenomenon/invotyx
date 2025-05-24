@@ -64,7 +64,8 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
-                '/admin/team-management' => '/admin/default/team-management'
+                '/admin/team-management' => '/admin/default/team-management',
+                '/registration' => 'site/registration',
             ],
         ],
 
