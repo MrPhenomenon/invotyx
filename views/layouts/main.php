@@ -22,25 +22,31 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
 <html lang="<?= Yii::$app->language ?>" class="h-100">
+
 <head>
     <title><?= Html::encode($this->title) ?></title>
     <?php $this->head() ?>
 </head>
+
 <body class="d-flex flex-column h-100">
-<?php $this->beginBody() ?>
+    <?php $this->beginBody() ?>
 
-<?php include 'header.php' ?>
+    <?php include 'loader.php' ?>
+    <?php include 'header.php' ?>
 
-<main id="main" class="flex-shrink-0" role="main">
+    <main id="main" class="flex-shrink-0" role="main">
 
         <?= $content ?>
-    </div>
-</main>
+        </div>
+    </main>
 
-<?php include 'footer.php' ?>
+    <?php include 'footer.php' ?>
+    <!-- Preloader -->
+    <div id="preloader"></div>
 
 
-<?php $this->endBody() ?>
+    <?php $this->endBody() ?>
 </body>
+
 </html>
 <?php $this->endPage() ?>

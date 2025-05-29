@@ -127,3 +127,11 @@
   window.addEventListener("load", initSwiper);
 
 })();
+
+function showloader() {
+  $("#global-loader").fadeIn();
+}
+
+function hideloader() {
+  $("#global-loader").fadeOut();
+}

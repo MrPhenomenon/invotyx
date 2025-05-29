@@ -65,7 +65,8 @@ $config = [
             'showScriptName' => false,
             'rules' => [
                 '/admin/team-management' => '/admin/default/team-management',
-                '/registration' => 'site/registration',
+                '/register' => 'site/registration',
+                '/pricing' => 'site/pricing',
             ],
         ],
 

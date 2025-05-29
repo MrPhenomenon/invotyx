@@ -12,29 +12,22 @@ use Yii;
  * @property string $email
  * @property string $password
  * @property int $role 0 - User
- * @property int|null $subscription_id
- * @property string|null $exam_type
+ * @property int $exam_type
  * @property int|null $speciality_id
  * @property string|null $expected_exam_date
  * @property string $created_at
  * @property string $updated_at
  *
  * @property ExamSessions[] $examSessions
- * @property Mcqs[] $mcqs
+ * @property ExamType $examType
  * @property Payments[] $payments
  * @property ExamSpecialties $speciality
- * @property Subscriptions $subscription
  * @property UserMcqInteractions[] $userMcqInteractions
+ * @property UserSubscriptions[] $userSubscriptions
  */
 class Users extends \yii\db\ActiveRecord
 {
 
-    /**
-     * ENUM field values
-     */
-    const EXAM_TYPE_FCPS = 'FCPS';
-    const EXAM_TYPE_USMLE = 'USMLE';
-    const EXAM_TYPE_PLAB = 'PLAB';
 
     /**
      * {@inheritdoc}
@@ -50,18 +43,16 @@ class Users extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['subscription_id', 'exam_type', 'speciality_id', 'expected_exam_date'], 'default', 'value' => null],
+            [['speciality_id', 'expected_exam_date'], 'default', 'value' => null],
             [['role'], 'default', 'value' => 0],
-            [['name', 'email', 'password'], 'required'],
-            [['role', 'subscription_id', 'speciality_id'], 'integer'],
-            [['exam_type'], 'string'],
+            [['name', 'email', 'password', 'exam_type'], 'required'],
+            [['role', 'exam_type', 'speciality_id'], 'integer'],
             [['expected_exam_date', 'created_at', 'updated_at'], 'safe'],
             [['name'], 'string', 'max' => 50],
             [['email'], 'string', 'max' => 100],
             [['password'], 'string', 'max' => 255],
-            ['exam_type', 'in', 'range' => array_keys(self::optsExamType())],
             [['email'], 'unique'],
-            [['subscription_id'], 'exist', 'skipOnError' => true, 'targetClass' => Subscriptions::class, 'targetAttribute' => ['subscription_id' => 'id']],
+            [['exam_type'], 'exist', 'skipOnError' => true, 'targetClass' => ExamType::class, 'targetAttribute' => ['exam_type' => 'id']],
             [['speciality_id'], 'exist', 'skipOnError' => true, 'targetClass' => ExamSpecialties::class, 'targetAttribute' => ['speciality_id' => 'id']],
         ];
     }
@@ -77,7 +68,6 @@ class Users extends \yii\db\ActiveRecord
             'email' => 'Email',
             'password' => 'Password',
             'role' => 'Role',
-            'subscription_id' => 'Subscription ID',
             'exam_type' => 'Exam Type',
             'speciality_id' => 'Speciality ID',
             'expected_exam_date' => 'Expected Exam Date',
@@ -97,13 +87,13 @@ class Users extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[Mcqs]].
+     * Gets query for [[ExamType]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getMcqs()
+    public function getExamType()
     {
-        return $this->hasMany(Mcqs::class, ['created_by' => 'id']);
+        return $this->hasOne(ExamType::class, ['id' => 'exam_type']);
     }
 
     /**
@@ -127,16 +117,6 @@ class Users extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[Subscription]].
-     *
-     * @return \yii\db\ActiveQuery
-     */
-    public function getSubscription()
-    {
-        return $this->hasOne(Subscriptions::class, ['id' => 'subscription_id']);
-    }
-
-    /**
      * Gets query for [[UserMcqInteractions]].
      *
      * @return \yii\db\ActiveQuery
@@ -146,64 +126,14 @@ class Users extends \yii\db\ActiveRecord
         return $this->hasMany(UserMcqInteractions::class, ['user_id' => 'id']);
     }
 
-
     /**
-     * column exam_type ENUM value labels
-     * @return string[]
+     * Gets query for [[UserSubscriptions]].
+     *
+     * @return \yii\db\ActiveQuery
      */
-    public static function optsExamType()
+    public function getUserSubscriptions()
     {
-        return [
-            self::EXAM_TYPE_FCPS => 'FCPS',
-            self::EXAM_TYPE_USMLE => 'USMLE',
-            self::EXAM_TYPE_PLAB => 'PLAB',
-        ];
+        return $this->hasMany(UserSubscriptions::class, ['user_id' => 'id']);
     }
 
-    /**
-     * @return string
-     */
-    public function displayExamType()
-    {
-        return self::optsExamType()[$this->exam_type];
-    }
-
-    /**
-     * @return bool
-     */
-    public function isExamTypeFcps()
-    {
-        return $this->exam_type === self::EXAM_TYPE_FCPS;
-    }
-
-    public function setExamTypeToFcps()
-    {
-        $this->exam_type = self::EXAM_TYPE_FCPS;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isExamTypeUsmle()
-    {
-        return $this->exam_type === self::EXAM_TYPE_USMLE;
-    }
-
-    public function setExamTypeToUsmle()
-    {
-        $this->exam_type = self::EXAM_TYPE_USMLE;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isExamTypePlab()
-    {
-        return $this->exam_type === self::EXAM_TYPE_PLAB;
-    }
-
-    public function setExamTypeToPlab()
-    {
-        $this->exam_type = self::EXAM_TYPE_PLAB;
-    }
 }

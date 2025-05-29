@@ -8,7 +8,7 @@ use Yii;
  * This is the model class for table "subscriptions".
  *
  * @property int $id
- * @property string $type
+ * @property string $name
  * @property float $price
  * @property int $duration_days
  * @property string|null $features_json
@@ -16,17 +16,11 @@ use Yii;
  * @property string $updated_at
  *
  * @property Payments[] $payments
- * @property Users[] $users
+ * @property UserSubscriptions[] $userSubscriptions
  */
 class Subscriptions extends \yii\db\ActiveRecord
 {
 
-    /**
-     * ENUM field values
-     */
-    const TYPE_BASIC = 'basic';
-    const TYPE_PRO = 'pro';
-    const TYPE_MOCK_ONLY = 'mock-only';
 
     /**
      * {@inheritdoc}
@@ -43,12 +37,11 @@ class Subscriptions extends \yii\db\ActiveRecord
     {
         return [
             [['features_json'], 'default', 'value' => null],
-            [['type', 'price', 'duration_days'], 'required'],
-            [['type'], 'string'],
+            [['name', 'price', 'duration_days'], 'required'],
             [['price'], 'number'],
             [['duration_days'], 'integer'],
             [['features_json', 'created_at', 'updated_at'], 'safe'],
-            ['type', 'in', 'range' => array_keys(self::optsType())],
+            [['name'], 'string', 'max' => 25],
         ];
     }
 
@@ -59,7 +52,7 @@ class Subscriptions extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'type' => 'Type',
+            'name' => 'Name',
             'price' => 'Price',
             'duration_days' => 'Duration Days',
             'features_json' => 'Features Json',
@@ -79,73 +72,13 @@ class Subscriptions extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[Users]].
+     * Gets query for [[UserSubscriptions]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getUsers()
+    public function getUserSubscriptions()
     {
-        return $this->hasMany(Users::class, ['subscription_id' => 'id']);
+        return $this->hasMany(UserSubscriptions::class, ['subscription_id' => 'id']);
     }
 
-
-    /**
-     * column type ENUM value labels
-     * @return string[]
-     */
-    public static function optsType()
-    {
-        return [
-            self::TYPE_BASIC => 'basic',
-            self::TYPE_PRO => 'pro',
-            self::TYPE_MOCK_ONLY => 'mock-only',
-        ];
-    }
-
-    /**
-     * @return string
-     */
-    public function displayType()
-    {
-        return self::optsType()[$this->type];
-    }
-
-    /**
-     * @return bool
-     */
-    public function isTypeBasic()
-    {
-        return $this->type === self::TYPE_BASIC;
-    }
-
-    public function setTypeToBasic()
-    {
-        $this->type = self::TYPE_BASIC;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isTypePro()
-    {
-        return $this->type === self::TYPE_PRO;
-    }
-
-    public function setTypeToPro()
-    {
-        $this->type = self::TYPE_PRO;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isTypeMockOnly()
-    {
-        return $this->type === self::TYPE_MOCK_ONLY;
-    }
-
-    public function setTypeToMockOnly()
-    {
-        $this->type = self::TYPE_MOCK_ONLY;
-    }
 }

@@ -10,7 +10,7 @@ use Yii;
  * @property int $id
  * @property int $user_id
  * @property string $mode
- * @property string $exam_type
+ * @property int $exam_type
  * @property int $specialty_id
  * @property string|null $topics_used
  * @property string $start_time
@@ -23,6 +23,7 @@ use Yii;
  * @property float|null $accuracy
  * @property string $updated_at
  *
+ * @property ExamType $examType
  * @property ExamSpecialties $specialty
  * @property Users $user
  * @property UserMcqInteractions[] $userMcqInteractions
@@ -37,9 +38,6 @@ class ExamSessions extends \yii\db\ActiveRecord
     const MODE_EXAM = 'exam';
     const MODE_MOCK = 'mock';
     const MODE_TRAINING = 'training';
-    const EXAM_TYPE_FCPS = 'FCPS';
-    const EXAM_TYPE_USMLE = 'USMLE';
-    const EXAM_TYPE_PLAB = 'PLAB';
     const STATUS_INPROGRESS = 'InProgress';
     const STATUS_COMPLETED = 'Completed';
     const STATUS_TERMINATED = 'Terminated';
@@ -62,15 +60,15 @@ class ExamSessions extends \yii\db\ActiveRecord
             [['status'], 'default', 'value' => 'InProgress'],
             [['breaches'], 'default', 'value' => 0],
             [['user_id', 'mode', 'exam_type', 'specialty_id'], 'required'],
-            [['user_id', 'specialty_id', 'total_questions', 'time_spent_seconds', 'correct_count', 'breaches'], 'integer'],
-            [['mode', 'exam_type', 'status'], 'string'],
+            [['user_id', 'exam_type', 'specialty_id', 'total_questions', 'time_spent_seconds', 'correct_count', 'breaches'], 'integer'],
+            [['mode', 'status'], 'string'],
             [['topics_used', 'start_time', 'end_time', 'updated_at'], 'safe'],
             [['accuracy'], 'number'],
             ['mode', 'in', 'range' => array_keys(self::optsMode())],
-            ['exam_type', 'in', 'range' => array_keys(self::optsExamType())],
             ['status', 'in', 'range' => array_keys(self::optsStatus())],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => Users::class, 'targetAttribute' => ['user_id' => 'id']],
             [['specialty_id'], 'exist', 'skipOnError' => true, 'targetClass' => ExamSpecialties::class, 'targetAttribute' => ['specialty_id' => 'id']],
+            [['exam_type'], 'exist', 'skipOnError' => true, 'targetClass' => ExamType::class, 'targetAttribute' => ['exam_type' => 'id']],
         ];
     }
 
@@ -96,6 +94,16 @@ class ExamSessions extends \yii\db\ActiveRecord
             'accuracy' => 'Accuracy',
             'updated_at' => 'Updated At',
         ];
+    }
+
+    /**
+     * Gets query for [[ExamType]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getExamType()
+    {
+        return $this->hasOne(ExamType::class, ['id' => 'exam_type']);
     }
 
     /**
@@ -140,19 +148,6 @@ class ExamSessions extends \yii\db\ActiveRecord
             self::MODE_EXAM => 'exam',
             self::MODE_MOCK => 'mock',
             self::MODE_TRAINING => 'training',
-        ];
-    }
-
-    /**
-     * column exam_type ENUM value labels
-     * @return string[]
-     */
-    public static function optsExamType()
-    {
-        return [
-            self::EXAM_TYPE_FCPS => 'FCPS',
-            self::EXAM_TYPE_USMLE => 'USMLE',
-            self::EXAM_TYPE_PLAB => 'PLAB',
         ];
     }
 
@@ -227,53 +222,6 @@ class ExamSessions extends \yii\db\ActiveRecord
     public function setModeToTraining()
     {
         $this->mode = self::MODE_TRAINING;
-    }
-
-    /**
-     * @return string
-     */
-    public function displayExamType()
-    {
-        return self::optsExamType()[$this->exam_type];
-    }
-
-    /**
-     * @return bool
-     */
-    public function isExamTypeFcps()
-    {
-        return $this->exam_type === self::EXAM_TYPE_FCPS;
-    }
-
-    public function setExamTypeToFcps()
-    {
-        $this->exam_type = self::EXAM_TYPE_FCPS;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isExamTypeUsmle()
-    {
-        return $this->exam_type === self::EXAM_TYPE_USMLE;
-    }
-
-    public function setExamTypeToUsmle()
-    {
-        $this->exam_type = self::EXAM_TYPE_USMLE;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isExamTypePlab()
-    {
-        return $this->exam_type === self::EXAM_TYPE_PLAB;
-    }
-
-    public function setExamTypeToPlab()
-    {
-        $this->exam_type = self::EXAM_TYPE_PLAB;
     }
 
     /**

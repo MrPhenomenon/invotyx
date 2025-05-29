@@ -63,6 +63,22 @@
 </li>
 
 <li class="pc-item pc-caption">
+  <label>Exam Management</label>
+</li>
+<li class="pc-item">
+  <a href="/admin/exam" class="pc-link">
+  <i class="bi bi-database-gear"></i>
+    <span class="pc-mtext">Exam Types & Specialties</span>
+  </a>
+</li>
+<li class="pc-item">
+  <a href="/admin/exam/distribution" class="pc-link">
+  <i class="bi bi-database-gear"></i>
+    <span class="pc-mtext">Mock Exam Distribution</span>
+  </a>
+</li>
+
+<li class="pc-item pc-caption">
   <label>Support</label>
 </li>
 <li class="pc-item">

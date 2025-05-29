@@ -8,11 +8,12 @@ use Yii;
  * This is the model class for table "exam_specialties".
  *
  * @property int $id
- * @property string $exam_type
+ * @property int $exam_type
  * @property string $name
  * @property string $created_at
  *
  * @property ExamSessions[] $examSessions
+ * @property ExamType $examType
  * @property MockExamDistribution[] $mockExamDistributions
  * @property Topics[] $topics
  * @property Users[] $users
@@ -20,12 +21,6 @@ use Yii;
 class ExamSpecialties extends \yii\db\ActiveRecord
 {
 
-    /**
-     * ENUM field values
-     */
-    const EXAM_TYPE_FCPS = 'FCPS';
-    const EXAM_TYPE_USMLE = 'USMLE';
-    const EXAM_TYPE_PLAB = 'PLAB';
 
     /**
      * {@inheritdoc}
@@ -42,10 +37,10 @@ class ExamSpecialties extends \yii\db\ActiveRecord
     {
         return [
             [['exam_type', 'name'], 'required'],
-            [['exam_type'], 'string'],
+            [['exam_type'], 'integer'],
             [['created_at'], 'safe'],
             [['name'], 'string', 'max' => 100],
-            ['exam_type', 'in', 'range' => array_keys(self::optsExamType())],
+            [['exam_type'], 'exist', 'skipOnError' => true, 'targetClass' => ExamType::class, 'targetAttribute' => ['exam_type' => 'id']],
         ];
     }
 
@@ -70,6 +65,16 @@ class ExamSpecialties extends \yii\db\ActiveRecord
     public function getExamSessions()
     {
         return $this->hasMany(ExamSessions::class, ['specialty_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[ExamType]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getExamType()
+    {
+        return $this->hasOne(ExamType::class, ['id' => 'exam_type']);
     }
 
     /**
@@ -99,67 +104,7 @@ class ExamSpecialties extends \yii\db\ActiveRecord
      */
     public function getUsers()
     {
-        return $this->hasMany(Users::class, ['specialty_id' => 'id']);
+        return $this->hasMany(Users::class, ['speciality_id' => 'id']);
     }
 
-
-    /**
-     * column exam_type ENUM value labels
-     * @return string[]
-     */
-    public static function optsExamType()
-    {
-        return [
-            self::EXAM_TYPE_FCPS => 'FCPS',
-            self::EXAM_TYPE_USMLE => 'USMLE',
-            self::EXAM_TYPE_PLAB => 'PLAB',
-        ];
-    }
-
-    /**
-     * @return string
-     */
-    public function displayExamType()
-    {
-        return self::optsExamType()[$this->exam_type];
-    }
-
-    /**
-     * @return bool
-     */
-    public function isExamTypeFcps()
-    {
-        return $this->exam_type === self::EXAM_TYPE_FCPS;
-    }
-
-    public function setExamTypeToFcps()
-    {
-        $this->exam_type = self::EXAM_TYPE_FCPS;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isExamTypeUsmle()
-    {
-        return $this->exam_type === self::EXAM_TYPE_USMLE;
-    }
-
-    public function setExamTypeToUsmle()
-    {
-        $this->exam_type = self::EXAM_TYPE_USMLE;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isExamTypePlab()
-    {
-        return $this->exam_type === self::EXAM_TYPE_PLAB;
-    }
-
-    public function setExamTypeToPlab()
-    {
-        $this->exam_type = self::EXAM_TYPE_PLAB;
-    }
 }

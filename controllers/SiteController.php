@@ -2,6 +2,8 @@
 
 namespace app\controllers;
 
+use app\models\ExamSpecialties;
+use app\models\ExamType;
 use app\models\ManagementTeam;
 use Yii;
 use yii\filters\AccessControl;
@@ -80,7 +82,24 @@ class SiteController extends Controller
     }
     public function actionRegistration()
     {
-        return $this->render('registration');
+        $exams = ExamType::find()->asArray()->all();
+
+        return $this->render('registration', [
+            'exams' => $exams,
+        ]);
+    }
+
+    public function actionGetSpecialization()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $id = Yii::$app->request->post('id');
+        $specs = ExamSpecialties::find()
+        ->where(['exam_type' => $id])
+        ->asArray()
+        ->all();
+        return [
+            'data' => $specs
+        ];
     }
 
     /**
