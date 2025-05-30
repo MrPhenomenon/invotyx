@@ -5,6 +5,9 @@ namespace app\controllers;
 use app\models\ExamSpecialties;
 use app\models\ExamType;
 use app\models\ManagementTeam;
+use app\models\Subscriptions;
+use app\models\Users;
+use app\models\UserSubscriptions;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -12,6 +15,7 @@ use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
+use yii\web\User;
 
 class SiteController extends Controller
 {
@@ -83,9 +87,10 @@ class SiteController extends Controller
     public function actionRegistration()
     {
         $exams = ExamType::find()->asArray()->all();
-
+        $plans = Subscriptions::find()->asArray()->all();
         return $this->render('registration', [
             'exams' => $exams,
+            'plans' => $plans,
         ]);
     }
 
@@ -94,12 +99,41 @@ class SiteController extends Controller
         Yii::$app->response->format = Response::FORMAT_JSON;
         $id = Yii::$app->request->post('id');
         $specs = ExamSpecialties::find()
-        ->where(['exam_type' => $id])
-        ->asArray()
-        ->all();
+            ->where(['exam_type' => $id])
+            ->asArray()
+            ->all();
         return [
             'data' => $specs
         ];
+    }
+
+    public function actionRegisterUser()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $data = Yii::$app->request->post();
+        $user = new Users();
+        $userSub = new UserSubscriptions();
+        $user->attributes = $data;
+        if ($user->save()) {
+            $subscription = Subscriptions::findOne($data['subscription_id']);
+
+            if ($subscription) {
+                $userSub->user_id = $user->id;
+                $userSub->subscription_id = $subscription->id;
+                $userSub->end_date = date('Y-m-d', strtotime("+{$subscription->duration_days} days"));
+                $userSub->is_active = 1;
+
+                if ($userSub->save()) {
+                    return ['success' => true];
+                }
+            }
+
+            return ['success' => false, 'err' => $userSub->errors];
+        }
+
+        return ['success' => false, 'err' => $user->errors];
+
+
     }
 
     /**

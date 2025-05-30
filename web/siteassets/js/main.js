@@ -135,3 +135,17 @@ function showloader() {
 function hideloader() {
   $("#global-loader").fadeOut();
 }
+
+function showToast(message, type = 'success') {
+  const $toast = $('#global-toast');
+  const $body = $('#global-toast-body');
+
+  $body.text(message);
+
+  // Update type (Bootstrap color class)
+  $toast.removeClass('bg-success bg-danger bg-warning bg-info')
+        .addClass(`bg-${type}`);
+
+  const toast = new bootstrap.Toast($toast[0]);
+  toast.show();
+}

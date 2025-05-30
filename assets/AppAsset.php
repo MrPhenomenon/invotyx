@@ -27,6 +27,7 @@ class AppAsset extends AssetBundle
         'siteassets/css/main.css',
     ];
     public $js = [
+        'https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js',
         'siteassets/vendor/aos/aos.js',
         'siteassets/vendor/purecounter/purecounter_vanilla.js',
         'siteassets/vendor/glightbox/js/glightbox.min.js',

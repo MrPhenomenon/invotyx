@@ -33,6 +33,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
 
     <?php include 'loader.php' ?>
     <?php include 'header.php' ?>
+    <?php include 'toast.php' ?>
 
     <main id="main" class="flex-shrink-0" role="main">
 

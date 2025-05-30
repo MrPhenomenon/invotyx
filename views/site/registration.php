@@ -1,5 +1,7 @@
 <?php
-$this->title = 'Login';
+$this->title = 'Register';
+$planColors = ['primary', 'success', 'danger'];
+$planIndex = 1;
 ?>
 
 <style>
@@ -82,81 +84,56 @@ $this->title = 'Login';
             <!-- Step 2: Subscription -->
             <div class="step" data-step="2">
                 <section id="pricing" class="pricing section">
-
                     <div class="container">
-
-
-                        <div class="row gy-3 justify-content-center">
-                            <dov class="col-12 offset-3 mb-4">
+                        <div class="row gy-4 justify-content-center">
+                            <div class="col-12 text-center mb-4">
                                 <h3>Select a Subscription</h3>
-                            </dov>
+                            </div>
 
-                            <div class="col-xl-3 col-lg-6" data-aos="fade-up" data-aos-delay="100">
-                                <div class="pricing-item shadow">
-                                    <h3>Free</h3>
-                                    <h4><sup>$</sup>0<span> / month</span></h4>
-                                    <ul>
-                                        <li>Aida dere</li>
-                                        <li>Nec feugiat nisl</li>
-                                        <li>Nulla at volutpat dola</li>
-                                        <li class="na">Pharetra massa</li>
-                                        <li class="na">Massa ultricies mi</li>
-                                    </ul>
-                                    <div class="btn-wrap">
-                                        <input type="radio" class="btn-check" name="options-outlined" id="plan-1"
-                                            autocomplete="off" required>
-                                        <label class="btn btn-outline-primary btn-sm px-4" for="plan-1">Select</label>
+                            <?php foreach ($plans as $index => $plan): ?>
+                                <div class="col-xl-3 col-md-6 d-flex">
+                                    <div class="pricing-item shadow p-4 w-100 d-flex flex-column <?= $index === 1 ? 'featured' : '' ?>"
+                                        style="<?= $index === 1 ? 'scale: 1.05; z-index: 9;' : '' ?>">
+                                        <div class="mb-3 text-center">
+                                            <h3><?= htmlspecialchars($plan['name']) ?></h3>
+                                            <h4><sup>$</sup><?= $plan['price'] ?><span> / <?= $plan['duration_days'] ?>
+                                                    days</span></h4>
+                                        </div>
+
+                                        <ul class="list-unstyled flex-grow-1">
+                                            <?php
+                                            $features = json_decode($plan['features_json'], true);
+                                            foreach ($features as $f):
+                                                $isAvailable = strpos($f, '[x]') === false;
+                                                $text = str_replace('[x]', '', $f);
+                                                ?>
+                                                <li
+                                                    class="mb-2 d-flex align-items-center <?= $isAvailable ? '' : 'text-secondary' ?>">
+                                                    <i
+                                                        class="bi <?= $isAvailable ? 'bi-check-circle-fill text-success' : 'bi-x-circle text-secondary' ?> me-2"></i>
+                                                    <?= htmlspecialchars($text) ?>
+                                                </li>
+                                            <?php endforeach ?>
+                                        </ul>
+
+                                        <div class="btn-wrap mt-3 text-center">
+                                            <input type="radio" class="btn-check" name="subscription_id"
+                                                id="plan-<?= $plan['id'] ?>" value="<?= $plan['id'] ?>" required>
+                                            <label class="btn btn-outline-primary px-4"
+                                                for="plan-<?= $plan['id'] ?>">Select</label>
+                                        </div>
                                     </div>
                                 </div>
-                            </div><!-- End Pricing Item -->
+                            <?php endforeach; ?>
 
-                            <div class="col-xl-3 col-lg-6" data-aos="fade-up" data-aos-delay="200">
-                                <div class="pricing-item featured shadow" style="scale: 1.1; z-index: 9;">
-                                    <h3>Business</h3>
-                                    <h4><sup>$</sup>19<span> / month</span></h4>
-                                    <ul>
-                                        <li>Aida dere</li>
-                                        <li>Nec feugiat nisl</li>
-                                        <li>Nulla at volutpat dola</li>
-                                        <li>Pharetra massa</li>
-                                        <li class="na">Massa ultricies mi</li>
-                                    </ul>
-                                    <div class="btn-wrap">
-                                        <input type="radio" class="btn-check" name="options-outlined" id="plan-2"
-                                            autocomplete="off" required>
-                                        <label class="btn btn-outline-primary btn-sm px-4" for="plan-2">Select</label>
-                                    </div>
-                                </div>
-                            </div><!-- End Pricing Item -->
-
-                            <div class="col-xl-3 col-lg-6" data-aos="fade-up" data-aos-delay="400">
-                                <div class="pricing-item shadow">
-                                    <h3>Developer</h3>
-                                    <h4><sup>$</sup>29<span> / month</span></h4>
-                                    <ul>
-                                        <li>Aida dere</li>
-                                        <li>Nec feugiat nisl</li>
-                                        <li>Nulla at volutpat dola</li>
-                                        <li>Pharetra massa</li>
-                                        <li>Massa ultricies mi</li>
-                                    </ul>
-                                    <div class="btn-wrap">
-                                        <input type="radio" class="btn-check" name="options-outlined" id="plan-3"
-                                            autocomplete="off" required>
-                                        <label class="btn btn-outline-primary btn-sm px-4" for="plan-3">Select</label>
-                                    </div>
-                                </div>
-                            </div><!-- End Pricing Item -->
-
-                            <div class="col-6 text-end offset-3 mt-4">
-                                <div class="btn btn-primary next-btn px-4">Next</div>
+                            <div class="col-12 text-center mt-4">
+                                <button type="button" class="btn btn-primary next-btn px-4">Next</button>
                             </div>
                         </div>
-
                     </div>
-
                 </section>
             </div>
+
 
             <!-- Step 3: Profile Config -->
             <div class="step" data-step="3">
@@ -175,13 +152,14 @@ $this->title = 'Login';
                             </div>
                             <div class="col-12">
                                 <label for="" class="form-label">Exam Specialization</label>
-                                <select name="" class="form-select py-3" id="specializationSelect" required>
+                                <select name="speciality_id" class="form-select py-3" id="specializationSelect" required>
                                     <option value="">Select</option>
                                 </select>
                             </div>
                             <div class="col-12">
                                 <label for="" class="form-label">Expected Exam Date</label>
-                                <input type="date" class="form-control py-3" min="<?= date('Y-m-d', strtotime('+1 day')) ?>"required>
+                                <input type="date" class="form-control py-3" name="expected_exam_date"
+                                    min="<?= date('Y-m-d', strtotime('+1 day')) ?>" required>
                             </div>
 
                             <div class="col-12 mt-4 ">
@@ -208,7 +186,7 @@ $js = <<<JS
 
         $.ajax({
             type: "POST",
-            url: "/site/login-admin",
+            url: "/site/register-user",
             data: form,
             processData: false,
             contentType: false,
