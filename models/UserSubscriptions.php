@@ -35,7 +35,7 @@ class UserSubscriptions extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'subscription_id', 'start_date', 'end_date', 'is_active'], 'required'],
+            [['user_id', 'subscription_id', 'end_date', 'is_active'], 'required'],
             [['user_id', 'subscription_id', 'is_active'], 'integer'],
             [['start_date', 'end_date'], 'safe'],
             [['subscription_id'], 'exist', 'skipOnError' => true, 'targetClass' => Subscriptions::class, 'targetAttribute' => ['subscription_id' => 'id']],

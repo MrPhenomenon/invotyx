@@ -149,3 +149,4 @@ function showToast(message, type = 'success') {
   const toast = new bootstrap.Toast($toast[0]);
   toast.show();
 }
+

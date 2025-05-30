@@ -20,6 +20,17 @@ $config = [
         ],
     ],
     'components' => [
+        'authClientCollection' => [
+            'class' => 'yii\authclient\Collection',
+            'clients' => [
+                'google' => [
+                    'class' => 'yii\authclient\clients\Google',
+                    'clientId' => '425138559645-7ajpj7oic0cgis3dtu8dfah1cd1c6odu.apps.googleusercontent.com ',
+                    'clientSecret' => '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',
+                    'returnUrl' => 'localhost:8080/site/auth?authclient=google',
+                ],
+            ],
+        ],
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'hjcmbQv20kzanekS7an6c7MTaYPK_wHB',
@@ -67,6 +78,7 @@ $config = [
                 '/admin/team-management' => '/admin/default/team-management',
                 '/register' => 'site/registration',
                 '/pricing' => 'site/pricing',
+                '/login' => 'site/login',
             ],
         ],
 

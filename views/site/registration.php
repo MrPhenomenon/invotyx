@@ -152,7 +152,8 @@ $planIndex = 1;
                             </div>
                             <div class="col-12">
                                 <label for="" class="form-label">Exam Specialization</label>
-                                <select name="speciality_id" class="form-select py-3" id="specializationSelect" required>
+                                <select name="speciality_id" class="form-select py-3" id="specializationSelect"
+                                    required>
                                     <option value="">Select</option>
                                 </select>
                             </div>
@@ -191,8 +192,17 @@ $js = <<<JS
             processData: false,
             contentType: false,
             success: function (res) {
-                res.success ? window.location.href = "/admin" : alert(res.message);
+                if (res.success) {
+                showToast('User Registration Complete');
+            } else {
+                if (res.err?.email) {
+                showToast('This email is already in use. Please log in or use another.', 'danger');
+                } else {
+                showToast('Something went wrong. Please try again.', 'danger');
+                }
             }
+        }
+
         });
     })
     $('#examSelect').on('change', function(e){

@@ -8,6 +8,7 @@ use app\models\ManagementTeam;
 use app\models\Subscriptions;
 use app\models\Users;
 use app\models\UserSubscriptions;
+use Psr\Http\Client\ClientInterface;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -57,6 +58,10 @@ class SiteController extends Controller
             'captcha' => [
                 'class' => 'yii\captcha\CaptchaAction',
                 'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
+            ],
+            'auth' => [
+                'class' => 'yii\authclient\AuthAction',
+                'successCallback' => [$this, 'onAuthSuccess'],
             ],
         ];
     }
@@ -111,29 +116,76 @@ class SiteController extends Controller
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
         $data = Yii::$app->request->post();
+
+        $transaction = Yii::$app->db->beginTransaction();
+
         $user = new Users();
         $userSub = new UserSubscriptions();
-        $user->attributes = $data;
-        if ($user->save()) {
-            $subscription = Subscriptions::findOne($data['subscription_id']);
 
-            if ($subscription) {
-                $userSub->user_id = $user->id;
-                $userSub->subscription_id = $subscription->id;
-                $userSub->end_date = date('Y-m-d', strtotime("+{$subscription->duration_days} days"));
-                $userSub->is_active = 1;
+        try {
+            $user->attributes = $data;
 
-                if ($userSub->save()) {
-                    return ['success' => true];
-                }
+            if (!$user->save()) {
+                throw new \Exception('User validation failed');
             }
 
-            return ['success' => false, 'err' => $userSub->errors];
+            $subscription = Subscriptions::findOne($data['subscription_id']);
+            if (!$subscription) {
+                throw new \Exception('Invalid subscription selected');
+            }
+
+            $userSub->user_id = $user->id;
+            $userSub->subscription_id = $subscription->id;
+            $userSub->end_date = date('Y-m-d', strtotime("+{$subscription->duration_days} days"));
+            $userSub->is_active = 1;
+
+            if (!$userSub->save()) {
+                throw new \Exception('User subscription save failed');
+            }
+
+            $transaction->commit();
+            return ['success' => true];
+
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+
+            return [
+                'success' => false,
+                'err' => array_merge(
+                    $user->getErrors(),
+                    $userSub->getErrors()
+                )
+            ];
+        }
+    }
+
+
+
+    public function onAuthSuccess(ClientInterface $client)
+    {
+        $attributes = $client->getUserAttributes();
+
+        $googleId = $attributes['sub'];
+        $email = $attributes['email'];
+        $name = $attributes['name'];
+        $picture = $attributes['picture'] ?? null;
+
+        $user = Users::find()->where(['google_id' => $googleId])->one();
+
+        if (!$user) {
+            // Create new user
+            $user = new Users([
+                'google_id' => $googleId,
+                'email' => $email,
+                'name' => $name,
+                'profile_picture' => $picture,
+                'auth_type' => 'google',
+                'created_at' => date('Y-m-d H:i:s'),
+            ]);
+            $user->save(false); // skip validation if you're confident
         }
 
-        return ['success' => false, 'err' => $user->errors];
-
-
+        Yii::$app->user->login($user);
     }
 
     /**
