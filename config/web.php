@@ -25,14 +25,13 @@ $config = [
             'clients' => [
                 'google' => [
                     'class' => 'yii\authclient\clients\Google',
-                    'clientId' => '425138559645-7ajpj7oic0cgis3dtu8dfah1cd1c6odu.apps.googleusercontent.com ',
-                    'clientSecret' => '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',
-                    'returnUrl' => 'localhost:8080/site/auth?authclient=google',
+                    'clientId' => '425138559645-82jehbe38vplgr2o99nce8bk3l65fgmh.apps.googleusercontent.com',
+                    'clientSecret' => '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',
+                    'returnUrl' => 'https://locahost:8080/site/auth?authclient=google',
                 ],
             ],
         ],
         'request' => [
-            // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'hjcmbQv20kzanekS7an6c7MTaYPK_wHB',
         ],
         'cache' => [
