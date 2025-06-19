@@ -12,7 +12,7 @@ use Yii;
  * @property int $subscription_id
  * @property string $start_date
  * @property string $end_date
- * @property int $is_active 0 - Non Active 1 - Active
+ * @property int $is_active 0 - Non Active 1 - Active
  *
  * @property Subscriptions $subscription
  * @property Users $user

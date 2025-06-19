@@ -8,7 +8,7 @@ use app\models\ManagementTeam;
 use app\models\Subscriptions;
 use app\models\Users;
 use app\models\UserSubscriptions;
-use Psr\Http\Client\ClientInterface;
+use yii\authclient\ClientInterface;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -87,7 +87,24 @@ class SiteController extends Controller
      */
     public function actionLogin()
     {
-        return $this->render('login');
+        $error = null;
+        if (Yii::$app->request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            $email = Yii::$app->request->post('email');
+            $password = Yii::$app->request->post('password');
+
+            $user = Users::findOne(['email' => $email, 'auth_type' => 'local']);
+            if ($user && Yii::$app->getSecurity()->validatePassword($password, $user->password)) {
+                Yii::$app->user->login($user, 3600 * 24 * 30);
+                return $this->redirect('user');
+            } else {
+                return ['success' => false, 'message' => 'Invalid username or password.'];
+            }
+        } else {
+            return $this->render('login', [
+                'error' => $error,
+            ]);
+        }
     }
     public function actionRegistration()
     {
@@ -124,6 +141,10 @@ class SiteController extends Controller
 
         try {
             $user->attributes = $data;
+            if (!empty($data['password'])) {
+                $user->password = Yii::$app->getSecurity()->generatePasswordHash($data['password']);
+            }
+            $user->auth_type = 'local';
 
             if (!$user->save()) {
                 throw new \Exception('User validation failed');
@@ -136,6 +157,7 @@ class SiteController extends Controller
 
             $userSub->user_id = $user->id;
             $userSub->subscription_id = $subscription->id;
+            $userSub->start_date = date('Y-m-d');
             $userSub->end_date = date('Y-m-d', strtotime("+{$subscription->duration_days} days"));
             $userSub->is_active = 1;
 
@@ -144,6 +166,7 @@ class SiteController extends Controller
             }
 
             $transaction->commit();
+            Yii::$app->user->login($user);
             return ['success' => true];
 
         } catch (\Exception $e) {
@@ -164,25 +187,24 @@ class SiteController extends Controller
     public function onAuthSuccess(ClientInterface $client)
     {
         $attributes = $client->getUserAttributes();
-
-        $googleId = $attributes['sub'];
+        Yii::debug($attributes);
+        $googleId = $attributes['id'];
         $email = $attributes['email'];
         $name = $attributes['name'];
         $picture = $attributes['picture'] ?? null;
 
-        $user = Users::find()->where(['google_id' => $googleId])->one();
+        $user = Users::find()->where(['email' => $email])->one();
 
         if (!$user) {
-            // Create new user
             $user = new Users([
                 'google_id' => $googleId,
                 'email' => $email,
                 'name' => $name,
                 'profile_picture' => $picture,
                 'auth_type' => 'google',
-                'created_at' => date('Y-m-d H:i:s'),
             ]);
-            $user->save(false); // skip validation if you're confident
+            $user->save(false);
+            return $this->redirect('/register');
         }
 
         Yii::$app->user->login($user);
@@ -196,7 +218,6 @@ class SiteController extends Controller
     public function actionLogout()
     {
         Yii::$app->user->logout();
-
         return $this->goHome();
     }
 
@@ -230,25 +251,32 @@ class SiteController extends Controller
 
     public function actionAdminLogin()
     {
-        return $this->render('admin-login');
+        if (Yii::$app->request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            $request = Yii::$app->request;
+            $email = $request->post('email');
+            $password = $request->post('password');
+
+            $admin = ManagementTeam::findOne(['email' => $email]);
+
+            if (!$admin || !Yii::$app->getSecurity()->validatePassword($password, $admin->password)) {
+                return ['success' => false, 'message' => 'Invalid username or password.'];
+            }
+
+            Yii::$app->admin->login($admin, 3600 * 3);
+
+            return ['success' => true];
+        } else {
+            return $this->render('admin-login');
+        }
     }
 
-    public function actionLoginAdmin()
+
+
+    public function actionDebugCache($key)
     {
-        Yii::$app->response->format = Response::FORMAT_JSON;
-
-        $request = Yii::$app->request;
-        $email = $request->post('email');
-        $password = $request->post('password');
-
-        $admin = ManagementTeam::findOne(['email' => $email]);
-
-        if (!$admin || !Yii::$app->getSecurity()->validatePassword($password, $admin->password)) {
-            return ['success' => false, 'message' => 'Invalid username or password.'];
-        }
-
-        Yii::$app->admin->login($admin, 3600 * 3);
-
-        return ['success' => true];
+        $data = Yii::$app->cache->get($key);
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        return $data ?: ['error' => 'Not found'];
     }
 }

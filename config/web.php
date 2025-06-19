@@ -27,7 +27,7 @@ $config = [
                     'class' => 'yii\authclient\clients\Google',
                     'clientId' => '425138559645-82jehbe38vplgr2o99nce8bk3l65fgmh.apps.googleusercontent.com',
                     'clientSecret' => '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',
-                    'returnUrl' => 'https://locahost:8080/site/auth?authclient=google',
+                    'returnUrl' => 'http://localhost:8080/site/auth?authclient=google',
                 ],
             ],
         ],

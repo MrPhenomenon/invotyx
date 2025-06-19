@@ -1,20 +1,22 @@
 <?php
 
 namespace app\models;
-
+use yii\web\IdentityInterface;
 use Yii;
 
 /**
  * This is the model class for table "users".
  *
  * @property int $id
+ * @property int|null $google_id
  * @property string $name
  * @property string $email
- * @property string $password
- * @property int $role 0 - User
- * @property int $exam_type
+ * @property string|null $password
+ * @property string $auth_type
+ * @property int|null $exam_type
  * @property int|null $speciality_id
  * @property string|null $expected_exam_date
+ * @property string|null $profile_picture
  * @property string $created_at
  * @property string $updated_at
  *
@@ -25,9 +27,14 @@ use Yii;
  * @property UserMcqInteractions[] $userMcqInteractions
  * @property UserSubscriptions[] $userSubscriptions
  */
-class Users extends \yii\db\ActiveRecord
+class Users extends \yii\db\ActiveRecord implements IdentityInterface
 {
 
+    /**
+     * ENUM field values
+     */
+    const AUTH_TYPE_GOOGLE = 'google';
+    const AUTH_TYPE_LOCAL = 'local';
 
     /**
      * {@inheritdoc}
@@ -43,14 +50,15 @@ class Users extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['speciality_id', 'expected_exam_date'], 'default', 'value' => null],
-            [['role'], 'default', 'value' => 0],
-            [['name', 'email', 'password', 'exam_type'], 'required'],
-            [['role', 'exam_type', 'speciality_id'], 'integer'],
+            [['google_id', 'password', 'exam_type', 'speciality_id', 'expected_exam_date', 'profile_picture'], 'default', 'value' => null],
+            [['google_id', 'exam_type', 'speciality_id'], 'integer'],
+            [['name', 'email', 'auth_type'], 'required'],
+            [['auth_type'], 'string'],
             [['expected_exam_date', 'created_at', 'updated_at'], 'safe'],
             [['name'], 'string', 'max' => 50],
             [['email'], 'string', 'max' => 100],
-            [['password'], 'string', 'max' => 255],
+            [['password', 'profile_picture'], 'string', 'max' => 255],
+            ['auth_type', 'in', 'range' => array_keys(self::optsAuthType())],
             [['email'], 'unique'],
             [['exam_type'], 'exist', 'skipOnError' => true, 'targetClass' => ExamType::class, 'targetAttribute' => ['exam_type' => 'id']],
             [['speciality_id'], 'exist', 'skipOnError' => true, 'targetClass' => ExamSpecialties::class, 'targetAttribute' => ['speciality_id' => 'id']],
@@ -64,13 +72,15 @@ class Users extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
+            'google_id' => 'Google ID',
             'name' => 'Name',
             'email' => 'Email',
             'password' => 'Password',
-            'role' => 'Role',
+            'auth_type' => 'Auth Type',
             'exam_type' => 'Exam Type',
             'speciality_id' => 'Speciality ID',
             'expected_exam_date' => 'Expected Exam Date',
+            'profile_picture' => 'Profile Picture',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
         ];
@@ -136,4 +146,85 @@ class Users extends \yii\db\ActiveRecord
         return $this->hasMany(UserSubscriptions::class, ['user_id' => 'id']);
     }
 
+
+    /**
+     * column auth_type ENUM value labels
+     * @return string[]
+     */
+    public static function optsAuthType()
+    {
+        return [
+            self::AUTH_TYPE_GOOGLE => 'google',
+            self::AUTH_TYPE_LOCAL => 'local',
+        ];
+    }
+
+    /**
+     * @return string
+     */
+    public function displayAuthType()
+    {
+        return self::optsAuthType()[$this->auth_type];
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAuthTypeGoogle()
+    {
+        return $this->auth_type === self::AUTH_TYPE_GOOGLE;
+    }
+
+    public function setAuthTypeToGoogle()
+    {
+        $this->auth_type = self::AUTH_TYPE_GOOGLE;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAuthTypeLocal()
+    {
+        return $this->auth_type === self::AUTH_TYPE_LOCAL;
+    }
+
+    public function setAuthTypeToLocal()
+    {
+        $this->auth_type = self::AUTH_TYPE_LOCAL;
+    }
+
+    public static function findIdentity($id)
+    {
+        return static::findOne($id);
+    }
+
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
+        return null;
+    }
+
+    public static function findByName($username)
+    {
+        return static::findOne(['name' => $username]);
+    }
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function getAuthKey()
+    {
+        return null;
+    }
+
+    public function validateAuthKey($authKey)
+    {
+        return true;
+    }
+
+    public function validatePassword($password)
+    {
+        return Yii::$app->security->validatePassword($password, $this->password);
+    }
 }

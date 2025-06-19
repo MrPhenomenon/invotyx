@@ -21,7 +21,7 @@ h2 {
   --pc-sidebar-color-rgb: 20, 20, 20;
   --pc-sidebar-active-color: var(--bs-primary);
   --pc-sidebar-shadow: 1px 0 0 0px rgb(240 240 240);
-  --pc-sidebar-caption-color: #495057;
+  --pc-sidebar-caption-color: #141414;
   --pc-header-background: #fff;
   --pc-header-color: #141414;
   --pc-header-shadow: 0 1px 0 0px rgb(240 240 240);
@@ -76,13 +76,13 @@ header {
   display: flex;
   align-items: center;
   min-height: 100vh;
-  background: #fff;
+  background: #0e273c;
 }
 header:not(.collapsed) {
   position: fixed;
   left: 260px;
   right: 0;
-  z-index: 1025;
+  z-index: 1026;
 }
 
 header .container {

@@ -25,14 +25,14 @@ $this->title = 'My Yii Application';
 
 
             <div class="d-flex mt-5">
-              <a href="/registration" class="btn-get-started">Get Started</a>
+              <a href="register" class="btn-get-started">Get Started</a>
             </div>
           </div>
 
           <!-- Image Content Column -->
           <div class="col-lg-6 hero-image-column text-center text-lg-end" data-aos="fade-left" data-aos-delay="300">
             <div class="hero-image-blob-container">
-              <img src="/siteassets/img/hero-bg.png" alt="AI Study Partner" class="img-fluid">
+              <img src="<?= Yii::getAlias('@web') ?>/siteassets/img/hero-bg.png" alt="AI Study Partner" class="img-fluid">
             </div>
           </div>
 
@@ -115,7 +115,7 @@ $this->title = 'My Yii Application';
             </div>
           </div>
           <div class="col-lg-6 col-md-5 text-center text-md-end shadow-sm" data-aos="fade-left" data-aos-delay="200">
-            <img src="/siteassets/img/dashboard.png" alt="Image of User Panel will go here" class="img-fluid"
+            <img src="<?= Yii::getAlias('@web') ?>/siteassets/img/dashboard.png" alt="Image of User Panel will go here" class="img-fluid"
               style="max-height: 500px;">
             <!-- Replace with your actual image -->
           </div>

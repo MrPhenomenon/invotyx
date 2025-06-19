@@ -13,6 +13,7 @@ use Yii;
  * @property int $exam_type
  * @property int $specialty_id
  * @property string|null $topics_used
+ * @property string $mcq_ids
  * @property string $start_time
  * @property string|null $end_time
  * @property int|null $total_questions
@@ -59,9 +60,9 @@ class ExamSessions extends \yii\db\ActiveRecord
             [['topics_used', 'end_time', 'total_questions', 'time_spent_seconds', 'correct_count', 'accuracy'], 'default', 'value' => null],
             [['status'], 'default', 'value' => 'InProgress'],
             [['breaches'], 'default', 'value' => 0],
-            [['user_id', 'mode', 'exam_type', 'specialty_id'], 'required'],
+            [['user_id', 'mode', 'exam_type', 'specialty_id', 'mcq_ids'], 'required'],
             [['user_id', 'exam_type', 'specialty_id', 'total_questions', 'time_spent_seconds', 'correct_count', 'breaches'], 'integer'],
-            [['mode', 'status'], 'string'],
+            [['mode', 'mcq_ids', 'status'], 'string'],
             [['topics_used', 'start_time', 'end_time', 'updated_at'], 'safe'],
             [['accuracy'], 'number'],
             ['mode', 'in', 'range' => array_keys(self::optsMode())],
@@ -84,6 +85,7 @@ class ExamSessions extends \yii\db\ActiveRecord
             'exam_type' => 'Exam Type',
             'specialty_id' => 'Specialty ID',
             'topics_used' => 'Topics Used',
+            'mcq_ids' => 'Mcq Ids',
             'start_time' => 'Start Time',
             'end_time' => 'End Time',
             'total_questions' => 'Total Questions',

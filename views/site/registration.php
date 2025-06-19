@@ -2,6 +2,7 @@
 $this->title = 'Register';
 $planColors = ['primary', 'success', 'danger'];
 $planIndex = 1;
+use yii\helpers\Url;
 ?>
 
 <style>
@@ -34,7 +35,7 @@ $planIndex = 1;
 
 
     <div id="registration-step">
-        <form id="register">
+        <form id="register"  data-url="<?= Url::to(['site/register-user']) ?>">
             <!-- Step 1: Sign Up -->
             <div class="step active" data-step="1">
                 <section class="p-3 p-md-4 p-xl-5">
@@ -143,7 +144,7 @@ $planIndex = 1;
                         <div class="row gy-3 mt-2 overflow-hidden">
                             <div class="col-12">
                                 <label for="" class="form-label">Exam Type</label>
-                                <select name="exam_type" class="form-select py-3" id="examSelect" required>
+                                <select name="exam_type" class="form-select py-3" id="examSelect" required  data-url="<?= Url::to(['site/get-specialization']) ?>">
                                     <option value="">Select Your Exam</option>
                                     <?php foreach ($exams as $exam): ?>
                                         <option value="<?= $exam['id'] ?>"><?= $exam['name'] ?></option>
@@ -187,7 +188,7 @@ $js = <<<JS
 
         $.ajax({
             type: "POST",
-            url: "/site/register-user",
+             url: \$(this).data('url'),
             data: form,
             processData: false,
             contentType: false,
@@ -206,12 +207,12 @@ $js = <<<JS
         });
     })
     $('#examSelect').on('change', function(e){
-        showloader();
+    showloader();
     const id = $(this).val();
 
     $.ajax({
         type: "POST",
-        url: "/site/get-specialization",
+         url: \$(this).data('url'), 
         data: { id: id },
         success: function (res) {
             hideloader();

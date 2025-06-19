@@ -14,7 +14,7 @@
         <div class="dropdown-header">
           <div class="d-flex mb-1">
             <div class="flex-shrink-0">
-              <img src="/dassets/images/user/avatar-2.jpg" alt="user-image" class="user-avtar wid-35">
+              <img src="<?= Yii::getAlias('@web') ?>/dassets/images/user/avatar-2.jpg" alt="user-image" class="user-avtar wid-35">
             </div>
             <div class="flex-grow-1 ms-3">
               <h6 class="mb-1"><?=Yii::$app->admin->identity->name?></h6>

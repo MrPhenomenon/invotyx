@@ -9,7 +9,10 @@ use yii\widgets\ActiveForm;
 <?php $form = ActiveForm::begin([
   'id' => 'mcq-form',
   'enableClientValidation' => false,
-  'options' => ['enctype' => 'multipart/form-data'],
+  'options' => [
+    'enctype' => 'multipart/form-data',
+    'data-url' => Url::to(['mcq/save-multiple'])
+  ]
 ]); ?>
 
 
@@ -115,7 +118,7 @@ $('#mcq-form').on('submit', function(e) {
 
   $.ajax({
     type: "POST",
-    url: "/admin/mcq/save-multiple",
+     url: \$(this).data('url'),
     data: formData,
     processData: false,
     contentType: false,

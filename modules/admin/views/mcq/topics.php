@@ -1,5 +1,5 @@
 <?php
-use yii\helpers\Html;
+use yii\helpers\Url;
 ?>
 
 <h3>📚 Chapter & Topic Management</h3>
@@ -29,7 +29,7 @@ use yii\helpers\Html;
                 <td>
                   <button class="btn btn-sm btn-primary" data-id="<?= $chapter['id'] ?>">Edit</button>
                   <button class="btn btn-sm btn-danger btn-delete" data-id="<?= $chapter['id'] ?>"
-                    data-item="a chapter <?= $chapter['name'] ?>" data-url="/admin/default/delete-user">Delete</button>
+                    data-item="a chapter <?= $chapter['name'] ?>" data-url="default/delete-user">Delete</button>
                 </td>
               </tr>
             <?php endforeach ?>
@@ -56,14 +56,14 @@ use yii\helpers\Html;
             </tr>
           </thead>
           <tbody id="topic-body">
-          <?php foreach ($topics as $topic): ?>
+            <?php foreach ($topics as $topic): ?>
               <tr>
                 <td><?= $topic['name'] ?></td>
                 <td><?= $topic['chapter_name'] ?></td>
                 <td>
                   <button class="btn btn-sm btn-primary" data-id="<?= $topic['id'] ?>">Edit</button>
                   <button class="btn btn-sm btn-danger btn-delete" data-id="<?= $topic['id'] ?>"
-                    data-item="a topic <?= $topic['name'] ?>" data-url="/admin/default/delete-user">Delete</button>
+                    data-item="a topic <?= $topic['name'] ?>" data-url="default/delete-user">Delete</button>
                 </td>
               </tr>
             <?php endforeach ?>
@@ -78,7 +78,7 @@ use yii\helpers\Html;
 <div class="modal fade" id="chaptersModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
-      <form id="chapter-form">
+      <form id="chapter-form" data-url="<?= Url::to(['mcq/add-chapter']) ?>">
         <div class="modal-header">
           <h5 class="modal-title">Add Chapter</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -102,7 +102,7 @@ use yii\helpers\Html;
 <div class="modal fade" id="topicsModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
-      <form id="topic-form">
+      <form id="topic-form" data-url="<?= Url::to(['mcq/add-topic']) ?>">
         <div class="modal-header">
           <h5 class="modal-title">Add Topic</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -150,7 +150,7 @@ $('#chapter-form').on('submit', function (e) {
   const name = $(this).find('input[name="name"]').val();
 
   $.ajax({
-    url: '/admin/mcq/add-chapter', 
+    url: \$(this).data('url'),
     type: 'POST',
     data: { name },
     success: function (res) {
@@ -171,12 +171,13 @@ $('#topic-form').on('submit', function (e) {
   const chapterId = $(this).find('select[name="chapter_id"]').val();
 
   $.ajax({
-    url: '/admin/mcq/add-topic',
+    url: \$(this).data('url'), 
     type: 'POST',
     data: { name, chapter_id: chapterId },
     success: function (res) {
        res.success ? showToast('Topic added.', 'success') : showToast('Topic couldnt be added', 'danger');
       $('#topicsModal').modal('hide');
+      location.reload();
     },
     error: function () {
       showToast('Failed to add topic.', 'danger');

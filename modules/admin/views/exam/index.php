@@ -1,5 +1,7 @@
 <?php
 use yii\helpers\Html;
+use yii\helpers\Url;
+
 ?>
 
 <h3>📚 Exams & Specializations</h3>
@@ -29,7 +31,7 @@ use yii\helpers\Html;
                 <td class="text-center">
                   <button class="btn btn-sm btn-info">Update</button>
                   <button class="btn btn-sm btn-danger btn-delete" data-id="<?= $exam['id'] ?>"
-                    data-item="Exam <?= $exam['name'] ?>" data-url="/admin/mcq/delete-mcq">Delete</button>
+                    data-item="Exam <?= $exam['name'] ?>" data-url="/">Delete</button>
                 </td>
               </tr>
             <?php endforeach ?>
@@ -59,11 +61,11 @@ use yii\helpers\Html;
             <?php foreach ($specializations as $specs): ?>
               <tr>
                 <td><?= $specs['name'] ?></td>
-                <td><?= $specs['examType']['name']?></td>
+                <td><?= $specs['examType']['name'] ?></td>
                 <td class="text-center">
                   <button class="btn btn-sm btn-info">Update</button>
                   <button class="btn btn-sm btn-danger btn-delete" data-id="<?= $specs['id'] ?>"
-                    data-item="Specialization <?= $specs['name'] ?>" data-url="/admin/mcq/delete-mcq">Delete</button>
+                    data-item="Specialization <?= $specs['name'] ?>" data-url="/">Delete</button>
                 </td>
               </tr>
             <?php endforeach ?>
@@ -78,7 +80,7 @@ use yii\helpers\Html;
 <div class="modal fade" id="examModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
-      <form id="exam-form">
+      <form id="exam-form" data-url="<?= Url::to(['exam/add-exam']) ?>">
         <div class="modal-header">
           <h5 class="modal-title">Add Exam</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -102,7 +104,7 @@ use yii\helpers\Html;
 <div class="modal fade" id="specModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
-      <form id="spec-form">
+      <form id="spec-form" data-url="<?= Url::to(['exam/add-specialization']) ?>">
         <div class="modal-header">
           <h5 class="modal-title">Add Exam Specialization</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -132,6 +134,7 @@ use yii\helpers\Html;
 
 
 <?php
+
 $js = <<<JS
 
 $('#add-exam').on('click', function () {
@@ -148,14 +151,15 @@ $('#add-spec').on('click', function () {
 $('#exam-form').on('submit', function (e) {
   e.preventDefault();
   const name = $(this).find('input[name="name"]').val();
-
+ 
   $.ajax({
-    url: '/admin/exam/add-exam', 
+    url: \$(this).data('url'), 
     type: 'POST',
     data: { name },
     success: function (res) {
       res.success ? showToast('Exam added.', 'success') : showToast('Exam couldnt be added', 'danger');
       $('#examModal').modal('hide');
+       location.reload();
     },
     error: function () {
       showToast('Failed to add chapter.', 'danger');
@@ -170,12 +174,13 @@ $('#spec-form').on('submit', function (e) {
   const examId = $(this).find('select[name="exam_id"]').val();
 
   $.ajax({
-    url: '/admin/exam/add-specialization',
+    url: \$(this).data('url'),
     type: 'POST',
     data: { name, examId },
     success: function (res) {
        res.success ? showToast('Specialization added.', 'success') : showToast('Specialization couldnt be added', 'danger');
       $('#specModal').modal('hide');
+       location.reload();
     },
     error: function () {
       showToast('Failed to add topic.', 'danger');

@@ -22,7 +22,7 @@
                 <li class="na">Massa ultricies mi</li>
               </ul>
               <div class="btn-wrap">
-                <a href="/register" class="btn-buy">Subscribe Now</a>
+                <a href="register" class="btn-buy">Subscribe Now</a>
               </div>
             </div>
           </div><!-- End Pricing Item -->
@@ -39,7 +39,7 @@
                 <li class="na">Massa ultricies mi</li>
               </ul>
               <div class="btn-wrap">
-                <a href="/register" class="btn-buy">Subscribe Now</a>
+                <a href="register" class="btn-buy">Subscribe Now</a>
               </div>
             </div>
           </div><!-- End Pricing Item -->
@@ -56,7 +56,7 @@
                 <li>Massa ultricies mi</li>
               </ul>
               <div class="btn-wrap">
-                <a href="/registeration" class="btn-buy">Subscribe Now</a>
+                <a href="registeration" class="btn-buy">Subscribe Now</a>
               </div>
             </div>
           </div><!-- End Pricing Item -->

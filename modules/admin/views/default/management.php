@@ -1,4 +1,5 @@
 <?php
+use yii\helpers\Url;
 use yii\helpers\Html;
 ?>
 
@@ -35,7 +36,7 @@ use yii\helpers\Html;
                     <td>
                         <button class="btn btn-sm btn-primary" data-id="<?= $mem['id'] ?>">Edit</button>
                         <button class="btn btn-sm btn-danger btn-delete" data-id="<?= $mem['id'] ?>" data-item="a member <?= $mem['name'] ?>"
-                            data-url="/admin/default/delete-user">Delete</button>
+                            data-url="<?= Url::to(['default/delete-user']) ?>">Delete</button>
                     </td>
                 </tr>
             <?php endforeach ?>
@@ -47,7 +48,7 @@ use yii\helpers\Html;
 <div class="modal fade" id="teamModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form id="team-form">
+            <form id="team-form" data-url="<?= Url::to(['default/add-management']) ?>">
                 <div class="modal-header">
                     <h5 class="modal-title">Add Team Member</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -98,7 +99,7 @@ $('#team-form').on('submit', function(e) {
 
     $.ajax({
         type: "post",
-        url: "/admin/default/add-management",
+         url: \$(this).data('url'), 
         data: form,
         processData: false,
     contentType: false,

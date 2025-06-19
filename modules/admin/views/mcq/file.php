@@ -47,7 +47,7 @@ use yii\helpers\Url;
 </style>
 <h3>📂 Import MCQs from Excel</h3>
 
-<form id="uploadForm" enctype="multipart/form-data">
+<form id="uploadForm" enctype="multipart/form-data" data-url="<?= Url::to(['mcq/save-file']) ?>">
 <div class="mb-3 row">
         <div class="col-12" id="warning">
             <div class="alert alert-info">
@@ -176,7 +176,7 @@ $js = <<<JS
 
         $.ajax({
             type: 'POST',
-            url: '/admin/mcq/save-file',
+             url: \$(this).data('url'), 
             type: 'POST',
             data: formData,
             contentType: false,

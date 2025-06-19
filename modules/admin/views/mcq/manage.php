@@ -2,6 +2,7 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\LinkPager;
+$mcqDeleteUrl = Url::to(['mcq/delete-mcq']);
 ?>
 <style>
   table td,
@@ -15,7 +16,7 @@ use yii\widgets\LinkPager;
 <h3>Manage MCQs</h3>
 
 <div class="card p-3 mb-4">
-  <form id="search-form" class="row g-3">
+  <form id="search-form" class="row g-3" data-url="<?= Url::to(['mcq/search']) ?>">
     <div class="col-md-3">
       <label class="form-label">Question ID</label>
       <input type="text" name="question_id" class="form-control" placeholder="Enter ID">
@@ -38,7 +39,8 @@ use yii\widgets\LinkPager;
 
     <div class="col-md-3 align-self-center pt-4">
       <button type="submit" class="btn btn-primary h-100 w-25 me-5"> Search</button>
-      <button type="button" onclick="location.reload()" class="btn btn-secondary h-100 ms-auto"> Show All Entries</button>
+      <button type="button" onclick="location.reload()" class="btn btn-secondary h-100 ms-auto"> Show All
+        Entries</button>
     </div>
   </form>
 </div>
@@ -70,7 +72,7 @@ use yii\widgets\LinkPager;
                 data-mcq="<?= htmlspecialchars(json_encode($mcq), ENT_QUOTES, 'UTF-8') ?>">Details</button>
               <button class="btn btn-sm btn-info">Update</button>
               <button class="btn btn-sm btn-danger btn-delete" data-id="<?= $mcq['id'] ?>"
-                data-item="<?= $mcq['question_id'] ?> MCQ" data-url="/admin/mcq/delete-mcq">Delete</button>
+                data-item="<?= $mcq['question_id'] ?> MCQ" data-url="<?= $mcqDeleteUrl ?>">Delete</button>
             </td>
           </tr>
         <?php endforeach ?>
@@ -107,7 +109,7 @@ echo LinkPager::widget([
 
 <?php
 $js = <<<JS
-
+var mcqDeleteUrl = "/invotyx/admin/mcq/delete-mcq";
 $('input[name="dates"]').daterangepicker({
   autoUpdateInput: false,
   locale: {
@@ -190,7 +192,7 @@ $('#search-form').on('submit', function(e) {
 
   $.ajax({
   type: "POST",
-  url: "/admin/mcq/search",
+  url: \$(this).data('url'), 
   data: formData,
   processData: false,
   contentType: false,
@@ -213,7 +215,7 @@ $('#search-form').on('submit', function(e) {
         <td class="text-center">
           <button class="btn btn-sm btn-success view-details" data-mcq="\${mcqJson}">Details</button>
           <button class="btn btn-sm btn-info">Update</button>
-          <button class="btn btn-sm btn-danger btn-delete" data-id="\${mcq.id}" data-item="MCQ \${mcq.question_id}" data-url="/admin/mcq/delete-mcq">Delete</button>
+          <button class="btn btn-sm btn-danger btn-delete" data-id="\${mcq.id}" data-item="MCQ \${mcq.question_id}" data-url="\${mcqDeleteUrl}">Delete</button>
         </td>
       </tr>
     `;
