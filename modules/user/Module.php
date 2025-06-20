@@ -8,7 +8,6 @@ use Yii;
  */
 class Module extends \yii\base\Module
 {
-
     public function beforeAction($action)
     {
         if (parent::beforeAction($action)) {

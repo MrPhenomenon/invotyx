@@ -17,13 +17,13 @@ use yii\helpers\Url;
 <li class="pc-item">
   <a href="<?= Url::to(['default/exam-performance']) ?>" class="pc-link">
     <i class="bi bi-speedometer2"></i>
-    <span class="pc-mtext">Exam Performance</span>
+    <span class="pc-mtext">Exam Performance (NF)</span>
   </a>
 </li>
 <li class="pc-item">
   <a href="<?= Url::to(['default/trust-breach-monitoring']) ?>" class="pc-link">
     <i class="bi bi-exclamation-triangle"></i>
-    <span class="pc-mtext">Trust Breach Monitoring</span>
+    <span class="pc-mtext">Trust Breach Monitoring (NF)</span>
   </a>
 </li>
 
@@ -33,7 +33,7 @@ use yii\helpers\Url;
 <li class="pc-item">
   <a href="<?= Url::to(['subscription/index']) ?>" class="pc-link">
     <i class="bi bi-calendar3"></i>
-    <span class="pc-mtext">Subscriptions Management</span>
+    <span class="pc-mtext">Subscriptions Management (NF)</span>
   </a>
 </li>
 
@@ -88,7 +88,7 @@ use yii\helpers\Url;
 <li class="pc-item">
   <a href="<?= Url::to(['support/tickets']) ?>" class="pc-link">
     <i class="bi bi-ticket"></i>
-    <span class="pc-mtext">Handle Tickets</span>
+    <span class="pc-mtext">Handle Tickets (NF)</span>
   </a>
 </li>
 <li class="pc-item pc-caption">

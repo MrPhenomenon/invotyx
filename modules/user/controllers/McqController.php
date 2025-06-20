@@ -39,14 +39,14 @@ class McqController extends Controller
 
         if (!$session) {
             Yii::$app->session->setFlash('error', 'Exam session not found or already completed.');
-            return $this->redirect(['exam/start']);
+            return $this->redirect(['exam//']);
         }
 
         $data = Yii::$app->cache->get($cacheKey);
 
         if (!$data || empty($data['mcq_ids'])) {
             Yii::$app->session->setFlash('error', 'Session data expired or invalid.');
-            return $this->redirect(['exam/start']);
+            return $this->redirect(['exam//']);
         }
 
         $mcqIds = $data['mcq_ids'];
@@ -61,16 +61,16 @@ class McqController extends Controller
         $currentMcqId = $mcqIds[$index] ?? null;
 
         if (!$currentMcqId) {
-            Yii::$app->session->setFlash('error', 'No more questions available.');
-            return $this->redirect(['exam/start']);
+            Yii::$app->session->setFlash('danger', 'No more questions available.');
+            return $this->redirect(['exam//']);
         }
 
         /** @var Mcqs $mcq */
         $mcq = Mcqs::findOne($currentMcqId);
 
         if (!$mcq) {
-            Yii::$app->session->setFlash('error', 'Question not found.');
-            return $this->redirect(['exam/start']);
+            Yii::$app->session->setFlash('danger', 'Question not found.');
+            return $this->redirect(['exam//']);
         }
 
         $timeLeft = null;
@@ -124,12 +124,14 @@ class McqController extends Controller
         $cacheKey = 'exam_' . $userId . '_' . $sessionId;
 
         if (!$questionId || !$answer || !$sessionId) {
-            return ['success' => false, 'message' => 'Invalid data'];
+            Yii::$app->session->setFlash('danger', 'Invalid data');
+            return $this->redirect(['/user/']);
         }
 
         $data = Yii::$app->cache->get($cacheKey);
         if (!$data || empty($data['mcq_ids'])) {
-            return ['success' => false, 'message' => 'Session expired.'];
+             Yii::$app->session->setFlash('danger', 'Session expired.');
+            return $this->redirect(['/user/']);
         }
 
         $mcqIds = $data['mcq_ids'];
@@ -139,7 +141,6 @@ class McqController extends Controller
         // Save the answer
         $responses[$questionId] = $answer;
 
-        // Move to next index
         $index++;
         $nextMcqId = $mcqIds[$index] ?? null;
 
@@ -147,23 +148,19 @@ class McqController extends Controller
         if (!$nextMcqId) {
             $this->finalizeExamSession($sessionId, $userId, $responses);
 
-            return [
-                'success' => true,
-                'completed' => true,
-                'redirect' => Url::to(['/exam/completed', 'id' => $sessionId]),
-                'message' => 'Exam completed',
-            ];
+            Yii::$app->session->setFlash('success', 'Exam Complete.');
+            return $this->redirect(['/user/']);
         }
 
         // Update cache
         $data['responses'] = $responses;
         $data['current_index'] = $index;
-        Yii::$app->cache->set($cacheKey, $data, 3600); // Extend TTL
+        Yii::$app->cache->set($cacheKey, $data, 3600);
 
-        // Load next MCQ
         $mcq = Mcqs::findOne($nextMcqId);
         if (!$mcq) {
-            return ['success' => false, 'message' => 'Next question not found.'];
+           Yii::$app->session->setFlash('danger', 'Next question not found.');
+            return $this->redirect(['/user/']);
         }
 
         $questionHtml = $this->renderPartial('partials/_question', [

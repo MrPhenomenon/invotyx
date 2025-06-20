@@ -40,8 +40,7 @@ $this->registerCssFile('https://cdn.jsdelivr.net/npm/choices.js/public/assets/st
 
             <div class="mb-3">
                 <label for="chapters" class="form-label">Select Topic</label>
-                <select id="topicSelect" name="topic_ids[]" multiple
-                    data-url="<?= Url::to(['exam/get-topics']) ?>">
+                <select id="topicSelect" name="topic_ids[]" multiple data-url="<?= Url::to(['exam/get-topics']) ?>">
                     <option value="0" selected>All topics for selected chapters</option>
                 </select>
             </div>
@@ -235,3 +234,15 @@ JS;
 
 $this->registerJS($js, \yii\web\View::POS_END)
     ?>
+
+<?php
+$js = '';
+foreach (Yii::$app->session->getAllFlashes() as $type => $message) {
+
+    $toastType = $type;
+     $js .= "showToast(" . json_encode($message) . ", " . json_encode($type) . ");\n";
+}
+if ($js) {
+    $this->registerJs($js, \yii\web\View::POS_READY);
+}
+?>

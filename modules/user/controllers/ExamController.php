@@ -53,7 +53,7 @@ class ExamController extends Controller
         $request = Yii::$app->request;
 
         if (!$request->isPost) {
-            return $this->redirect(['exam/start']);
+            return $this->redirect(['exam/']);
         }
 
         $userId = Yii::$app->user->id;
@@ -90,8 +90,8 @@ class ExamController extends Controller
             ->column();
 
         if (empty($mcqIds)) {
-            Yii::$app->session->setFlash('error', 'No questions found matching the selected criteria.');
-            return $this->redirect(['exam/start']);
+            Yii::$app->session->setFlash('danger', 'No questions found matching the selected criteria.');
+            return $this->redirect(['exam/']);
         }
 
         if ($randomize) {
@@ -112,9 +112,9 @@ class ExamController extends Controller
         $session->total_questions = $questionCount;
 
         if (!$session->save()) {
-            Yii::$app->session->setFlash('error', 'Could not start exam session.');
+            Yii::$app->session->setFlash('danger', 'Could not start exam session.');
             Yii::debug($session->errors);
-            return $this->redirect(['/user/exam']);
+            return $this->redirect(['/user/']);
         }
 
         // Cache Session State

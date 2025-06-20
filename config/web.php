@@ -27,7 +27,7 @@ $config = [
                     'class' => 'yii\authclient\clients\Google',
                     'clientId' => '425138559645-82jehbe38vplgr2o99nce8bk3l65fgmh.apps.googleusercontent.com',
                     'clientSecret' => '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',
-                    'returnUrl' => 'http://localhost:8080/site/auth?authclient=google',
+                    'returnUrl' => 'https://www.ikjimpex.com/invotyx/site/auth?authclient=google',
                 ],
             ],
         ],
@@ -78,6 +78,7 @@ $config = [
                 '/register' => 'site/registration',
                 '/pricing' => 'site/pricing',
                 '/login' => 'site/login',
+                '/admin/login' => 'site/admin-login',
             ],
         ],
 

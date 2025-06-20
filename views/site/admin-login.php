@@ -55,7 +55,6 @@ $adminUrl = Url::to(['admin//']);
 $js = <<<JS
     $('#admin-form').on('submit', function(e){
         e.preventDefault();
-
         const form = new FormData(this);
 
         $.ajax({

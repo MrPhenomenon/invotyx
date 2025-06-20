@@ -1,67 +1,48 @@
-    <!-- Page Title -->
-    <div class="text-center pt-5" data-aos="fade">
-      <h1>Pick a plan to start your journey</h1>
-    </div><!-- End Page Title -->
+<?php 
+use yii\helpers\Url;
+?>
 
-    <!-- Pricing Section -->
-    <section id="pricing" class="pricing section">
-
-      <div class="container">
-
-        <div class="row gy-3 justify-content-center">
-
-          <div class="col-xl-3 col-lg-6" data-aos="fade-up" data-aos-delay="100">
-            <div class="pricing-item shadow">
-              <h3>Free</h3>
-              <h4><sup>$</sup>0<span> / month</span></h4>
-              <ul>
-                <li>Aida dere</li>
-                <li>Nec feugiat nisl</li>
-                <li>Nulla at volutpat dola</li>
-                <li class="na">Pharetra massa</li>
-                <li class="na">Massa ultricies mi</li>
-              </ul>
-              <div class="btn-wrap">
-                <a href="register" class="btn-buy">Subscribe Now</a>
-              </div>
-            </div>
-          </div><!-- End Pricing Item -->
-
-          <div class="col-xl-3 col-lg-6" data-aos="fade-up" data-aos-delay="200">
-            <div class="pricing-item featured shadow" style="scale: 1.1; z-index: 9;">
-              <h3>Business</h3>
-              <h4><sup>$</sup>19<span> / month</span></h4>
-              <ul>
-                <li>Aida dere</li>
-                <li>Nec feugiat nisl</li>
-                <li>Nulla at volutpat dola</li>
-                <li>Pharetra massa</li>
-                <li class="na">Massa ultricies mi</li>
-              </ul>
-              <div class="btn-wrap">
-                <a href="register" class="btn-buy">Subscribe Now</a>
-              </div>
-            </div>
-          </div><!-- End Pricing Item -->
-
-          <div class="col-xl-3 col-lg-6" data-aos="fade-up" data-aos-delay="400">
-            <div class="pricing-item shadow">
-              <h3>Developer</h3>
-              <h4><sup>$</sup>29<span> / month</span></h4>
-              <ul>
-                <li>Aida dere</li>
-                <li>Nec feugiat nisl</li>
-                <li>Nulla at volutpat dola</li>
-                <li>Pharetra massa</li>
-                <li>Massa ultricies mi</li>
-              </ul>
-              <div class="btn-wrap">
-                <a href="registeration" class="btn-buy">Subscribe Now</a>
-              </div>
-            </div>
-          </div><!-- End Pricing Item -->
-        </div>
-
+<section id="pricing" class="pricing section">
+  <div class="container">
+    <div class="row gy-4 justify-content-center">
+      <div class="col-12 text-center mb-4">
+        <h3>Select a Subscription</h3>
       </div>
 
-    </section><!-- /Pricing Section -->
+      <?php foreach ($plans as $index => $plan): ?>
+        <div class="col-xl-3 col-md-6 d-flex">
+          <div class="pricing-item shadow p-4 w-100 d-flex flex-column <?= $index === 1 ? 'featured' : '' ?>"
+            style="<?= $index === 1 ? 'scale: 1.05; z-index: 9;' : '' ?>">
+            <div class="mb-3 text-center">
+              <h3><?= htmlspecialchars($plan['name']) ?></h3>
+              <h4><sup>$</sup><?= $plan['price'] ?><span> / <?= $plan['duration_days'] ?>
+                  days</span></h4>
+            </div>
+
+            <ul class="list-unstyled flex-grow-1">
+              <?php
+              $features = json_decode($plan['features_json'], true);
+              foreach ($features as $f):
+                $isAvailable = strpos($f, '[x]') === false;
+                $text = str_replace('[x]', '', $f);
+                ?>
+                <li class="mb-2 d-flex align-items-center <?= $isAvailable ? '' : 'text-secondary' ?>">
+                  <i
+                    class="bi <?= $isAvailable ? 'bi-check-circle-fill text-success' : 'bi-x-circle text-secondary' ?> me-2"></i>
+                  <?= htmlspecialchars($text) ?>
+                </li>
+              <?php endforeach ?>
+            </ul>
+
+            <div class="btn-wrap mt-3 text-center">
+              <a href="<?=Url::to(['/register'])?>">
+                <label class="btn btn-outline-primary px-4" for="plan-<?= $plan['id'] ?>">Register Now</label>
+              </a>
+            </div>
+          </div>
+        </div>
+      <?php endforeach; ?>
+
+    </div>
+  </div>
+</section>

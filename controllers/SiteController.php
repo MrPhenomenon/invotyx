@@ -10,6 +10,7 @@ use app\models\Users;
 use app\models\UserSubscriptions;
 use yii\authclient\ClientInterface;
 use Yii;
+use yii\helpers\Url;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
@@ -78,7 +79,10 @@ class SiteController extends Controller
 
     public function actionPricing()
     {
-        return $this->render('pricing');
+        $plans = Subscriptions::find()->asArray()->all();
+        return $this->render('pricing', [
+            'plans' => $plans,
+        ]);
     }
     /**
      * Login action.
@@ -167,7 +171,7 @@ class SiteController extends Controller
 
             $transaction->commit();
             Yii::$app->user->login($user);
-            return ['success' => true];
+            return ['success' => true, 'redirect' => Url::to(['user//'])];
 
         } catch (\Exception $e) {
             $transaction->rollBack();
@@ -206,7 +210,6 @@ class SiteController extends Controller
             $user->save(false);
             return $this->redirect('/register');
         }
-
         Yii::$app->user->login($user);
     }
 
@@ -218,6 +221,11 @@ class SiteController extends Controller
     public function actionLogout()
     {
         Yii::$app->user->logout();
+        return $this->goHome();
+    }
+    public function actionLogoutAdmin()
+    {
+        Yii::$app->admin->logout();
         return $this->goHome();
     }
 
