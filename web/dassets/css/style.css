@@ -16129,7 +16129,7 @@ pre[class*=language-] > code {
   background: var(--pc-sidebar-active-color);
 }
 .pc-sidebar .pc-navbar > .pc-item .pc-submenu .pc-link {
-  padding: 10px 30px 10px 58px;
+  padding: 10px 30px 10px 42px;
 }
 .pc-sidebar .pc-navbar > .pc-item .pc-submenu .pc-submenu .pc-link {
   padding: 10px 30px 10px 80px;
@@ -16179,6 +16179,7 @@ pre[class*=language-] > code {
   position: relative;
   height: calc(100vh - 60px);
   padding: 10px 0;
+    overflow-y: scroll;
 }
 .pc-sidebar .card {
   box-shadow: var(--bs-card-box-shadow);

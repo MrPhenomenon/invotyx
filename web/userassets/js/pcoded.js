@@ -728,12 +728,16 @@ var slideToggle = (target, duration = 0) => {
 };
 
 $(document).on({
-  ajaxStart: function () {
-    showloader();
+  ajaxSend: function (event, jqXHR, settings) {
+    if (!settings._excludeFromGlobalLoader) {
+      showloader();
+    }
   },
-  ajaxStop: function () {
-    hideloader();
-  },
+  ajaxComplete: function (event, jqXHR, settings) {
+    if (!settings._excludeFromGlobalLoader) {
+      hideloader();
+    }
+  }
 });
 
 function showloader() {

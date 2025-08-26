@@ -43,8 +43,6 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
 
     <?php include 'footer.php' ?>
     <!-- Preloader -->
-    <div id="preloader"></div>
-
 
     <?php $this->endBody() ?>
 </body>

@@ -1,5 +1,6 @@
-<?php 
+<?php
 use yii\helpers\Url;
+$this->title = 'Pricing';
 ?>
 
 <section id="pricing" class="pricing section">
@@ -21,7 +22,13 @@ use yii\helpers\Url;
 
             <ul class="list-unstyled flex-grow-1">
               <?php
-              $features = json_decode($plan['features_json'], true);
+              $decoded = json_decode($plan['features_json'], true);
+
+              if (is_string($decoded)) {
+                $decoded = json_decode($decoded, true);
+              }
+
+              $features = is_array($decoded) ? $decoded : [];
               foreach ($features as $f):
                 $isAvailable = strpos($f, '[x]') === false;
                 $text = str_replace('[x]', '', $f);
@@ -35,7 +42,7 @@ use yii\helpers\Url;
             </ul>
 
             <div class="btn-wrap mt-3 text-center">
-              <a href="<?=Url::to(['/register'])?>">
+              <a href="<?= Url::to(['/register']) ?>">
                 <label class="btn btn-outline-primary px-4" for="plan-<?= $plan['id'] ?>">Register Now</label>
               </a>
             </div>

@@ -211,6 +211,8 @@ class SiteController extends Controller
             return $this->redirect('/register');
         }
         Yii::$app->user->login($user);
+        Yii::$app->getResponse()->redirect(['user//'])->send();
+        Yii::$app->end();
     }
 
     /**
@@ -236,15 +238,7 @@ class SiteController extends Controller
      */
     public function actionContact()
     {
-        $model = new ContactForm();
-        if ($model->load(Yii::$app->request->post()) && $model->contact(Yii::$app->params['adminEmail'])) {
-            Yii::$app->session->setFlash('contactFormSubmitted');
-
-            return $this->refresh();
-        }
-        return $this->render('contact', [
-            'model' => $model,
-        ]);
+        return $this->render('contact');
     }
 
     /**
@@ -281,10 +275,15 @@ class SiteController extends Controller
 
 
 
-    public function actionDebugCache($key)
+    public function actionCache($key)
     {
         $data = Yii::$app->cache->get($key);
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         return $data ?: ['error' => 'Not found'];
+    }
+
+    public function actionExam()
+    {
+        return $this->render('exam');
     }
 }

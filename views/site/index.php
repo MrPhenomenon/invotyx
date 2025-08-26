@@ -2,7 +2,7 @@
 
 /** @var yii\web\View $this */
 
-$this->title = 'My Yii Application';
+$this->title = 'Part 1 - Home';
 ?>
     <!-- Hero Section -->
     <section id="hero" class="hero section pb-0 pt-0"> <!-- Removed pb-0, padding will be handled by CSS -->
@@ -287,6 +287,6 @@ $this->title = 'My Yii Application';
     <section class="py-5 bg-light">
       <div class="container text-center" data-aos="fade-up" data-aos-delay="100">
         <h2 class="text-uppercase fw-bold mb-4 text-primary">Start Your Journey Now</h2>
-        <a href="#" class="btn btn-primary btn-lg rounded-pill px-4 py-2">Register & Start Free Trial</a>
+        <a href="register" class="btn btn-primary btn-lg rounded-pill px-4 py-2">Register & Start Free Trial</a>
       </div>
     </section>

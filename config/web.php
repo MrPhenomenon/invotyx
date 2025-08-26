@@ -18,6 +18,9 @@ $config = [
         'user' => [
             'class' => 'app\modules\user\Module',
         ],
+        'partners' => [
+            'class' => 'app\modules\partners\Module',
+        ],
     ],
     'components' => [
         'authClientCollection' => [
@@ -30,6 +33,13 @@ $config = [
                     'returnUrl' => 'https://www.ikjimpex.com/invotyx/site/auth?authclient=google',
                 ],
             ],
+        ],
+        'formatter' => [
+            'class' => 'yii\i18n\Formatter',
+            'dateFormat' => 'dd.MM.yyyy',
+            'decimalSeparator' => ',',
+            'thousandSeparator' => ' ',
+            'currencyCode' => 'USD', // <--- ADD THIS LINE (or your preferred currency code like 'EUR', 'GBP', etc.)
         ],
         'request' => [
             'cookieValidationKey' => 'hjcmbQv20kzanekS7an6c7MTaYPK_wHB',
@@ -65,6 +75,7 @@ $config = [
                 [
                     'class' => 'yii\log\FileTarget',
                     'levels' => ['error', 'warning'],
+                    'logFile' => '@runtime/logs/app.log',
                 ],
             ],
         ],
@@ -79,6 +90,18 @@ $config = [
                 '/pricing' => 'site/pricing',
                 '/login' => 'site/login',
                 '/admin/login' => 'site/admin-login',
+
+                // User Panel
+
+                'user/results/<id:\d+>' => 'user/results/view',
+                'user/profile' => 'user/default/profile',
+
+                //Orthopedic Exam
+                'user/orthopedic-exam/start-exam/<id:\w+>' => 'user/orthopedic-exam/start-exam',
+                'user/orthopedic-exam/take-exam/<attempt:\d+>/<passkey:[a-zA-Z0-9_-]+>' => 'user/orthopedic-exam/take-exam',
+                'user/orthopedic-exam/break-screen/<attempt:\d+>/<passkey:[a-zA-Z0-9_-]+>' => 'user/orthopedic-exam/break-screen',
+                'user/orthopedic-exam/finalize-exam-and-redirect/<attempt:\d+>/<passkey:[a-zA-Z0-9_-]+>' => 'user/orthopedic-exam/finalize-exam-and-redirect',
+                'user/orthopedic-exam/result/<attempt:\d+>/<passkey:[a-zA-Z0-9_-]+>' => 'user/orthopedic-exam/result',
             ],
         ],
 

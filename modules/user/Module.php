@@ -10,15 +10,27 @@ class Module extends \yii\base\Module
 {
     public function beforeAction($action)
     {
-        if (parent::beforeAction($action)) {
-            if (Yii::$app->user->isGuest && Yii::$app->controller->id !== 'site') {
-                Yii::$app->response->redirect(['site/login'])->send();
-                return false;
-            }
+        if (!parent::beforeAction($action)) {
+            return false;
+        }
+
+        // Allow public access to certain controllers
+        $publicControllers = ['orthopedic-exam'];
+
+        $controller = Yii::$app->controller->id;
+
+        if (in_array($controller, $publicControllers)) {
             return true;
         }
-        return false;
+
+        if (Yii::$app->user->isGuest && $controller !== 'site') {
+            Yii::$app->response->redirect(['site/login'])->send();
+            return false;
+        }
+
+        return true;
     }
+
     /**
      * {@inheritdoc}
      */

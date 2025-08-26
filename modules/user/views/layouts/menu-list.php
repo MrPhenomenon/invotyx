@@ -6,13 +6,12 @@ use yii\helpers\Url;
   <i class="ti ti-dashboard"></i>
 </li>
 <li class="pc-item">
-  <a href="../elements/bc_typography.html" class="pc-link">
+  <a href="<?= Url::to(['default/index']) ?>" class="pc-link">
     <span class="pc-micon"> <i class="bi bi-speedometer2"></i></span>
     <span class="pc-mtext">Dashboard (NF)</span>
   </a>
 </li>
 <li class="pc-item">
-
   <a href="../elements/bc_typography.html" class="pc-link">
     <span class="pc-micon"><i class="bi bi-graph-up"></i></span>
     <span class="pc-mtext">Analytics (NF)</span>
@@ -36,9 +35,9 @@ use yii\helpers\Url;
   </a>
 </li>
 <li class="pc-item">
-  <a href="../pages/register.html" class="pc-link">
+  <a href="<?= Url::to(['results/']) ?>" class="pc-link">
     <span class="pc-micon"><i class="bi bi-clock-history"></i></span>
-    <span class="pc-mtext">Practice History (NF)</span>
+    <span class="pc-mtext">Exam History</span>
   </a>
 </li>
 
@@ -53,12 +52,6 @@ use yii\helpers\Url;
     <span class="pc-mtext">Bookmarked (NF)</span>
   </a>
 </li>
-<li class="pc-item">
-  <a href="../other/sample-page.html" class="pc-link">
-    <span class="pc-micon"><i class="bi bi-hourglass-bottom"></i></span>
-    <span class="pc-mtext">Recently Practiced (NF)</span>
-  </a>
-</li>
 <div class="mt-4">
   <li class="pc-item">
     <a href="../other/sample-page.html" class="pc-link">
@@ -67,9 +60,9 @@ use yii\helpers\Url;
     </a>
   </li>
   <li class="pc-item">
-    <a href="../other/sample-page.html" class="pc-link">
+    <a href="<?= Url::to(['default/profile']) ?>" class="pc-link">
       <span class="pc-micon"> <i class="bi bi-gear"></i></span>
-      <span class="pc-mtext">Settings (NF)</span>
+      <span class="pc-mtext">Profile</span>
     </a>
   </li>
 </div>

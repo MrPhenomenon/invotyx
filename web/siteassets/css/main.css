@@ -982,26 +982,16 @@ section,
 .hero-image-blob-container::before {
   content: "";
   position: absolute;
-  z-index: 1; /* Behind the image */
-
-  /* Blob Dimensions & Positioning */
-  /* Adjust these values to change the blob's size and how much it "peeks" */
-  width: 120%;  /* Make it wider than the image */
-  height: 110%; /* Make it taller than the image */
-  top: 50%;     /* Center vertically */
-  left: 50%;    /* Center horizontally */
-  
-  /* Nudge the blob slightly for an off-center, more organic look and rotate it */
-  transform: translate(-55%, -52%) rotate(-15deg); 
-
-  /* Blob Appearance */
-  background: linear-gradient(135deg, rgba(60, 120, 180, 0.4), rgba(80, 150, 220, 0.25)); /* Soft blue gradient */
-  
-  /* Creates an organic, "blobby" shape. You can generate these at blobmaker.app */
-  border-radius: 60% 40% 30% 70% / 50% 60% 40% 50%; 
-  
-  opacity: 0.6; /* Adjust for desired subtlety */
-  filter: blur(35px); /* Softens the edges of the blob significantly */
+  z-index: 1;
+  width: 136%;
+  height: 110%;
+  top: 58%;
+  left: 54%;
+  transform: translate(-55%, -52%) rotate(-15deg);
+  background: linear-gradient(135deg, rgba(60, 120, 180, 0.4), rgba(80, 150, 220, 0.25));
+  border-radius: 60% 40% 30% 70% / 50% 60% 40% 50%;
+  opacity: 0.6;
+  filter: blur(35px);
 }
 
 

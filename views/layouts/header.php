@@ -6,7 +6,7 @@ use yii\helpers\Url;
   <div class="container-fluid container-xl position-relative d-flex align-items-center">
 
     <a href="<?= Yii::$app->homeUrl ?>" class="logo d-flex align-items-center me-auto">
-      <img src="<?= Yii::getAlias('@web') ?>/siteassets/img/logo.png" alt="">
+      <img src="<?= Yii::getAlias('@web') ?>/siteassets/img/logo1.png" alt="">
 
     </a>
 

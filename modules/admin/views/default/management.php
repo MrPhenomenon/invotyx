@@ -34,7 +34,6 @@ use yii\helpers\Html;
                     <td><?= $mem['email'] ?></td>
 
                     <td>
-                        <button class="btn btn-sm btn-primary" data-id="<?= $mem['id'] ?>">Edit</button>
                         <button class="btn btn-sm btn-danger btn-delete" data-id="<?= $mem['id'] ?>" data-item="a member <?= $mem['name'] ?>"
                             data-url="<?= Url::to(['default/delete-user']) ?>">Delete</button>
                     </td>

@@ -35,7 +35,7 @@ use yii\helpers\Url;
 
 
     <div id="registration-step">
-        <form id="register"  data-url="<?= Url::to(['site/register-user']) ?>">
+        <form id="register" data-url="<?= Url::to(['site/register-user']) ?>">
             <!-- Step 1: Sign Up -->
             <div class="step active" data-step="1">
                 <section class="p-3 p-md-4 p-xl-5">
@@ -47,6 +47,13 @@ use yii\helpers\Url;
                                     <input type="text" class="form-control" name="name" id="name" placeholder="John Doe"
                                         required>
                                     <label for="name" class="form-label">Name</label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" name="phone" id="phone"
+                                        placeholder="Phone Number" required>
+                                    <label for="phone" class="form-label">Phone Number</label>
                                 </div>
                             </div>
                             <div class="col-12">
@@ -103,7 +110,13 @@ use yii\helpers\Url;
 
                                         <ul class="list-unstyled flex-grow-1">
                                             <?php
-                                            $features = json_decode($plan['features_json'], true);
+                                            $decoded = json_decode($plan['features_json'], true);
+
+                                            if (is_string($decoded)) {
+                                                $decoded = json_decode($decoded, true);
+                                            }
+
+                                            $features = is_array($decoded) ? $decoded : [];
                                             foreach ($features as $f):
                                                 $isAvailable = strpos($f, '[x]') === false;
                                                 $text = str_replace('[x]', '', $f);
@@ -144,7 +157,8 @@ use yii\helpers\Url;
                         <div class="row gy-3 mt-2 overflow-hidden">
                             <div class="col-12">
                                 <label for="" class="form-label">Exam Type</label>
-                                <select name="exam_type" class="form-select py-3" id="examSelect" required  data-url="<?= Url::to(['site/get-specialization']) ?>">
+                                <select name="exam_type" class="form-select py-3" id="examSelect" required
+                                    data-url="<?= Url::to(['site/get-specialization']) ?>">
                                     <option value="">Select Your Exam</option>
                                     <?php foreach ($exams as $exam): ?>
                                         <option value="<?= $exam['id'] ?>"><?= $exam['name'] ?></option>
@@ -194,7 +208,10 @@ $js = <<<JS
             contentType: false,
             success: function (res) {
                 if (res.success) {
-                showToast('User Registration Complete');
+                showToast('User Registration Complete, redirecting...');
+                setTimeout(() => {
+                    window.location.href = res.redirect
+                }, 1000);
             } else {
                 if (res.err?.email) {
                 showToast('This email is already in use. Please log in or use another.', 'danger');

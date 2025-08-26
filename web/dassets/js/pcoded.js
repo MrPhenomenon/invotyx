@@ -748,7 +748,7 @@ function showToast(message, type = 'success') {
   const $toast = $('#global-toast');
   const $body = $('#global-toast-body');
 
-  $body.text(message);
+  $body.html(message);
 
   // Update type (Bootstrap color class)
   $toast.removeClass('bg-success bg-danger bg-warning bg-info')

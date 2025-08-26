@@ -3,8 +3,12 @@
 namespace app\modules\admin\controllers;
 
 use app\models\Chapters;
+use app\models\OrganSystems;
+use app\models\Subjects;
 use app\models\Topics;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use yii\helpers\FileHelper;
+use yii\helpers\Json;
 use yii\web\UploadedFile;
 use yii\web\Response;
 use app\models\Mcqs;
@@ -171,91 +175,194 @@ class McqController extends Controller
             return ['success' => false, 'message' => 'No file uploaded.'];
         }
 
-        try {
-            $topics = Topics::find()
-                ->select(['id', 'name'])
-                ->indexBy('name')
-                ->asArray()
-                ->all();
+        $importTimestamp = date('Ymd_His');
+        Yii::$app->params['importTimestamp'] = $importTimestamp;
 
+        $importLogFileName = 'mcq_import_errors_' . $importTimestamp . '.log';
+        $importLogFilePath = Yii::getAlias('@runtime/logs/mcq_import/' . $importLogFileName);
+
+        $importCategory = 'mcq-import-log-' . $importTimestamp;
+        Yii::$app->log->targets['mcqImport'] = new \app\components\PlainFileTarget([
+            'logFile' => $importLogFilePath,
+            'logVars' => [],
+            'categories' => [$importCategory],
+        ]);
+
+
+        $organSystems = OrganSystems::find()->select(['id', 'name'])->indexBy('name')->asArray()->all();
+        $subjects = Subjects::find()->select(['id', 'name'])->indexBy('name')->asArray()->all();
+        $topicsLookup = [];
+        $chaptersLookup = Chapters::find()->select(['id', 'name'])->indexBy('name')->asArray()->all();
+        foreach (Topics::find()->all() as $topic) {
+            $topicsLookup[strtolower($topic->name)][$topic->chapter_id] = $topic->id;
+        }
+
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
             $spreadsheet = IOFactory::load($uploadedFile->tempName);
             $sheet = $spreadsheet->getActiveSheet();
             $rows = $sheet->toArray();
 
-            unset($rows[0]);
+            // Header validation
+            $header = array_map('trim', array_map('strtoupper', array_slice($rows[0], 0, 15)));
+            $expectedHeader = [
+                'QUESTION ID',
+                'ORGAN SYSTEM',
+                'SUBJECT',
+                'CHAPTER',
+                'TOPIC',
+                'QUESTION',
+                'A',
+                'B',
+                'C',
+                'D',
+                'E',
+                'ANSWER',
+                'EXPLANATION',
+                'REFERENCE',
+                'DIFFICULTYLEVEL'
+            ];
 
-            Yii::debug('Row count after header removal: ' . count($rows), 'mcq-import');
+            if ($header !== $expectedHeader) {
+                $transaction->rollBack();
+                $logMessage = 'Uploaded file header mismatch. Expected: ' . implode(', ', $expectedHeader) . '. Got: ' . implode(', ', $header);
+                Yii::error($logMessage, $importCategory);
+                Yii::info('[ERROR] ' . $logMessage, $importCategory);
+                return ['success' => false, 'message' => 'Invalid file format. Please upload the correct MCQ template.'];
+            }
+
+            unset($rows[0]);
 
             $userId = Yii::$app->admin->identity->id;
             $batchSize = 100;
             $success = 0;
             $duplicates = 0;
             $failed = 0;
-            $batch = [];
+            $mcqBatchForDb = [];
 
-            foreach ($rows as $i => $row) {
+            foreach ($rows as $rowIndex => $row) {
+                // Skip empty rows
                 if (empty(array_filter($row))) {
                     continue;
                 }
-                $questionText = trim($row[2] ?? '');
-                $questionHash = hash('sha256', strtolower(preg_replace('/\s+/', ' ', $questionText)));
 
+                $questionId = trim($row[0] ?? '');
+                $organSystemName = trim($row[1] ?? '');
+                $subjectName = trim($row[2] ?? '');
+                $chapterName = trim($row[3] ?? '');
+                $topicName = trim($row[4] ?? '');
+                $questionText = trim($row[5] ?? '');
+                $optionA = $row[6] ?? '';
+                $optionB = $row[7] ?? '';
+                $optionC = $row[8] ?? '';
+                $optionD = $row[9] ?? null;
+                $optionE = $row[10] ?? null;
+                $correctOption = strtoupper(trim($row[11] ?? ''));
+                $explanation = $row[12] ?? null;
+                $reference = $row[13] ?? null;
+                $difficultyLevel = $row[14] ?? null;
+
+                $questionHash = hash('sha256', strtolower(preg_replace('/\s+/', ' ', $questionText)));
                 if (Mcqs::find()->where(['question_hash' => $questionHash])->exists()) {
-                    Yii::debug('Duplicate found');
                     $duplicates++;
+                    $failed++;
+                    Yii::info("Row " . ($rowIndex + 2) . " (QID: {$questionId}): SKIPPED - Duplicate question based on question statement.", $importCategory);
                     continue;
                 }
 
-                $topicName = trim($row[1] ?? '');
-                $topicId = $topics[$topicName]['id'] ?? null;
-                if (!$topicId) {
-                    Yii::debug('Topic not found' . $row[0] . $row[1]);
+                $organSystemId = $organSystems[$organSystemName]['id'] ?? null;
+                $subjectId = $subjects[$subjectName]['id'] ?? null;
+                $chapterId = $chaptersLookup[$chapterName]['id'] ?? null;
+                $topicId = $topicsLookup[$topicName][$chapterId] ?? null;
+
+                if (!$organSystemId || !$subjectId || !$chapterId || !$topicId) {
                     $failed++;
+                    $reason = "Hierarchy lookup failed. OS: '{$organSystemName}' (ID: {$organSystemId}), Subject: '{$subjectName}' (ID: {$subjectId}), Chapter: '{$chapterName}' (ID: {$chapterId}), Topic: '{$topicName}' (ID: {$topicId}).";
+                    Yii::info("Row " . ($rowIndex + 2) . " (QID: {$questionId}): FAILED - {$reason}", $importCategory);
+                    continue;
+                }
+
+                // --- Basic Data Validation ---
+                if (empty($questionText) || empty($correctOption) || !in_array($correctOption, ['A', 'B', 'C', 'D', 'E'])) {
+                    $failed++;
+                    $reason = "Missing or invalid essential MCQ data (Question Text or Correct Option).";
+                    Yii::info("Row " . ($rowIndex + 2) . " (QID: {$questionId}): FAILED - {$reason}", $importCategory);
                     continue;
                 }
 
                 $mcq = new Mcqs();
-                $mcq->question_id = $row[0];
+                $mcq->question_id = $questionId;
                 $mcq->question_text = $questionText;
                 $mcq->question_hash = $questionHash;
-                $mcq->option_a = $row[3];
-                $mcq->option_b = $row[4];
-                $mcq->option_c = $row[5];
-                $mcq->option_d = $row[6];
-                $mcq->option_e = $row[7];
-                $mcq->correct_option = strtoupper(trim($row[8]));
-                $mcq->explanation = $row[9] ?? null;
-                $mcq->reference = $row[10] ?? null;
+                $mcq->option_a = $optionA;
+                $mcq->option_b = $optionB;
+                $mcq->option_c = $optionC;
+                $mcq->option_d = $optionD;
+                $mcq->option_e = $optionE;
+                $mcq->correct_option = $correctOption;
+                $mcq->explanation = $explanation;
+                $mcq->reference = $reference;
+                $mcq->difficulty_level = $difficultyLevel;
                 $mcq->topic_id = $topicId;
+                $mcq->organ_system_id = $organSystemId;
+                $mcq->subject_id = $subjectId;
                 $mcq->created_by = $userId;
 
-                $batch[] = $mcq;
+                $mcqBatchForDb[] = $mcq;
 
-                if (count($batch) <= $batchSize || $i === array_key_last($rows)) {
-                    foreach ($batch as $mcqModel) {
+                if (count($mcqBatchForDb) >= $batchSize) {
+                    foreach ($mcqBatchForDb as $mcqModel) {
                         if ($mcqModel->save()) {
                             $success++;
                         } else {
-                            var_dump($mcqModel->getErrors());
                             $failed++;
-                            return [
-                                'success' => false,
-                                'message' => "Imported: {$success}, Duplicates: {$duplicates}, Failed: {$failed}.",
-                                'errors' => $mcqModel->getErrors(),
-                            ];
+                            $errors = $mcqModel->getErrors();
+                            Yii::info("Row " . ($rowIndex + 2) . " (QID: {$mcqModel->question_id}): FAILED - DB Save Errors: " . Json::encode($errors), $importCategory);
+                            Yii::error("DB Save failed for MCQ QID: {$mcqModel->question_id}. Errors: " . print_r($errors, true), 'mcq-import-error');
                         }
                     }
-                    $batch = [];
-                } else {
-                    Yii::debug('Not running save model ');
+                    $mcqBatchForDb = [];
                 }
+            }
+
+            if (!empty($mcqBatchForDb)) {
+                foreach ($mcqBatchForDb as $mcqModel) {
+                    if ($mcqModel->save()) {
+                        $success++;
+                    } else {
+                        $failed++;
+                        $errors = $mcqModel->getErrors();
+                        Yii::info("Row " . ($rowIndex + 2) . " (QID: {$mcqModel->question_id}): FAILED - DB Save Errors: " . Json::encode($errors), $importCategory);
+                        Yii::error("DB Save failed for final batch MCQ QID: {$mcqModel->question_id}. Errors: " . print_r($errors, true), 'mcq-import-error');
+                    }
+                }
+            }
+
+            $transaction->commit();
+            Yii::getLogger()->flush(true);
+            Yii::$app->log->targets['mcqImport']->export();
+            $message = "Import finished. Imported: {$success}, Duplicates: {$duplicates}, Failed: {$failed}.";
+            if ($failed > 0) {
+                $downloadUrl = Yii::$app->urlManager->createAbsoluteUrl([
+                    '/' . $this->module->id . '/' . $this->id . '/download-log',
+                    'filename' => $importLogFileName,
+                ]);
+
+                $message .= " <a href='{$downloadUrl}' target='_blank'>Download detailed import log.</a>";
             }
 
             return [
                 'success' => true,
-                'message' => "Imported: {$success}, Duplicates: {$duplicates}, Failed: {$failed}."
+                'message' => $message
             ];
+
         } catch (\Throwable $e) {
+            $transaction->rollBack();
+            $errorMessage = "MCQ import general error: " . $e->getMessage() . "\nStack: " . $e->getTraceAsString();
+            Yii::error($errorMessage, 'mcq-import-exception');
+            Yii::info('[FATAL ERROR] ' . $errorMessage, $importCategory);
+            Yii::getLogger()->flush(true);
+            Yii::$app->log->targets['mcqImport']->export();
             return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
         }
     }
@@ -296,11 +403,124 @@ class McqController extends Controller
         Yii::$app->response->format = Response::FORMAT_JSON;
         $id = Yii::$app->request->post();
         $mcq = Mcqs::findOne($id);
-        if(!$mcq){
-            return ['success' => false , 'message' => 'MCQ not found'];
+        if (!$mcq) {
+            return ['success' => false, 'message' => 'MCQ not found'];
         }
         return $mcq->delete()
-        ?  ['success' => true , 'message' => 'MCQ Deleted']
-        :   ['success' => false , 'message' => "MCQ could'nt be deleted"];
+            ? ['success' => true, 'message' => 'MCQ Deleted']
+            : ['success' => false, 'message' => "MCQ could'nt be deleted"];
+    }
+
+    public function actionUpdate()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $data = Yii::$app->request->post();
+
+        if (empty($data['mcq_id'])) {
+            return ['success' => false, 'message' => 'MCQ ID is required'];
+        }
+
+        $mcq = Mcqs::findOne($data['mcq_id']);
+        if (!$mcq) {
+            return ['success' => false, 'message' => 'MCQ not found'];
+        }
+
+        $mcq->question_id = $data['mcq_question_id'] ?? $mcq->question_id;
+        $mcq->topic_id = $data['mcq_topic_id'] ?? $mcq->topic_id;
+        $mcq->question_text = $data['mcq_question_text'] ?? $mcq->question_text;
+        $mcq->option_a = $data['mcq_option_a'] ?? $mcq->option_a;
+        $mcq->option_b = $data['mcq_option_b'] ?? $mcq->option_b;
+        $mcq->option_c = $data['mcq_option_c'] ?? $mcq->option_c;
+        $mcq->option_d = $data['mcq_option_d'] ?? $mcq->option_d;
+        $mcq->option_e = $data['mcq_option_e'] ?? $mcq->option_e;
+        $mcq->correct_option = isset($data['mcq_correct_option']) ? strtoupper($data['mcq_correct_option']) : $mcq->correct_option;
+        $mcq->explanation = $data['mcq_explanation'] ?? $mcq->explanation;
+        $mcq->reference = $data['mcq_reference'] ?? $mcq->reference;
+
+
+        if (isset($data['mcq_question_text'])) {
+            $normalized = strtolower(trim(preg_replace('/\s+/', ' ', $data['mcq_question_text'])));
+            $mcq->question_hash = hash('sha256', $normalized);
+        }
+
+        if ($mcq->save()) {
+            return ['success' => true, 'message' => 'MCQ updated successfully'];
+        } else {
+            return ['success' => false, 'message' => 'Update failed', 'errors' => $mcq->getErrors()];
+        }
+    }
+
+    public function actionDeleteChapter()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $id = Yii::$app->request->post('id');
+        if (!$id) {
+            return ['success' => false, 'message' => 'Missing chapter ID'];
+        }
+        $model = Chapters::findOne($id);
+        if (!$model) {
+            return ['success' => false, 'message' => 'Chapter not found'];
+        }
+        if ($model->delete()) {
+            return ['success' => true, 'message' => 'Chapter deleted'];
+        } else {
+            return ['success' => false, 'message' => 'Delete failed'];
+        }
+    }
+
+    public function actionDeleteTopics()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $id = Yii::$app->request->post('id');
+        if (!$id) {
+            return ['success' => false, 'message' => 'Missing topic ID'];
+        }
+        $model = Topics::findOne($id);
+        if (!$model) {
+            return ['success' => false, 'message' => 'Topic not found'];
+        }
+        if ($model->delete()) {
+            return ['success' => true, 'message' => 'Topic deleted'];
+        } else {
+            return ['success' => false, 'message' => 'Delete failed'];
+        }
+    }
+    public function actionDownloadLog($filename)
+    {
+
+        // if (!Yii::$app->user->can('viewMcqImportLogs')) {
+        //     throw new \yii\web\ForbiddenHttpException('You are not allowed to access this page.');
+        // }
+
+        if (!preg_match('/^mcq_import_errors_\d{8}_\d{6}\.log$/', $filename)) {
+            throw new \yii\web\BadRequestHttpException('Invalid filename.');
+        }
+
+        $filePath = Yii::getAlias('@runtime/logs/mcq_import/' . $filename);
+
+        if (!file_exists($filePath)) {
+            throw new \yii\web\NotFoundHttpException('The requested log file does not exist.');
+        }
+
+        $normalizedFilePath = FileHelper::normalizePath($filePath);
+        $expectedDir = FileHelper::normalizePath(Yii::getAlias('@runtime/logs/mcq_import'));
+        if (strpos($normalizedFilePath, $expectedDir) !== 0) {
+            throw new \yii\web\ForbiddenHttpException('Access to this file is forbidden.');
+        }
+
+        $response = Yii::$app->response->sendFile($filePath, $filename, ['inline' => false]);
+
+        $response->on(Response::EVENT_AFTER_SEND, function ($event) use ($filePath) {
+
+            if (file_exists($filePath)) {
+                if (unlink($filePath)) {
+                    Yii::info("Successfully deleted downloaded log file: {$filePath}", 'mcq-import-log-cleanup');
+                } else {
+                    Yii::error("Failed to delete downloaded log file: {$filePath}", 'mcq-import-log-cleanup-error');
+                }
+            }
+        });
+
+        return $response;
     }
 }
