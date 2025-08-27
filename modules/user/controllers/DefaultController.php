@@ -2,7 +2,11 @@
 
 namespace app\modules\user\controllers;
 
+use app\models\ExamSessions;
 use app\models\ExamSpecialties;
+use app\models\UserMcqInteractions;
+use app\models\Users;
+use app\models\UserSubscriptions;
 use yii\helpers\Html;
 use yii\web\Controller;
 use Yii;
@@ -18,7 +22,74 @@ class DefaultController extends Controller
      */
     public function actionIndex()
     {
-        return $this->render('index');
+        $userId = Yii::$app->user->id;
+        $user = Users::findOne($userId);
+
+        if (!$user) {
+            Yii::$app->session->setFlash('error', 'User not found.');
+            return $this->goHome(); // Or redirect to login
+        }
+
+        // 1. Subscription Status
+        $subscription = UserSubscriptions::find()
+            ->where(['user_id' => $userId])
+            // ->andWhere(['>', 'end_date', date('Y-m-d H:i:s')])
+            ->orderBy(['end_date' => SORT_DESC]) // Get the latest active
+            ->joinWith('subscription') // Load subscription details
+            ->one();
+            
+
+        // 2. Ongoing Exams
+        $ongoingExams = ExamSessions::find()
+            ->where(['user_id' => $userId, 'status' => 'InProgress'])
+            ->orderBy(['updated_at' => SORT_DESC])
+            ->limit(5)
+            ->all();
+
+        // 3. Recent Completed Exams
+        $recentExams = ExamSessions::find()
+            ->where(['user_id' => $userId, 'status' => 'Completed'])
+            ->orderBy(['end_time' => SORT_DESC])
+            ->limit(5)
+            ->all();
+
+        // 4. Overall Performance Metrics
+        $overallStats = [];
+        $totalInteractions = UserMcqInteractions::find()
+            ->where(['user_id' => $userId])
+            ->count();
+
+        $correctInteractions = UserMcqInteractions::find()
+            ->where(['user_id' => $userId, 'is_correct' => 1])
+            ->count();
+
+        $answeredInteractions = UserMcqInteractions::find()
+            ->where(['user_id' => $userId])
+            ->andWhere(['is not', 'selected_option', null])
+            ->count();
+
+        $completedExamsCount = ExamSessions::find()
+            ->where(['user_id' => $userId, 'status' => 'Completed'])
+            ->count();
+
+        $totalAccuracySum = ExamSessions::find()
+            ->where(['user_id' => $userId, 'status' => 'Completed'])
+            ->average('accuracy');
+
+        $overallStats['totalAttempted'] = $totalInteractions;
+        $overallStats['correctlyAnswered'] = $correctInteractions;
+        $overallStats['incorrectlyAnswered'] = $answeredInteractions - $correctInteractions;
+        $overallStats['skippedUnanswered'] = $totalInteractions - $answeredInteractions;
+        $overallStats['examsCompleted'] = $completedExamsCount;
+        $overallStats['overallAccuracy'] = $totalAccuracySum !== null ? round($totalAccuracySum, 2) : 0;
+
+        return $this->render('index', [
+            'user' => $user,
+            'subscription' => $subscription,
+            'ongoingExams' => $ongoingExams,
+            'recentExams' => $recentExams,
+            'overallStats' => $overallStats,
+        ]);
     }
 
 

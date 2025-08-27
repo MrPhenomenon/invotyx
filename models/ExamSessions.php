@@ -263,4 +263,9 @@ class ExamSessions extends \yii\db\ActiveRecord
     {
         $this->status = self::STATUS_TERMINATED;
     }
+
+    public function getUserMcqInteractions()
+    {
+        return $this->hasMany(UserMcqInteractions::class, ['exam_session_id' => 'id']);
+    }
 }

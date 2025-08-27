@@ -8,17 +8,17 @@ use yii\helpers\Url;
 <li class="pc-item">
   <a href="<?= Url::to(['default/index']) ?>" class="pc-link">
     <span class="pc-micon"> <i class="bi bi-speedometer2"></i></span>
-    <span class="pc-mtext">Dashboard (NF)</span>
+    <span class="pc-mtext">Dashboard</span>
   </a>
 </li>
 <li class="pc-item">
-  <a href="../elements/bc_typography.html" class="pc-link">
+  <a href="../page" class="pc-link">
     <span class="pc-micon"><i class="bi bi-graph-up"></i></span>
     <span class="pc-mtext">Analytics (NF)</span>
   </a>
 </li>
 <li class="pc-item">
-  <a href="../elements/bc_color.html" class="pc-link">
+  <a href="../page" class="pc-link">
     <span class="pc-micon"><i class="bi bi-journal-check"></i></span>
     <span class="pc-mtext">Study Plans (NF)</span>
   </a>
@@ -47,14 +47,14 @@ use yii\helpers\Url;
 </li>
 
 <li class="pc-item ">
-  <a href="../other/sample-page.html" class="pc-link">
+  <a href="../other/page" class="pc-link">
     <span class="pc-micon"> <i class="bi bi-clipboard-check"></i></span>
     <span class="pc-mtext">Bookmarked (NF)</span>
   </a>
 </li>
 <div class="mt-4">
   <li class="pc-item">
-    <a href="../other/sample-page.html" class="pc-link">
+    <a href="../other/page" class="pc-link">
       <span class="pc-micon">  <i class="bi bi-credit-card"></i></span>
       <span class="pc-mtext">Subscriptions (NF)</span>
     </a>

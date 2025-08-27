@@ -1,432 +1,423 @@
-<style>
+<?php
+
+use yii\helpers\Html;
+use yii\helpers\Url;
+
+/* @var $this yii\web\View */
+/* @var $user app\models\Users */
+/* @var $subscription app\models\UserSubscriptions */
+/* @var $ongoingExams app->models\ExamSessions[] */
+/* @var $recentExams app->models\ExamSessions[] */
+/* @var $overallStats array */
+
+$this->title = 'My Dashboard';
+$this->params['breadcrumbs'][] = $this->title;
+
+// Register Font Awesome for icons
+$this->registerCssFile('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+// Get overall accuracy for CSS variable injection
+$overallAccuracyPercentage = $overallStats['overallAccuracy'] ?? 0;
+
+$this->registerCss(<<<CSS
     :root {
-        --primary-blue: #0e273c;
-        --dark-blue: #0e273c;
-        --light-grey: #f8f9fa;
-        --dark-grey: #6c757d;
-        --text-color: #343a40;
-        --success-green: #28a745;
-        --warning-red: #dc3545;
+        --primary-site-color: #0e273c;
+        --primary-light-color: #1a416a;
+        --percentage: {$overallAccuracyPercentage}%;
     }
+    body {
+        background-color: #f0f2f5; 
+        font-family: 'Inter', sans-serif;
+    }
+    .dashboard-header {
+       background: 
+  linear-gradient(135deg, rgba(255,255,255,0.05), rgba(0,0,0,0.2)),
+  linear-gradient(135deg, #0B1F30 0%, #123C7A 60%, #1E6DE8 100%);
 
-    /* --- Welcome Header --- */
-    .welcome-header {
+        color: white;
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0 0 8px 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    .dashboard-header h1 {
+        font-weight: 700;
+    }
+    .dashboard-card {
+         background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         display: flex;
-        align-items: center;
-        margin-bottom: 25px;
-        padding: 15px;
-        background-color: #ffffff;
-        border-radius: var(--border-radius);
-        box-shadow: var(--card-shadow);
-    }
+        flex-direction: column;
 
-    .welcome-header .profile-pic {
-        width: 50px;
-        height: 50px;
-        background-color: var(--medium-grey);
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        border: none;
+    }
+    .dashboard-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+    .stat-icon {
+        font-size: 2.5rem;
+        opacity: 0.6;
+        margin-bottom: 0.75rem;
+    }
+    .stat-value {
+        font-size: 2.25rem;
+        font-weight: 700;
+        color: #343a40;
+    }
+    .stat-label {
+        color: #6c757d;
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+    .section-title {
+        font-weight: 600;
+        color: #343a40;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+    .list-group-item.exam-item {
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+        border: 1px solid #f0f2f5;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        transition: background-color 0.2s, box-shadow 0.2s;
+    }
+    .list-group-item.exam-item:hover {
+        background-color: #f0f2f5;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+    }
+    .btn-action-lg {
+        font-size: 1.15rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.6rem;
+        font-weight: 600;
+    }
+    .profile-img {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border: 4px solid #f0f2f5;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .profile-placeholder {
+        background-color: #e9ecef;
+        color: #adb5bd;
+        font-size: 4rem;
+        width: 120px;
+        height: 120px;
+        border: 4px solid #f0f2f5;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    /* Progress Circle */
+    .progress-circle {
+        position: relative;
+        width: 100px;
+        height: 100px;
         border-radius: 50%;
-        margin-right: 20px;
+        background-color: #e9ecef;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.5rem;
-        color: var(--dark-grey);
-    }
-
-    .welcome-header h1 {
-        font-size: 1.8rem;
-        font-weight: 600;
-        color: var(--dark-blue);
-        margin: 0;
-    }
-
-    .welcome-header h1 span {
-        font-weight: 400;
-    }
-
-    /* --- Dashboard Grid --- */
-    .dashboard-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-    }
-
-    /* --- Specific Card Layouts --- */
-    .full-width {
-        grid-column: 1 / -1;
-        /* Makes card span full width of the grid */
-    }
-
-    .stat-card .stat-value {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: var(--dark-blue);
-        line-height: 1.1;
-    }
-
-    .stat-card .stat-label {
-        font-size: 0.9rem;
-        color: var(--dark-grey);
-        margin-top: 5px;
-    }
-
-    .subscription-info p,
-    .countdown-info p {
-        margin: 4px 0;
-        font-size: 0.95rem;
-    }
-
-    .subscription-info p strong,
-    .countdown-info p strong {
-        color: #000;
-    }
-
-    /* Progress Summary Card */
-    .progress-summary-stats {
-        display: flex;
-        justify-content: space-around;
-        margin-top: 15px;
-        text-align: center;
-    }
-
-    .progress-bar-container {
-        width: 100%;
-        background-color: var(--medium-grey);
-        border-radius: 50px;
-        height: 12px;
+        font-weight: bold;
+        color: var(--bs-primary);
+        font-size: 1rem;
         overflow: hidden;
-        margin-bottom: 15px;
+        margin: 0 auto;
+        box-shadow: inset 0 0 8px rgba(0,0,0,0.05);
     }
 
-    .progress-bar-fill {
+    .progress-circle::before, .progress-circle::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
         height: 100%;
-        background-color: var(--primary-blue);
-        border-radius: 50px;
+        border-radius: 50%;
+        box-sizing: border-box;
     }
 
-    .item-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        flex-grow: 1;
-
+    .progress-circle::before {
+        background: conic-gradient(var(--bs-success) var(--percentage), #e9ecef var(--percentage));
+        transform: rotate(-90deg);
     }
 
-    .card-header i {
-        font-size: 18px;
-        margin-right: 10px;
+    .progress-circle::after {
+        background-color: white;
+        width: 85px;
+        height: 85px;
+        top: 7.5px;
+        left: 7.5px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .progress-circle-text {
+        position: relative;
+        z-index: 1;
+        color: #343a40;
     }
 
-    .item-list li {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 12px 0;
-        border-bottom: 1px solid #f0f0f0;
+    /* Redesigned Quick Actions Card */
+    .card-quick-actions {
+       background: 
+  linear-gradient(135deg, rgba(255,255,255,0.05), rgba(0,0,0,0.2)),
+  linear-gradient(135deg, #0B1F30 0%, #123C7A 60%, #1E6DE8 100%); 
+        color: white;
+        text-align: center;
+        padding: 2rem;
+        border-radius: 1rem;
     }
-
-    .item-list li:last-child {
-        border-bottom: none;
+    .card-quick-actions .card-title {
+        color: white;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
     }
-
-    .item-list .item-topic {
-        font-weight: 500;
-    }
-
-    .item-list .item-meta {
-        font-size: 0.85rem;
-        color: var(--dark-grey);
-    }
-
-    .item-list .score-badge {
+    .card-quick-actions .btn {
+        font-size: 1.2rem;
+        padding: 1rem 1.5rem;
         font-weight: 600;
-        padding: 3px 8px;
-        border-radius: 50px;
-        font-size: 0.9rem;
+        margin-bottom: 1rem;
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+    .card-quick-actions .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+    }
+    .card-quick-actions .btn-start-exam {
+        background-color: #fff;
+        color: var(--primary-site-color);
+    }
+    .card-quick-actions .btn-review-exams {
+        background-color: rgba(255, 255, 255, 0.9);
+        color: var(--primary-site-color);
+    }
+    .card-quick-actions .btn-start-exam:hover {
+        background-color: #e6e6e6;
+    }
+    .card-quick-actions .btn-review-exams:hover {
+        background-color: #e6e6e6;
+    }
+    .card-quick-actions .d-grid .btn {
+        width: 100%;
     }
 
-    .score-badge.good {
-        background-color: #e9f7ef;
-        color: var(--success-green);
+    .profile-card-section {
+        border-bottom: 1px dashed #e9ecef;
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
     }
-
-    .score-badge.average {
-        background-color: #fff8e1;
-        color: #f59e0b;
+    .profile-card-section:last-of-type {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
     }
-
-    /* Study Plan Card */
-    .study-plan-list .item-topic i {
-        color: var(--primary-blue);
-        margin-right: 8px;
+    .profile-card-subscription-status .status-text {
+        font-size: 1.1rem;
+        font-weight: 600;
     }
+    .profile-card-subscription-status .status-text.text-success { color: var(--bs-success)!important; }
+    .profile-card-subscription-status .status-text.text-danger { color: var(--bs-danger)!important; }
 
-    .study-plan-list .item-meta {
-        color: var(--primary-blue);
-        font-weight: 500;
-    }
-
-    /* Bookmarks Card */
-    .bookmarks-list .continue-link {
-        text-decoration: none;
-        color: var(--primary-blue);
-        font-weight: 500;
-        font-size: 0.9rem;
-    }
-
-    .bookmarks-list .continue-link:hover {
-        text-decoration: underline;
-    }
-
-    /* Trust Breach Card */
-    .warning-card .card-header i {
-        color: var(--warning-red);
-    }
-
-    .warning-card {
-        border: 1px solid var(--warning-red);
-        background-color: #fff5f5;
-    }
-
-    .warning-card p {
-        font-weight: 500;
-        color: #c53030;
-    }
-
-    /* Responsive Grid */
-    @media (max-width: 992px) {
-        .dashboard-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .welcome-header h1 {
-            font-size: 1.5rem;
-        }
-
-        .stat-card .stat-value {
-            font-size: 2rem;
-        }
-
-        body {
-            padding: 10px;
-        }
-
-        .dashboard-grid {
-            gap: 15px;
-        }
-    }
-</style>
+CSS);
+?>
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="dashboard-header text-center">
+                <h1 class="mb-2 text-white">Welcome, <?= Html::encode($user->name) ?>!</h1>
+                <p class="lead">Your personalized learning journey starts here.</p>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="container py-4">
 
-    <!-- Welcome Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body d-flex align-items-center bg-white p-3">
-                    <div class="me-3 rounded-circle bg-secondary d-flex align-items-center justify-content-center"
-                        style="width:50px;height:50px;">
-                        <i class="fas fa-user text-white"></i>
+    <div class="row g-4 mb-5">
+
+        <div class="col-md-6 col-lg-6">
+            <div class="card dashboard-card h-100 shadow-sm">
+                <div class="card-body">
+
+                    <div class="text-center mb-4">
+                        <?php if ($user->profile_picture): ?>
+                            <?= Html::img($user->profile_picture, ['alt' => 'Profile Picture', 'class' => 'rounded-circle profile-img mb-3']) ?>
+                        <?php else: ?>
+                            <div
+                                class="profile-placeholder rounded-circle d-inline-flex align-items-center justify-content-center mb-3">
+                                <i class="fas fa-user-circle"></i>
+                            </div>
+                        <?php endif; ?>
+                        <h5 class="card-title mb-1 fw-bold text-dark"><?= Html::encode($user->name) ?></h5>
+                        <p class="card-text text-muted small"><?= Html::encode($user->email) ?></p>
                     </div>
-                    <h1 class="mb-0 fs-4 fw-semibold text-primary">Hello, <span class="fw-normal">Maria!</span></h1>
+
+                    <div class="row g-3 border-top pt-4">
+                        <div class="col-md-6 profile-card-section text-center ps-md-4">
+                            <h6 class="fw-bold text-dark mb-2">Exam Details:</h6>
+                            <?php if ($user->speciality): ?>
+                                <p class="card-text mb-1"><i
+                                        class="fas fa-stethoscope me-2 text-info"></i><?= Html::encode($user->speciality->name) ?>
+                                </p>
+                            <?php endif; ?>
+                            <?php if ($user->expected_exam_date): ?>
+                                <p class="card-text mb-1"><i class="fas fa-calendar-alt me-2 text-warning"></i>Target Exam:
+                                    <?= Yii::$app->formatter->asDate($user->expected_exam_date) ?>
+                                </p>
+                            <?php endif; ?>
+                            <?= Html::a('<i class="fas fa-user-edit me-2"></i>Edit Profile', ['/user/profile'], ['class' => 'btn btn-outline-primary btn-sm mt-3']) ?>
+                        </div>
+                        <div class="col-md-6 profile-card-section border-start  text-center">
+                            <h6 class="fw-bold text-dark mb-2">Subscription:</h6>
+                            <div class="profile-card-subscription-status">
+                                <?php if ($subscription && $subscription->subscription): ?>
+                                    <p class="mb-0 status-text text-success">
+                                        <?= Html::encode($subscription->subscription->name) ?>
+                                    </p>
+                                    <p class="card-text small text-muted">Expires:
+                                        <?= Yii::$app->formatter->asDate($subscription->end_date) ?>
+                                    </p>
+                                <?php else: ?>
+                                    <p class="mb-0 status-text text-danger">No Active Subscription</p>
+                                    <p class="card-text small text-muted">Upgrade for more features!</p>
+                                <?php endif; ?>
+                            </div>
+                            <?= Html::a('<i class="fas fa-credit-card me-2"></i>Manage', ['/payments/subscriptions'], ['class' => 'btn btn-outline-primary btn-sm mt-3']) ?>
+                        </div>
+
+                    </div>
                 </div>
             </div>
+        </div>
 
+        <div class="col-md-6 col-lg-6">
+            <div class="card dashboard-card card-quick-actions h-100 shadow-lg">
+                <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                    <h3 class="card-title mb-4">What would you like to do?</h3>
+                    <div class="d-grid gap-3 w-75">
+                        <?= Html::a('<i class="fas fa-play-circle me-2"></i>Start New Exam', ['exam/'], ['class' => 'btn btn-start-exam btn-action-lg']) ?>
+                        <?= Html::a('<i class="fas fa-list-alt me-2"></i>Review Past Exams', ['results/'], ['class' => 'btn btn-review-exams btn-action-lg']) ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="section-title text-dark mb-4 mt-5">Your Performance at a Glance</h2>
+    <div class="row g-4 mb-5 text-center">
+        <div class="col-sm-6 col-md-3">
+            <div class="card dashboard-card h-100 shadow-sm bg-light">
+                <div class="card-body d-flex flex-column justify-content-center">
+                    <i class="fas fa-lightbulb stat-icon text-info"></i>
+                    <h4 class="stat-value"><?= $overallStats['totalAttempted'] ?? 0 ?></h4>
+                    <p class="stat-label">Questions Attempted</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+            <div class="card dashboard-card h-100 shadow-sm bg-light">
+                <div class="card-body d-flex flex-column justify-content-center">
+                    <i class="fas fa-check-circle stat-icon text-success"></i>
+                    <h4 class="stat-value"><?= $overallStats['correctlyAnswered'] ?? 0 ?></h4>
+                    <p class="stat-label">Correct Answers</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+            <div class="card dashboard-card h-100 shadow-sm bg-light">
+                <div class="card-body d-flex flex-column justify-content-center">
+                    <i class="fas fa-times-circle stat-icon text-danger"></i>
+                    <h4 class="stat-value"><?= $overallStats['incorrectlyAnswered'] ?? 0 ?></h4>
+                    <p class="stat-label">Incorrect Answers</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+            <div class="card dashboard-card h-100 shadow-sm bg-light">
+                <div class="card-body d-flex flex-column justify-content-center">
+                    <div class="progress-circle">
+                        <span class="progress-circle-text"><?= $overallStats['overallAccuracy'] ?? 0 ?>%</span>
+                    </div>
+                    <h5 class="mt-3 mb-0 fw-bold text-dark">Overall Accuracy</h5>
+                    <p class="stat-label"><?= $overallStats['examsCompleted'] ?? 0 ?> Exams Completed</p>
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="row g-4">
-
-        <!-- Active Subscription Card -->
-        <div class="col-md-6">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-arrow-repeat"></i> Active Subscription
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <p><strong>Plan:</strong> Gold Plan</p>
-                    <p><strong>Ends:</strong> Aug 30, 2025</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Exam Date Countdown Card -->
-        <div class="col-md-3">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-calendar-event-fill"></i> Exam Date Countdown
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="fs-2 fw-bold text-primary">73</div>
-                    <p class="mb-0 text-muted">Days Left Until Sep 19, 2025</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card h-100 bg-primary text-white shadow-sm">
-                <div class="card-header bg-transparent border-white">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-clipboard-list-fill me-2"></i> Upcoming Mock Exam
-                    </h5>
-                </div>
-                <div class="card-body d-flex flex-column">
-                    <div class="d-flex justify-content-between align-items-center bg-transparent text-white px-0">
-                        <div>
-                            <div class="fw-bold">Full-Length Exam</div>
-                            <small>July 01, 2024</small>
-                        </div>
-                        <span class="badge bg-light text-primary rounded-pill">38 days</span>
-                    </div>
-                    <div class="d-grid mt-3">
-                        <a href="#" class="btn btn-light fw-bold text-primary">Attempt Now</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Study Progress Summary Card -->
-        <div class="col-12">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-bar-chart-fill"></i> Study Progress Summary
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="progress mb-3" style="height: 12px;">
-                        <div class="progress-bar bg-primary" style="width: 74%;"></div>
-                    </div>
-                    <div class="row text-center">
-                        <div class="col">
-                            <div class="fw-bold">432</div>
-                            <div class="text-muted small">MCQs Attempted</div>
-                        </div>
-                        <div class="col">
-                            <div class="fw-bold text-success">74%</div>
-                            <div class="text-muted small">Correct</div>
-                        </div>
-                        <div class="col">
-                            <div class="fw-bold">21</div>
-                            <div class="text-muted small">Bookmarked</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Recently Practiced MCQs Card -->
-        <div class="col-md-6">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-stopwatch-fill"></i> Recently Practiced
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div class="col-lg-6">
+            <h3 class="section-title text-dark mb-4">Your Active Exams</h3>
+            <?php if (!empty($ongoingExams)): ?>
+                <div class="list-group">
+                    <?php foreach ($ongoingExams as $exam): ?>
+                        <div class="list-group-item exam-item d-flex justify-content-between align-items-center">
                             <div>
-                                <div class="fw-semibold">Cardiology</div>
-                                <div class="text-muted small">Oct 26, 2023</div>
+                                <h6 class="mb-1 fw-bold text-dark">
+                                    <i class="fas fa-history text-warning me-2"></i>
+                                    <?= Html::encode($exam->mode) ?> Exam on
+                                    <?= Html::encode($exam->specialty->name ?? 'N/A') ?>
+                                </h6>
+                                <p class="mb-0 small text-muted">
+                                    Started: <?= Yii::$app->formatter->asRelativeTime($exam->start_time) ?>
+                                </p>
+                                <?php
+                                $totalQs = count(json_decode($exam->mcq_ids, true));
+                                $cacheKey = 'exam_state_' . Yii::$app->user->id . '_' . $exam->id;
+                                $examData = Yii::$app->cache->get($cacheKey);
+                                $answeredCount = count($examData['responses'] ?? []);
+                                $skippedCount = count($examData['skipped_mcq_ids'] ?? []);
+                                $currentProgress = ($totalQs > 0) ? round((($answeredCount + $skippedCount) / $totalQs) * 100) : 0;
+                                ?>
+                                <div class="progress mt-2" style="height: 6px;">
+                                    <div class="progress-bar bg-info" role="progressbar"
+                                        style="width: <?= $currentProgress ?>%;" aria-valuenow="<?= $currentProgress ?>"
+                                        aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <span class="small text-muted">Progress: <?= $currentProgress ?>% done</span>
                             </div>
-                            <span class="badge bg-success rounded-pill">8/10</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <?= Html::a('<i class="fas fa-play me-1"></i> Resume', ['/exam/start', 'session_id' => $exam->id], ['class' => 'btn btn-sm btn-warning']) ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <div class="alert alert-info text-center py-4 rounded-3 shadow-sm">
+                    Looks like you don't have any active exams. <br>
+                    <?= Html::a('Start a New Exam now!', ['exam/'], ['class' => 'alert-link mt-2 d-inline-block']) ?>
+                </div>
+            <?php endif; ?>
+        </div>
+
+        <!-- Recent Completed Exams -->
+        <div class="col-lg-6">
+            <h3 class="section-title text-dark mb-4">Recent Completed Exams</h3>
+            <?php if (!empty($recentExams)): ?>
+                <div class="list-group">
+                    <?php foreach ($recentExams as $exam): ?>
+                        <div class="list-group-item exam-item d-flex justify-content-between align-items-center">
                             <div>
-                                <div class="fw-semibold">Gastrointestinal</div>
-                                <div class="text-muted small">Oct 25, 2023</div>
+                                <h6 class="mb-1 fw-bold text-dark">
+                                    <i class="fas fa-medal text-success me-2"></i>
+                                    <?= Html::encode(ucfirst($exam->mode)) ?> Exam
+                                </h6>
+                                <p class="mb-0 small text-muted">
+                                    Completed: <?= Yii::$app->formatter->asRelativeTime($exam->end_time) ?> | Accuracy: <span
+                                        class="fw-bold text-<?= $exam->accuracy >= 70 ? 'success' : ($exam->accuracy >= 50 ? 'warning' : 'danger') ?>"><?= round($exam->accuracy, 1) ?>%</span>
+                                </p>
                             </div>
-                            <span class="badge bg-warning text-dark rounded-pill">6/10</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <div class="fw-semibold">Neurology</div>
-                                <div class="text-muted small">Oct 24, 2023</div>
-                            </div>
-                            <span class="badge bg-success rounded-pill">9/10</span>
-                        </li>
-                    </ul>
+                            <?= Html::a('<i class="fas fa-eye me-1"></i> View Results', ['results/view', 'id' => $exam->id], ['class' => 'btn btn-sm btn-outline-primary']) ?>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
-            </div>
+            <?php else: ?>
+                <div class="alert alert-info text-center py-4 rounded-3 shadow-sm">
+                    No completed exams found yet. <br>
+                    <?= Html::a('View your achievements here!', ['/results/index'], ['class' => 'alert-link mt-2 d-inline-block']) ?>
+                </div>
+            <?php endif; ?>
         </div>
+    </div>
 
-        <!-- Study Plan Today Card -->
-        <div class="col-md-6">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-book-fill"></i> Today's Study Plan
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span><i class="fas fa-book-open text-primary me-2"></i>Renal Physiology</span>
-                            <span class="text-primary fw-semibold">15 MCQs</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span><i class="fas fa-vial text-primary me-2"></i>Mock Exam 2</span>
-                            <span class="text-primary fw-semibold">Scheduled</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span><i class="fas fa-star text-primary me-2"></i>Review Bookmarks</span>
-                            <span class="text-primary fw-semibold">5 MCQs</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Bookmarked MCQs Card -->
-        <div class="col-12">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-bookmark-check-fill"></i> Continue Bookmarked Questions
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>Question on Glycolysis Pathway</span>
-                            <a href="#" class="btn btn-link p-0">Continue <i class="fas fa-arrow-right"></i></a>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>Case study: Myocardial Infarction</span>
-                            <a href="#" class="btn btn-link p-0">Continue <i class="fas fa-arrow-right"></i></a>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>Identifying EKG abnormalities</span>
-                            <a href="#" class="btn btn-link p-0">Continue <i class="fas fa-arrow-right"></i></a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Trust Breach Notices Card -->
-        <div class="col-12">
-            <div class="card border-danger bg-light">
-                <div class="card-header">
-                    <h5 class="card-title mb-0 text-danger">
-                        <i class="bi bi-exclamation-triangle-fill"></i> Trust Breach Notices
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <p class="fw-semibold text-danger mb-0">
-                        You have 2 reported violations from your last mock exam. Please review our academic integrity
-                        policy.
-                    </p>
-                </div>
-            </div>
-        </div>
-
-    </div> <!-- end .row -->
-
-</div> <!-- end .container -->
+</div>
