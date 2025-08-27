@@ -87,7 +87,7 @@ $this->params['breadcrumbs'][] = $this->title;
         ?>
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Question <?= $pagination->offset + $index + 1 ?>: <span class="fw-bold"><?= nl2br(Html::encode($mcq->question_text)) ?></span> </h5>
+                <h5 class="mb-0 lh-base">Question <?= $pagination->offset + $index + 1 ?>: <span class="fw-bold"><?= nl2br(Html::encode($mcq->question_text)) ?></span> </h5>
                 <?php if ($isCorrect): ?>
                     <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i> Correct</span>
                 <?php else: ?>

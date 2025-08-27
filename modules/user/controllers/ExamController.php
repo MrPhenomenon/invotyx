@@ -8,9 +8,11 @@ use app\models\Mcqs;
 use app\models\OrganSystems;
 use app\models\Subjects;
 use app\models\Topics;
+use app\models\UserBookmarkedMcqs;
 use app\models\UserMcqInteractions;
 use Yii;
 use yii\web\Controller;
+use yii\web\Response;
 
 /**
  * Default controller for the `user` module
@@ -227,149 +229,59 @@ class ExamController extends Controller
         return $this->redirect(['/user/mcq/start', 'session_id' => $session->id]);
     }
 
-    // public function actionStartExam()
-    // {
-    //     $request = Yii::$app->request;
+    public function actionToggleBookmark()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
 
-    //     if (!$request->isPost) {
-    //         return $this->redirect(['exam/']);
-    //     }
+        $userId = Yii::$app->user->id;
+        $mcqId = Yii::$app->request->post('mcq_id');
 
-    //     $userId = Yii::$app->user->id;
-    //     $post = $request->post();
+        if (!$mcqId) {
+            return ['success' => false, 'message' => 'Invalid question ID provided.', 'code' => 400];
+        }
 
-    //     // Input collection
-    //     $examMode = $post['examtype'] ?? 'practice';
-    //     $questionCount = (int) ($post['question_count'] ?? 10);
-    //     $difficulty = $post['difficulty'] ?? null;
-    //     $chapterIds = $post['chapter_ids'] ?? [];
-    //     $topicIds = $post['topic_ids'] ?? [];
-    //     $timeLimit = isset($post['untimed']) ? null : ($post['time_limit'] ?? 60);
-    //     $randomize = !empty($post['randomize_questions']);
-    //     $includeBookmarked = !empty($post['include_bookmarked']);
-    //     $tags = $post['tags'] ?? [];
+        $mcq = Mcqs::findOne($mcqId);
+        if (!$mcq) {
+            return ['success' => false, 'message' => 'Question not found in database.', 'code' => 404];
+        }
 
-    //     // Query MCQs
-    //     $mcqIds = [];
+        if (!$this->userHasAccessToMcq($userId, $mcq)) {
+            return ['success' => false, 'message' => 'Unauthorized: You do not have access to bookmark this question.', 'code' => 403];
+        }
 
-    //     switch ($examMode) {
-    //         case 'practice':
-    //         case 'test':
-    //             $query = Mcqs::find()->select('mcqs.id');
+        $bookmark = UserBookmarkedMcqs::findOne(['user_id' => $userId, 'mcq_id' => $mcqId]);
 
-    //             if (!empty($topicIds) && !in_array('0', $topicIds)) {
-    //                 $query->andWhere(['topic_id' => $topicIds]);
-    //             } elseif (!empty($chapterIds)) {
-    //                 $query->joinWith('topic')->andWhere(['topics.chapter_id' => $chapterIds]);
-    //             }
+        if ($bookmark) {
+            if ($bookmark->delete()) {
+                return ['success' => true, 'action' => 'removed', 'message' => 'Bookmark removed.'];
+            } else {
+                Yii::error("Failed to remove bookmark for user $userId, MCQ $mcqId: " . print_r($bookmark->getErrors(), true), __METHOD__);
+                return ['success' => false, 'message' => 'Failed to remove bookmark due to a server error.', 'code' => 500];
+            }
+        } else {
+            $newBookmark = new UserBookmarkedMcqs([
+                'user_id' => $userId,
+                'mcq_id' => $mcqId,
+            ]);
+            if ($newBookmark->save()) {
+                return ['success' => true, 'action' => 'added', 'message' => 'Question bookmarked successfully!'];
+            } else {
+                Yii::error("Failed to add bookmark for user $userId, MCQ $mcqId: " . print_r($newBookmark->getErrors(), true), __METHOD__);
+                return ['success' => false, 'message' => 'Failed to add bookmark due to a server error.', 'code' => 500];
+            }
+        }
+    }
 
-    //             if ($difficulty) {
-    //                 $query->andWhere(['difficulty_level' => $difficulty]);
-    //             }
+    private function userHasAccessToMcq($userId, Mcqs $mcq)
+    {
+        $hasAttemptedMcq = UserMcqInteractions::find()
+            ->where(['user_id' => $userId, 'mcq_id' => $mcq->id])
+            ->exists();
 
-    //             // (Optional) Tag logic here
+        if ($hasAttemptedMcq) {
+            return true;
+        }
 
-    //             $mcqIds = $query->orderBy(new \yii\db\Expression('RAND()'))
-    //                 ->limit($questionCount)
-    //                 ->column();
-    //             break;
-
-    //         case 'mock':
-    //             $questionCount = 100;
-    //             $user = Yii::$app->user->identity;
-    //             $specialtyId = $user->speciality_id;
-    //             $examType = $user->exam_type;
-
-    //             $existingMocks = ExamSessions::find()
-    //                 ->where([
-    //                     'user_id' => $userId,
-    //                     'mode' => 'mock',
-    //                 ])
-    //                 ->orderBy(['id' => SORT_DESC])
-    //                 ->all();
-
-    //             $partNumber = 1;
-    //             $mockGroupId = null;
-
-    //             foreach ($existingMocks as $existingSession) {
-    //                 if ((int) $existingSession->part_number === 1 && $existingSession->status === 'Completed') {
-    //                     // Check if part 2 exists
-    //                     $part2 = ExamSessions::find()
-    //                         ->where([
-    //                             'user_id' => $userId,
-    //                             'mode' => 'mock',
-    //                             'mock_group_id' => $existingSession->id,
-    //                             'part_number' => 2,
-    //                         ])
-    //                         ->one();
-
-    //                     if (!$part2) {
-    //                         $completedAt = strtotime($existingSession->end_time);
-    //                         $now = time();
-    //                         $diff = $now - $completedAt;
-
-    //                         if ($diff < 1800) {
-    //                             $minutesLeft = ceil((1800 - $diff) / 60);
-    //                             Yii::$app->session->setFlash('warning', "Please wait {$minutesLeft} more minutes before starting Part 2.");
-    //                             return $this->redirect(['exam/']);
-    //                         }
-
-    //                         $partNumber = 2;
-    //                         $mockGroupId = $existingSession->id;
-    //                         break;
-    //                     }
-    //                 } elseif ((int) $existingSession->part_number === 1 && $existingSession->status !== 'Completed') {
-    //                     Yii::$app->session->setFlash('danger', 'You already have an active Part 1 mock exam. Please complete it first.');
-    //                     return $this->redirect(['exam/']);
-    //                 }
-    //             }
-
-    //             $mcqIds = Mcqs::find()
-    //                 ->select('id')
-    //                 ->orderBy(new \yii\db\Expression('RAND()'))
-    //                 ->limit($questionCount)
-    //                 ->column();
-
-    //             shuffle($mcqIds);
-    //             break;
-
-    //         default:
-    //             Yii::$app->session->setFlash('danger', 'Invalid exam mode selected.');
-    //             return $this->redirect(['exam/']);
-    //     }
-
-    //     // Create and Save Session
-    //     $session = new ExamSessions();
-    //     $session->user_id = $userId;
-    //     $session->exam_type = Yii::$app->user->identity->exam_type;
-    //     $session->specialty_id = Yii::$app->user->identity->speciality_id;
-    //     $session->mode = $examMode;
-    //     $session->topics_used = ($examMode === 'mock') ? null : implode(',', $topicIds);
-    //     $session->mcq_ids = json_encode($mcqIds);
-    //     $session->start_time = date('Y-m-d H:i:s');
-    //     $session->status = 'InProgress';
-    //     $session->total_questions = $questionCount;
-    //     $session->part_number = $partNumber ?? 1;
-    //     $session->mock_group_id = $examMode === 'mock' ? $mockGroupId : null;
-
-    //     if (!$session->save()) {
-    //         Yii::$app->session->setFlash('danger', 'Could not start exam session.');
-    //         Yii::debug($session->errors);
-    //         return $this->redirect(['/user/']);
-    //     }
-
-    //     // Cache Session State
-    //     $cacheKey = 'exam_' . $userId . '_' . $session->id;
-
-    //     Yii::$app->cache->set($cacheKey, [
-    //         'mcq_ids' => $mcqIds,
-    //         'current_index' => 0,
-    //         'responses' => [],
-    //         'start_time' => time(),
-    //         'time_limit' => $timeLimit,
-    //         'mode' => $examMode,
-    //     ], $timeLimit * 60 + 10);
-
-    //     return $this->redirect(['/user/mcq/start', 'session_id' => $session->id]);
-    // }
+        return false;
+    }
 }

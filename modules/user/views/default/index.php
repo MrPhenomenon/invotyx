@@ -3,20 +3,13 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 
-/* @var $this yii\web\View */
-/* @var $user app\models\Users */
-/* @var $subscription app\models\UserSubscriptions */
-/* @var $ongoingExams app->models\ExamSessions[] */
-/* @var $recentExams app->models\ExamSessions[] */
-/* @var $overallStats array */
 
 $this->title = 'My Dashboard';
 $this->params['breadcrumbs'][] = $this->title;
 
-// Register Font Awesome for icons
+
 $this->registerCssFile('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
-// Get overall accuracy for CSS variable injection
 $overallAccuracyPercentage = $overallStats['overallAccuracy'] ?? 0;
 
 $this->registerCss(<<<CSS
@@ -112,7 +105,7 @@ $this->registerCss(<<<CSS
         border: 4px solid #f0f2f5;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
-    /* Progress Circle */
+
     .progress-circle {
         position: relative;
         width: 100px;
@@ -160,7 +153,6 @@ $this->registerCss(<<<CSS
         color: #343a40;
     }
 
-    /* Redesigned Quick Actions Card */
     .card-quick-actions {
        background: 
   linear-gradient(135deg, rgba(255,255,255,0.05), rgba(0,0,0,0.2)),

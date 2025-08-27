@@ -141,11 +141,10 @@ if ($isRevisitingSkipped) {
                         <button class="btn btn-outline-danger" id="report-btn" type="button">
                             <i class="fas fa-exclamation-triangle me-1"></i> Report
                         </button>
-                        <button class="btn btn-outline-warning btn-flag" type="button">
-                            <i class="far fa-flag me-1"></i> Flag
+                       <button class="btn btn-outline-info btn-bookmark" type="button" data-mcq-id="">
+                            <i class="far fa-bookmark me-1"></i> Bookmark
                         </button>
-
-                        <button class="btn btn-outline-secondary btn-skip-question <?=$hideSkip?>" type="button"
+                        <button class="btn btn-outline-secondary btn-skip-question <?= $hideSkip ?>" type="button"
                             title="Skip this question for now">
                             <i class="fas fa-forward me-1"></i> Skip
                         </button>
@@ -165,10 +164,10 @@ if ($isRevisitingSkipped) {
                         <button class="btn btn-outline-danger" id="report-btn" type="button">
                             <i class="fas fa-exclamation-triangle me-1"></i> Report
                         </button>
-                        <button class="btn btn-outline-warning btn-flag" type="button">
-                            <i class="far fa-flag me-1"></i> Flag
+                        <button class="btn btn-outline-info btn-bookmark" type="button" data-mcq-id="">
+                            <i class="far fa-bookmark me-1"></i> Bookmark
                         </button>
-                        <button class="btn btn-outline-secondary btn-skip-question <?=$hideSkip?>" type="button"
+                        <button class="btn btn-outline-secondary btn-skip-question <?= $hideSkip ?>" type="button"
                             title="Skip this question for now">
                             <i class="fas fa-forward me-1"></i> Skip
                         </button>
@@ -190,11 +189,25 @@ if ($isRevisitingSkipped) {
 $sessionIdJson = json_encode($_GET['session_id']);
 $answerUrl = Url::to(['mcq/save-answer']);
 $skipUrl = Url::to(['mcq/skip-question']);
+$toggleBookmarkUrl = Url::to(['exam/toggle-bookmark']);
 $examMode = json_encode($mode);
+$allBookmarkedMcqIdsJson = json_encode($allBookmarkedMcqIds ?? []);
 $js = <<<JS
 const mode = $examMode;
 const sessionId = $sessionIdJson;
+let bookmarkedMcqIds = $allBookmarkedMcqIdsJson;
 
+function updateBookmarkButtonState(mcqId) {
+    const button = $('.btn-bookmark');
+    button.prop('disabled', false).removeClass('disabled');
+
+    if (bookmarkedMcqIds.includes(parseInt(mcqId))) {
+        button.html('<i class="fas fa-bookmark me-1"></i> Bookmarked').addClass('active btn-info');
+    } else {
+        button.html('<i class="far fa-bookmark me-1"></i> Bookmark').removeClass('active btn-info');
+    }
+    button.data('mcq-id', mcqId);
+}
 
 function updateExamUI(res) {
     if (res.redirectUrl) {
@@ -206,38 +219,33 @@ function updateExamUI(res) {
         $('#progress-bar').css('width', res.progress.percent + '%').text(res.progress.percent + '%');
         $('.attempted').text(res.progress.attempted);
         $('.total-questions-in-exam').text(res.progress.total_questions_in_exam);
-        
-        // Update skipped count display
+   
         const skippedCountElement = $('#skipped-count');
         if (res.progress.skipped > 0) {
             if (skippedCountElement.length === 0) {
-                // Add skipped count if it doesn't exist
+t
                 $('.fw-bold.text-nowrap').append('<br><small class="text-warning"><i class="fas fa-forward me-1"></i> <span id="skipped-count">' + res.progress.skipped + '</span> Skipped</small>');
             } else {
                 skippedCountElement.text(res.progress.skipped);
             }
         } else {
-            // Remove skipped count if it's 0
             skippedCountElement.closest('small.text-warning').remove();
         }
 
-        // Adjust footer buttons based on mode and current state
         if (mode === 'practice') {
             $('.btn-submit-answer').removeClass('d-none');
             $('.btn-next').addClass('d-none');
-            // Re-enable options for the new question
             $('.answer-options input[type="radio"]').prop('disabled', false);
-            $('.list-group-item').removeClass('bg-success bg-danger text-white'); // Clear previous answer highlighting
-            $('.explanation-card').addClass('d-none'); // Hide explanation for new question
-            // Reset accordion state for new question
+            $('.list-group-item').removeClass('bg-success bg-danger text-white');
+            $('.explanation-card').addClass('d-none');
             $('#collapseOne, #collapseTwo').collapse('hide');
-        } else { // Test mode
-             // No specific button toggles needed after 'Submit and Next' or 'Skip' as it just moves to the next question
-             // Make sure options are re-enabled and cleared for the next question.
+        } else { 
              $('.answer-options input[type="radio"]').prop('disabled', false).prop('checked', false);
              $('.list-group-item').removeClass('bg-success bg-danger text-white');
         }
-        hideloader(); // Assuming you have a global hideloader function
+        const newMcqId = $('#question-id').val();
+        updateBookmarkButtonState(newMcqId);
+        hideloader();
     } else {
         showToast(res.message || 'An error occurred.', 'danger');
         if (res.redirectUrl) {
@@ -246,9 +254,6 @@ function updateExamUI(res) {
     }
 }
 
-// --- Event Handlers ---
-
-// Practice Mode: Submit Answer Button
 $(document).on('click', '.btn-submit-answer', function () {
     const selected = $('input[name="answer"]:checked').val();
     if (!selected) {
@@ -256,15 +261,14 @@ $(document).on('click', '.btn-submit-answer', function () {
         return;
     }
 
-    // Disable options
+
     $('input[name="answer"]').prop('disabled', true);
 
-    // Show correct/incorrect feedback
     $('.answer-options input[type="radio"]').each(function () {
         const label = $(this).closest('label');
         const val = $(this).val();
         const correct = $('#correct-answer').val();
-        label.removeClass('bg-success bg-danger text-white'); // Clear previous
+        label.removeClass('bg-success bg-danger text-white');
         if (val === correct) {
             label.addClass('bg-success text-white');
         }
@@ -273,25 +277,17 @@ $(document).on('click', '.btn-submit-answer', function () {
         }
     });
 
-    // Show feedback section
     $('.explanation-card').removeClass('d-none');
 
-    // Toggle buttons
     $('.btn-submit-answer').addClass('d-none');
     $('.btn-next').removeClass('d-none');
 });
 
-// Practice Mode: Next Button (after submitting answer)
 $(document).on('click', '.btn-next', function () {
     let selectedOption = $('.answer-options input[type="radio"]:checked').val();
     let questionId = $('#question-id').val();
 
-    // If an answer was submitted in practice mode, it's already selected.
-    // If user clicked 'Next' without submitting, then they clicked next directly (which is not allowed by UI)
-    // Or if they previously skipped, came back, and chose to answer.
-    // In practice mode, we usually allow "Next" only AFTER an answer is shown.
     if (!selectedOption) {
-        // This case should ideally not be reachable if UI flow is correct.
         showToast('Please select an answer or skip to proceed.', 'warning');
         return;
     }
@@ -306,15 +302,13 @@ $(document).on('click', '.btn-next', function () {
     });
 });
 
-// Test Mode: Submit and Next Button
 $(document).on('click', '.btn-submit-answer-and-next', function () {
-    let selectedOption = $('.answer-options input[type="radio"]:checked').val(); // Can be undefined if no option selected
+    let selectedOption = $('.answer-options input[type="radio"]:checked').val(); 
     let questionId = $('#question-id').val();
 
-    // In test mode, we send even if nothing selected (as a null answer)
     $.post('$answerUrl', {
         question_id: questionId,
-        answer: selectedOption, // This will be null if nothing checked
+        answer: selectedOption,
         session_id: sessionId,
         _csrf: yii.getCsrfToken()
     }, updateExamUI).fail(function(jqXHR, textStatus, errorThrown) {
@@ -322,14 +316,8 @@ $(document).on('click', '.btn-submit-answer-and-next', function () {
     });
 });
 
-// NEW: Skip Question Button
 $(document).on('click', '.btn-skip-question', function () {
     let questionId = $('#question-id').val();
-
-    // You might want to confirm with the user before skipping
-    // if (!confirm("Are you sure you want to skip this question?")) {
-    //     return;
-    // }
 
     $.post('$skipUrl', {
         question_id: questionId,
@@ -340,8 +328,6 @@ $(document).on('click', '.btn-skip-question', function () {
     });
 });
 
-
-// --- Timer Logic ---
 $(function () {
     var timeLeft = parseInt($timeLeft) || 0;
     var display = $('#time-display');
@@ -354,8 +340,6 @@ $(function () {
         if (timeLeft <= 0) {
             showToast("⏰ Time's up! Submitting your final answer...", "danger");
             clearInterval(timerInterval);
-            // Optionally, make an AJAX call to actionTimeUp immediately if the client-side timer ends.
-            // This is a failsafe for the server-side check.
             $.post(
                 "<?= Url::to(['exam/time-up']) ?>",
                 { session_id: sessionId, _csrf: yii.getCsrfToken() },
@@ -387,15 +371,51 @@ $(function () {
         timeLeft--;
     }
 
-    updateTimer(); // initial call
+    updateTimer();
     var timerInterval = setInterval(updateTimer, 1000);
 });
 
-// --- Option Selection Styling (Remains the same) ---
+$(document).on('click', '.btn-bookmark', function() {
+    const button = $(this);
+    const mcqId = $('#question-id').val();
+    const csrfToken = yii.getCsrfToken();
+
+    button.prop('disabled', true).addClass('disabled');
+
+    $.post('$toggleBookmarkUrl', { mcq_id: mcqId, _csrf: csrfToken })
+        .done(function(res) {
+            if (res.success) {
+                const mcqIdInt = parseInt(mcqId);
+                if (res.action === 'added') {
+                    if (!bookmarkedMcqIds.includes(mcqIdInt)) {
+                        bookmarkedMcqIds.push(mcqIdInt);
+                    }
+                    showToast(res.message, 'success');
+                } else if (res.action === 'removed') {
+                    bookmarkedMcqIds = bookmarkedMcqIds.filter(id => id !== mcqIdInt);
+                    showToast(res.message, 'info');
+                }
+                updateBookmarkButtonState(mcqId);
+            } else {
+                showToast(res.message, 'danger');
+                if (res.code === 403) {
+                }
+            }
+        })
+        .fail(function(jqXHR, textStatus, errorThrown) {
+            showToast('AJAX Error: ' + (jqXHR.responseJSON ? jqXHR.responseJSON.message : errorThrown), 'danger');
+        })
+        .always(function() {
+        });
+});
+
+$(document).ready(function() {
+    const initialMcqId = $('#question-id').val();
+    updateBookmarkButtonState(initialMcqId);
+});
+
 $(document).on('click', '.answer-options .list-group-item', function() {
-    // Only allow selection if not in practice mode and not submitted
     if (mode === 'practice' && !$('.btn-next').hasClass('d-none')) {
-        // In practice mode, if explanation is shown, don't allow re-selection easily
         return;
     }
     $('.answer-options .list-group-item').removeClass('active');

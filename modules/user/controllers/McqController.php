@@ -4,6 +4,7 @@ namespace app\modules\user\controllers;
 
 use app\models\ExamSessions;
 use app\models\Mcqs;
+use app\models\UserBookmarkedMcqs;
 use app\models\UserMcqInteractions;
 use Yii;
 use yii\helpers\Url;
@@ -30,74 +31,62 @@ class McqController extends Controller
         $mcqIds = $data['mcq_ids'];
         $responses = &$data['responses'];
         $index = &$data['current_index'];
-        $skippedMcqIds = &$data['skipped_mcq_ids']; // Now exists from actionStart initialization
-        $isRevisitingSkipped = &$data['is_revisiting_skipped']; // Now exists from actionStart initialization
+        $skippedMcqIds = &$data['skipped_mcq_ids'];
+        $isRevisitingSkipped = &$data['is_revisiting_skipped'];
         $totalInitialQuestions = count($mcqIds);
 
-        // 1. Handle the current question's action (save answer or skip)
         if ($actionType === 'save_answer' && $answer !== null) {
             $responses[$currentMcqId] = $answer;
-            // If a question was answered, remove it from the skipped list if it was there
             $skippedMcqIds = array_filter($skippedMcqIds, fn($id) => $id !== $currentMcqId);
-            $skippedMcqIds = array_values($skippedMcqIds); // Re-index array
+            $skippedMcqIds = array_values($skippedMcqIds);
         } elseif ($actionType === 'skip_question') {
             if (!in_array($currentMcqId, $skippedMcqIds)) {
                 $skippedMcqIds[] = $currentMcqId;
             }
-            // If a question is skipped, ensure it's removed from responses if previously answered
             if (isset($responses[$currentMcqId])) {
                 unset($responses[$currentMcqId]);
             }
         }
 
-        // 2. Determine the next index and mode
-        $index++; // Always advance the index after an action
+        $index++;
 
         $nextMcqId = null;
         $shouldFinalize = false;
         $shouldTransitionToSkippedPhase = false;
-        $shouldRedirectToTakeAction = false; // Indicates a change in mode requiring `actionStart` reload
+        $shouldRedirectToTakeAction = false;
 
         if ($isRevisitingSkipped) {
-            // We are revisiting skipped questions
             if ($index < count($skippedMcqIds)) {
                 $nextMcqId = $skippedMcqIds[$index];
             } else {
-                // All skipped questions have been revisited
                 $shouldFinalize = true;
             }
         } else {
-            // We are going through initial questions
             if ($index < $totalInitialQuestions) {
                 $nextMcqId = $mcqIds[$index];
             } else {
-                // All initial questions exhausted
                 if (!empty($skippedMcqIds)) {
-                    // Transition to revisiting skipped questions
                     $shouldTransitionToSkippedPhase = true;
-                    $shouldRedirectToTakeAction = true; // Reload `actionStart` to show first skipped
+                    $shouldRedirectToTakeAction = true;
                 } else {
-                    // No skipped questions, exam is fully complete
                     $shouldFinalize = true;
                 }
             }
         }
 
-        // Apply transition if needed
         if ($shouldTransitionToSkippedPhase) {
             $isRevisitingSkipped = true;
-            $index = 0; // Reset index to start from the beginning of skipped questions
-            $nextMcqId = null; // Next MCQ will be determined by `actionStart` after redirect
+            $index = 0;
+            $nextMcqId = null;
         }
 
-        // Handle Time Limit Check (can be moved here for consistency with Controller 2, or kept separate)
         if (!empty($data['time_limit']) && !empty($data['start_time'])) {
             $elapsed = time() - $data['start_time'];
             $timeLimitSeconds = (int) $data['time_limit'] * 60;
 
             if ($elapsed >= $timeLimitSeconds) {
-                $shouldFinalize = true; // Force finalization if time is up
-                // Message will be set by the calling action
+                $shouldFinalize = true;
+
             }
         }
 
@@ -113,7 +102,7 @@ class McqController extends Controller
             'total_initial_questions' => $totalInitialQuestions,
         ];
     }
-    // --- END NEW HELPER FUNCTION ---
+
 
 
     public function actionStart($session_id)
@@ -140,7 +129,6 @@ class McqController extends Controller
             return $this->redirect(['exam/']);
         }
 
-        // Initialize new fields if they don't exist (for existing sessions)
         $data['skipped_mcq_ids'] = $data['skipped_mcq_ids'] ?? [];
         $data['is_revisiting_skipped'] = $data['is_revisiting_skipped'] ?? false;
 
@@ -171,7 +159,6 @@ class McqController extends Controller
                     Yii::$app->session->setFlash('info', 'All initial questions answered. Now revisiting skipped questions.');
                     return $this->redirect(['mcq/start', 'session_id' => $session_id]);
                 } else {
-                    // No skipped, exam complete
                     $this->finalizeExamSession($session_id, $userId, $responses);
                     Yii::$app->session->setFlash('success', 'All questions answered. Exam Complete.');
                     Yii::$app->cache->delete($cacheKey);
@@ -193,9 +180,7 @@ class McqController extends Controller
 
         if (!$mcq) {
             Yii::$app->session->setFlash('danger', 'Question not found in database. Please contact support.');
-            // Log this error
             Yii::error("MCQ ID {$currentMcqId} from cache was not found in database for session {$session_id}", __METHOD__);
-            // Attempt to finalize gracefully
             $this->finalizeExamSession($session_id, $userId, $responses);
             Yii::$app->cache->delete($cacheKey); // Clean up cache
             return $this->redirect(['results/view', 'id' => $session_id]);
@@ -209,17 +194,20 @@ class McqController extends Controller
         }
 
         $totalQuestionsToConsider = $isRevisitingSkipped ? count($skippedMcqIds) : count($mcqIds);
-        $displayIndex = $index + 1; // 1-based index within the current phase
+        $displayIndex = $index + 1;
 
-        // Calculate the *original overall number* of the current MCQ in the entire exam
-        $overallQuestionNumber = array_search($mcq->id, $mcqIds); // Get 0-based index
-        // Handle case where mcqId might not be found (e.g., malformed data, should log error)
+        $overallQuestionNumber = array_search($mcq->id, $mcqIds);
         if ($overallQuestionNumber === false) {
             Yii::warning("MCQ ID {$mcq->id} not found in main mcq_ids array for session {$session_id}. Falling back to 0.", __METHOD__);
             $overallQuestionNumber = 0;
         }
-        $overallQuestionNumber++; // Convert to 1-based
+        $overallQuestionNumber++;
+        $bookmarkedMcqIds = UserBookmarkedMcqs::find()
+            ->select('mcq_id')
+            ->where(['user_id' => $userId])
+            ->column();
 
+        $isBookmarkedForCurrentMcq = in_array($mcq->id, $bookmarkedMcqIds);
         return $this->render('take', [
             'mode' => $data['mode'] ?? 'practice',
             'mcq' => $mcq,
@@ -235,6 +223,8 @@ class McqController extends Controller
             'timeLeft' => $timeLeft,
             'isRevisitingSkipped' => $isRevisitingSkipped,
             'overallQuestionNumber' => $overallQuestionNumber,
+            'isBookmarked' => $isBookmarkedForCurrentMcq,
+            'allBookmarkedMcqIds' => $bookmarkedMcqIds,
         ]);
     }
 
@@ -301,17 +291,15 @@ class McqController extends Controller
                 // ... error handling ...
             }
 
-            // Calculate current question number for display within the current phase
             $totalQuestionsToConsider = $progressionResult['is_revisiting_skipped'] ? count($data['skipped_mcq_ids']) : count($data['mcq_ids']);
-            $displayIndex = $data['current_index'] + 1; // current_index is already advanced by helper
+            $displayIndex = $data['current_index'] + 1;
 
-            // Calculate the *original overall number* of the next MCQ in the entire exam
             $overallQuestionNumber = array_search($mcq->id, $data['mcq_ids']);
             if ($overallQuestionNumber === false) {
                 Yii::warning("MCQ ID {$mcq->id} not found in main mcq_ids array for session {$sessionId}. Falling back to 0.", __METHOD__);
                 $overallQuestionNumber = 0;
             }
-            $overallQuestionNumber++; // Convert to 1-based
+            $overallQuestionNumber++;
 
             $questionHtml = $this->renderPartial('partials/_question', [
                 'mcq' => $mcq,
@@ -319,9 +307,10 @@ class McqController extends Controller
                 'mode' => $data['mode'] ?? 'practice',
                 'selectedOption' => $data['responses'][$mcq->id] ?? null,
                 'isRevisitingSkipped' => $progressionResult['is_revisiting_skipped'],
-                'currentPhaseIndex' => $displayIndex, // 1-based index within current phase
-                'totalQuestionsInPhase' => $totalQuestionsToConsider, // Total questions in current phase
-                'overallQuestionNumber' => $overallQuestionNumber, // Pass the original 1-based overall question number
+                'currentPhaseIndex' => $displayIndex,
+                'totalQuestionsInPhase' => $totalQuestionsToConsider,
+                'overallQuestionNumber' => $overallQuestionNumber,
+                'isBookmarked' => false,
             ]);
 
             $progress = [
@@ -359,7 +348,6 @@ class McqController extends Controller
             return ['success' => false, 'message' => 'Session expired or invalid.', 'redirectUrl' => \yii\helpers\Url::to(['exam/'])];
         }
 
-        // --- Use the new helper function ---
         $progressionResult = $this->_processExamProgression(
             $data,
             $sessionId,
@@ -368,7 +356,6 @@ class McqController extends Controller
             'skip_question'
         );
 
-        // Check for time expiration *after* processing the skip for the current question
         if (!empty($data['time_limit']) && !empty($data['start_time'])) {
             $elapsed = time() - $data['start_time'];
             $timeLimitSeconds = (int) $data['time_limit'] * 60;
@@ -380,8 +367,6 @@ class McqController extends Controller
                 return ['success' => true, 'redirectUrl' => \yii\helpers\Url::to(['results/view', 'id' => $sessionId])];
             }
         }
-        // --- End time expiration check ---
-
 
         if (!$progressionResult['success']) {
             return ['success' => false, 'message' => $progressionResult['message'], 'redirectUrl' => Url::to(['exam/'])];
@@ -422,9 +407,10 @@ class McqController extends Controller
                 'mode' => $data['mode'] ?? 'practice',
                 'selectedOption' => $data['responses'][$mcq->id] ?? null,
                 'isRevisitingSkipped' => $progressionResult['is_revisiting_skipped'],
-                'currentPhaseIndex' => $displayIndex, // 1-based index within current phase
-                'totalQuestionsInPhase' => $totalQuestionsToConsider, // Total questions in current phase
-                'overallQuestionNumber' => $overallQuestionNumber, // Pass the original 1-based overall question number
+                'currentPhaseIndex' => $displayIndex, 
+                'totalQuestionsInPhase' => $totalQuestionsToConsider,
+                'overallQuestionNumber' => $overallQuestionNumber,
+                'isBookmarked' => false,
             ]);
 
             $progress = [
@@ -442,8 +428,6 @@ class McqController extends Controller
             ];
         }
     }
-    // --- END NEW ACTION FOR SKIPPING QUESTIONS ---
-
 
     private function finalizeExamSession($sessionId, $userId, $responses)
     {
@@ -460,7 +444,6 @@ class McqController extends Controller
         $mcqs = Mcqs::find()->where(['id' => $mcqIds])->all();
 
         $correctCount = 0;
-        // Count questions that were actually answered. Total questions for score is all questions in exam.
         $totalQuestionsInExam = count($mcqIds);
 
         $now = date('Y-m-d H:i:s');
@@ -470,22 +453,20 @@ class McqController extends Controller
 
         foreach ($mcqs as $mcq) {
             $selectedOption = $responses[$mcq->id] ?? null;
-            // A question is correct only if an option was selected AND it matches the correct option
             $isCorrect = ($selectedOption !== null && $selectedOption == $mcq->correct_option) ? 1 : 0;
             if ($isCorrect) {
                 $correctCount++;
             }
 
-            // Insert into user_mcq_interactions
             $interaction = new UserMcqInteractions();
             $interaction->user_id = $userId;
             $interaction->mcq_id = $mcq->id;
             $interaction->exam_session_id = $sessionId;
             $interaction->selected_option = $selectedOption;
             $interaction->is_correct = $isCorrect;
-            $interaction->flagged = 0; // The original 'flagged' in cache is not used here for interactions
+            $interaction->flagged = 0;
             $interaction->attempted_at = $now;
-            $interaction->time_spent_seconds = null; // This would require per-question time tracking, which is not implemented here
+            $interaction->time_spent_seconds = null;
             $interaction->save(false);
         }
 

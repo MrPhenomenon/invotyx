@@ -297,4 +297,9 @@ class Mcqs extends \yii\db\ActiveRecord
     {
         $this->difficulty_level = self::DIFFICULTY_LEVEL_HARD;
     }
+
+    public function getUserBookmarks()
+    {
+        return $this->hasMany(UserBookmarkedMcqs::class, ['mcq_id' => 'id']);
+    }
 }
