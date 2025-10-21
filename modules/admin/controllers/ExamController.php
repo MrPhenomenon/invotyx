@@ -12,8 +12,12 @@ use yii\web\Controller;
 /**
  * Exam controller for the `admin` module
  */
-class ExamController extends Controller
+class ExamController extends AdminBaseController
 {
+    protected function allowedRoles(): array
+    {
+        return ['Super Admin', 'Content Manager'];
+    }
     /**
      * Renders the index view for the module
      * @return string
@@ -62,7 +66,7 @@ class ExamController extends Controller
         $data = Yii::$app->request->post();
         $model = new ExamSpecialties();
         $model->name = $data['name'];
-        $model->exam_type = $data['examId'];
+        $model->exam_type = $data['exam_id'];
         return $model->save()
             ? ['success' => true]
             : ['success' => false];

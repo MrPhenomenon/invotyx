@@ -12,13 +12,16 @@ use Yii;
  * @property string $name
  * @property string $email
  * @property string|null $password
+ * @property string|null $phone
  * @property string $auth_type
  * @property int|null $exam_type
- * @property int|null $speciality_id
+ * @property int|null $specialty_id
  * @property string|null $expected_exam_date
  * @property string|null $profile_picture
  * @property string $created_at
  * @property string $updated_at
+ * @property string|null $weak_subjects
+ * @property int|null $mcqs_per_day
  *
  * @property ExamSessions[] $examSessions
  * @property ExamType $examType
@@ -50,18 +53,18 @@ class Users extends \yii\db\ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            [['google_id', 'password', 'exam_type', 'speciality_id', 'expected_exam_date', 'profile_picture'], 'default', 'value' => null],
-            [['google_id', 'exam_type', 'speciality_id'], 'integer'],
+            [['google_id', 'password', 'exam_type', 'specialty_id', 'expected_exam_date', 'profile_picture'], 'default', 'value' => null],
+            [['google_id', 'exam_type', 'specialty_id'], 'integer'],
             [['name', 'email', 'auth_type'], 'required'],
             [['auth_type'], 'string'],
-            [['expected_exam_date', 'created_at', 'updated_at'], 'safe'],
-            [['name'], 'string', 'max' => 50],
+            [['expected_exam_date', 'created_at', 'updated_at', 'weak_subjects', 'mcqs_per_day'], 'safe'],
+            [['name', 'phone'], 'string', 'max' => 50],
             [['email'], 'string', 'max' => 100],
             [['password', 'profile_picture'], 'string', 'max' => 255],
             ['auth_type', 'in', 'range' => array_keys(self::optsAuthType())],
             [['email'], 'unique'],
             [['exam_type'], 'exist', 'skipOnError' => true, 'targetClass' => ExamType::class, 'targetAttribute' => ['exam_type' => 'id']],
-            [['speciality_id'], 'exist', 'skipOnError' => true, 'targetClass' => ExamSpecialties::class, 'targetAttribute' => ['speciality_id' => 'id']],
+            [['specialty_id'], 'exist', 'skipOnError' => true, 'targetClass' => ExamSpecialties::class, 'targetAttribute' => ['specialty_id' => 'id']],
         ];
     }
 
@@ -75,10 +78,11 @@ class Users extends \yii\db\ActiveRecord implements IdentityInterface
             'google_id' => 'Google ID',
             'name' => 'Name',
             'email' => 'Email',
+            'phone' => 'Phone Number',
             'password' => 'Password',
             'auth_type' => 'Auth Type',
             'exam_type' => 'Exam Type',
-            'speciality_id' => 'Speciality ID',
+            'specialty_id' => 'Speciality ID',
             'expected_exam_date' => 'Expected Exam Date',
             'profile_picture' => 'Profile Picture',
             'created_at' => 'Created At',
@@ -123,7 +127,7 @@ class Users extends \yii\db\ActiveRecord implements IdentityInterface
      */
     public function getSpeciality()
     {
-        return $this->hasOne(ExamSpecialties::class, ['id' => 'speciality_id']);
+        return $this->hasOne(ExamSpecialties::class, ['id' => 'specialty_id']);
     }
 
     /**

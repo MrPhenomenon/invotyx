@@ -1,8 +1,8 @@
 <nav class="pc-sidebar">
   <div class="navbar-wrapper">
     <div class="m-header">
-      <a href="" class="b-brand text-white fw-bold fs-2 d-flex align-items-center">
-        <img src="<?= Yii::getAlias('@web') ?>/siteassets/img/logo.png" width="50px" class="img-fluid logo-lg me-2"
+      <a href="<?= Yii::$app->homeUrl ?>" class="b-brand text-white fw-bold fs-2 d-flex align-items-center">
+        <img src="<?= Yii::getAlias('@web') ?>/siteassets/img/logo1.png" class="img-fluid logo-lg me-2"
           alt="flogo">
       </a>
     </div>

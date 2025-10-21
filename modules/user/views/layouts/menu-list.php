@@ -12,17 +12,17 @@ use yii\helpers\Url;
   </a>
 </li>
 <li class="pc-item">
-  <a href="../page" class="pc-link">
+  <a href="<?= Url::to(['default/analytics']) ?>" class="pc-link">
     <span class="pc-micon"><i class="bi bi-graph-up"></i></span>
-    <span class="pc-mtext">Analytics (NF)</span>
+    <span class="pc-mtext">Analytics</span>
   </a>
 </li>
-<li class="pc-item">
+<!-- <li class="pc-item">
   <a href="../page" class="pc-link">
     <span class="pc-micon"><i class="bi bi-journal-check"></i></span>
     <span class="pc-mtext">Study Plans (NF)</span>
   </a>
-</li>
+</li> -->
 
 <li class="pc-item pc-caption">
   <label>Exams</label>
@@ -47,18 +47,15 @@ use yii\helpers\Url;
 </li>
 
 <li class="pc-item ">
-  <a href="../other/page" class="pc-link">
+  <a href="<?= Url::to(['bookmarks/']) ?>" class="pc-link">
     <span class="pc-micon"> <i class="bi bi-clipboard-check"></i></span>
-    <span class="pc-mtext">Bookmarked (NF)</span>
+    <span class="pc-mtext">Bookmarked</span>
   </a>
 </li>
-<div class="mt-4">
-  <li class="pc-item">
-    <a href="../other/page" class="pc-link">
-      <span class="pc-micon">  <i class="bi bi-credit-card"></i></span>
-      <span class="pc-mtext">Subscriptions (NF)</span>
-    </a>
-  </li>
+<li class="pc-item pc-caption">
+  <label>Settings</label>
+  <i class="ti ti-brand-chrome"></i>
+</li>
   <li class="pc-item">
     <a href="<?= Url::to(['default/profile']) ?>" class="pc-link">
       <span class="pc-micon"> <i class="bi bi-gear"></i></span>

@@ -8,3 +8,13 @@
     </div>
   </div>
 </div>
+
+<?php
+$js = '';
+foreach (Yii::$app->session->getAllFlashes() as $type => $message) {
+    $js .= "showToast(" . json_encode($message) . ", " . json_encode($type) . ");\n";
+}
+if ($js) {
+    $this->registerJs($js, \yii\web\View::POS_READY);
+}
+?>

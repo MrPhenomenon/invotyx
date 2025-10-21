@@ -9,6 +9,7 @@ use Yii;
  *
  * @property int $id
  * @property int $user_id
+ * @property string $name
  * @property string $mode
  * @property int $exam_type
  * @property int $specialty_id
@@ -69,7 +70,7 @@ class ExamSessions extends \yii\db\ActiveRecord
             [['part_number'], 'default', 'value' => 1],
             [['user_id', 'mode', 'exam_type', 'specialty_id', 'mcq_ids'], 'required'],
             [['user_id', 'exam_type', 'specialty_id', 'total_questions', 'time_spent_seconds', 'correct_count', 'breaches', 'part_number', 'mock_group_id', 'time_limit_minutes', 'randomize_questions', 'include_bookmarked'], 'integer'],
-            [['mode', 'mcq_ids', 'status', 'organ_systems_used', 'difficulty_level'], 'string'],
+            [['mode', 'mcq_ids', 'status', 'organ_systems_used', 'difficulty_level', 'name'], 'string'],
             [['topics_used', 'start_time', 'end_time', 'updated_at', 'tags_used'], 'safe'],
             [['accuracy'], 'number'],
             ['mode', 'in', 'range' => array_keys(self::optsMode())],
@@ -88,6 +89,7 @@ class ExamSessions extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'user_id' => 'User ID',
+            'name' => 'Name',
             'mode' => 'Mode',
             'exam_type' => 'Exam Type',
             'specialty_id' => 'Specialty ID',
@@ -267,5 +269,10 @@ class ExamSessions extends \yii\db\ActiveRecord
     public function getUserMcqInteractions()
     {
         return $this->hasMany(UserMcqInteractions::class, ['exam_session_id' => 'id']);
+    }
+
+    public function getName()
+    {
+        return $this->name ?? ucfirst($this->mode) . ' Exam';
     }
 }

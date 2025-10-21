@@ -10,7 +10,7 @@ use app\models\ExamSessions;
  * @var ExamSessions $session
  */
 
-$this->title = 'Exam Review: ' . Html::encode(ucfirst($session->mode));
+$this->title =  $session->getName();
 $this->params['breadcrumbs'][] = ['label' => 'My Sessions', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
@@ -44,8 +44,10 @@ $this->params['breadcrumbs'][] = $this->title;
     }
 </style>
 <div class="exam-review-view">
-
-    <h3><?= Html::encode($this->title) ?></h1>
+    <div class="d-flex justify-content-between">
+        <h3><?= Html::encode($this->title) ?></h3>
+        <input type="text" id="mcqSearch" class="form-control w-25" placeholder="Search questions...">
+    </div>
     <p class="">A detailed review of your exam session completed on
         <?= Yii::$app->formatter->asDatetime($session->end_time) ?>.
     </p>
@@ -62,7 +64,8 @@ $this->params['breadcrumbs'][] = $this->title;
                         <li class="list-group-item"><strong>Score:</strong> <?= (int) $session->correct_count ?> /
                             <?= (int) $session->total_questions ?>
                         </li>
-                        <li class="list-group-item"><strong>Accuracy:</strong> <?= round($session->accuracy) ?>%</li>
+                        <li class="list-group-item"><strong>Accuracy:</strong> <?= round($session->accuracy) ?>%
+                        </li>
                     </ul>
                 </div>
                 <div class="col-md-6">
@@ -80,100 +83,187 @@ $this->params['breadcrumbs'][] = $this->title;
     <!-- 2. Question Breakdown Section -->
     <h3 class="mt-5 mb-3">Question Breakdown</h2>
 
-    <?php foreach ($interactions as $index => $interaction): ?>
-        <?php
-        $mcq = $interaction->mcq;
-        $isCorrect = $interaction->is_correct;
-        ?>
-        <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0 lh-base">Question <?= $pagination->offset + $index + 1 ?>: <span class="fw-bold"><?= nl2br(Html::encode($mcq->question_text)) ?></span> </h5>
-                <?php if ($isCorrect): ?>
-                    <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i> Correct</span>
-                <?php else: ?>
-                    <span class="badge bg-danger"><i class="bi bi-x-circle-fill me-1"></i> Incorrect</span>
-                <?php endif; ?>
-            </div>
+        <?php foreach ($interactions as $index => $interaction): ?>
+            <?php
+            $mcq = $interaction->mcq;
+            $isCorrect = $interaction->is_correct;
+            ?>
+            <div class="card mb-4 mcq-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 lh-base">Question <?= $index + 1 ?>: <span
+                            class="fw-bold"><?= nl2br(Html::encode($mcq->question_text)) ?></span> </h5>
+                    <?php if ($isCorrect): ?>
+                        <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i> Correct</span>
+                    <?php else: ?>
+                        <span class="badge bg-danger"><i class="bi bi-x-circle-fill me-1"></i> Incorrect</span>
+                    <?php endif; ?>
+                </div>
 
-            <div class="card-body">
+                <div class="card-body">
 
-                <?php if ($mcq->image_path): ?>
-                    <div class="mb-3 text-center">
-                        <?= Html::img(Url::to('@web/path/to/your/images/' . $mcq->image_path), ['class' => 'img-fluid rounded border', 'style' => 'max-height: 300px;', 'alt' => 'Question Image']) ?>
+                    <?php if ($mcq->image_path): ?>
+                        <div class="mb-3 text-center">
+                            <?= Html::img(Url::to('@web/path/to/your/images/' . $mcq->image_path), ['class' => 'img-fluid rounded border', 'style' => 'max-height: 300px;', 'alt' => 'Question Image']) ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- Options List -->
+                    <ol type="A" class="list-group">
+                        <?php
+                        // Create an array of options for easy iteration, skipping empty ones
+                        $options = array_filter([
+                            'A' => $mcq->option_a,
+                            'B' => $mcq->option_b,
+                            'C' => $mcq->option_c,
+                            'D' => $mcq->option_d,
+                            'E' => $mcq->option_e,
+                        ]);
+
+                        foreach ($options as $key => $text):
+                            $class = 'list-group-item';
+                            $feedbackHtml = '';
+
+                            // Logic to highlight correct and selected answers
+                            $isCorrectOption = ($key == $mcq->correct_option);
+                            $isSelectedOption = ($key == $interaction->selected_option);
+
+                            if ($isCorrectOption) {
+                                $class .= ' list-group-item-success';
+                                $feedbackHtml = '<span class="fw-bold"> (Correct Answer)</span>';
+                            } elseif ($isSelectedOption) {
+                                $class .= ' list-group-item-danger';
+                                $feedbackHtml = '<span class="fw-bold"> (Your Answer)</span>';
+                            }
+                            ?>
+                            <li class="<?= $class ?>">
+                                <?= Html::encode($text) . $feedbackHtml ?>
+                            </li>
+                        <?php endforeach; ?>
+                    </ol>
+                </div>
+
+                <!-- Explanation and Reference Footer -->
+                <?php if (!empty($mcq->explanation) || !empty($mcq->reference)): ?>
+                    <div class="card-footer bg-light-subtle">
+                        <?php if (!empty($mcq->explanation)): ?>
+                            <div>
+                                <h6><i class="bi bi-lightbulb-fill me-1"></i> Explanation</h6>
+                                <blockquote class="blockquote text-md">
+                                    <?= nl2br(Html::encode($mcq->explanation)) ?>
+                                </blockquote>
+                            </div>
+                        <?php endif; ?>
+                        <?php if (!empty($mcq->explanation) && !empty($mcq->reference)): ?>
+                            <hr>
+                        <?php endif; ?>
+                        <?php if (!empty($mcq->reference)): ?>
+                            <div>
+                                <h6 class="mt-2"><i class="bi bi-book-fill me-1"></i> Reference</h6>
+                                <p class="small text-muted mb-0"><?= Html::encode($mcq->reference) ?></p>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
 
-                <!-- Options List -->
-                <ol type="A" class="list-group">
-                    <?php
-                    // Create an array of options for easy iteration, skipping empty ones
-                    $options = array_filter([
-                        'A' => $mcq->option_a,
-                        'B' => $mcq->option_b,
-                        'C' => $mcq->option_c,
-                        'D' => $mcq->option_d,
-                        'E' => $mcq->option_e,
-                    ]);
-
-                    foreach ($options as $key => $text):
-                        $class = 'list-group-item';
-                        $feedbackHtml = '';
-
-                        // Logic to highlight correct and selected answers
-                        $isCorrectOption = ($key == $mcq->correct_option);
-                        $isSelectedOption = ($key == $interaction->selected_option);
-
-                        if ($isCorrectOption) {
-                            $class .= ' list-group-item-success';
-                            $feedbackHtml = '<span class="fw-bold"> (Correct Answer)</span>';
-                        } elseif ($isSelectedOption) {
-                            $class .= ' list-group-item-danger';
-                            $feedbackHtml = '<span class="fw-bold"> (Your Answer)</span>';
-                        }
-                        ?>
-                        <li class="<?= $class ?>">
-                            <?= Html::encode($text) . $feedbackHtml ?>
-                        </li>
-                    <?php endforeach; ?>
-                </ol>
             </div>
-
-            <!-- Explanation and Reference Footer -->
-            <?php if (!empty($mcq->explanation) || !empty($mcq->reference)): ?>
-                <div class="card-footer bg-light-subtle">
-                    <?php if (!empty($mcq->explanation)): ?>
-                        <div>
-                            <h6><i class="bi bi-lightbulb-fill me-1"></i> Explanation</h6>
-                            <blockquote class="blockquote text-md">
-                                <?= nl2br(Html::encode($mcq->explanation)) ?>
-                            </blockquote>
-                        </div>
-                    <?php endif; ?>
-                    <?php if (!empty($mcq->explanation) && !empty($mcq->reference)): ?>
-                        <hr>
-                    <?php endif; ?>
-                    <?php if (!empty($mcq->reference)): ?>
-                        <div>
-                            <h6 class="mt-2"><i class="bi bi-book-fill me-1"></i> Reference</h6>
-                            <p class="small text-muted mb-0"><?= Html::encode($mcq->reference) ?></p>
-                        </div>
-                    <?php endif; ?>
-                </div>
-            <?php endif; ?>
-
-        </div>
-    <?php endforeach; ?>
+        <?php endforeach; ?>
 </div>
-
-<div class="mt-4">
-    <?= \yii\widgets\LinkPager::widget([
-        'pagination' => $pagination,
-        'options' => ['class' => 'pagination justify-content-center mt-4'],
-        'linkOptions' => ['class' => 'page-link'],
-        'pageCssClass' => 'page-item',
-        'activePageCssClass' => 'active',
-        'disabledPageCssClass' => 'disabled',
-        'prevPageLabel' => '<i class="bi bi-chevron-left"></i>',
-        'nextPageLabel' => '<i class="bi bi-chevron-right"></i>',
-    ]) ?>
+<div class="d-flex justify-content-center align-items-center mb-3">
+    <div id="paginationControls"></div>
 </div>
+<?php
+$js = <<<'JS'
+$(document).ready(function () {
+    const pageSize = 50;
+    let currentPage = 1;
+
+    const $mcqs = $(".card.mcq-card"); // All MCQ cards
+    let filteredMcqs = $mcqs; // start with all
+
+    // Save original HTML for each MCQ to restore before re-highlighting
+    $mcqs.each(function () {
+        $(this).data("original-html", $(this).html());
+    });
+
+    function showPage(page) {
+        currentPage = page;
+        $mcqs.hide();
+        const start = (page - 1) * pageSize;
+        const end = start + pageSize;
+        filteredMcqs.slice(start, end).show();
+        renderPagination();
+    }
+
+    function renderPagination() {
+        const totalPages = Math.ceil(filteredMcqs.length / pageSize);
+        let html = '';
+
+        if (totalPages > 1) {
+            html += '<nav><ul class="pagination pagination-sm mb-0">';
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+                           <a class="page-link" href="#">${i}</a>
+                         </li>`;
+            }
+            html += '</ul></nav>';
+        }
+        $("#paginationControls").html(html);
+    }
+
+    // Highlight matches
+ function highlight($container, keyword) {
+    if (!keyword) return;
+    const regex = new RegExp(`(${keyword})`, "gi");
+
+    $container.contents().each(function () {
+        if (this.nodeType === 3) { // text node
+            const text = this.nodeValue;
+            const newText = text.replace(regex, '<mark>$1</mark>');
+            if (newText !== text) {
+                $(this).replaceWith(newText);
+            }
+        } else if (this.nodeType === 1 && !$(this).is("mark")) {
+            highlight($(this), keyword); 
+        }
+    });
+}
+
+    // Pagination click
+    $(document).on("click", "#paginationControls .page-link", function (e) {
+        e.preventDefault();
+        const page = parseInt($(this).text());
+        showPage(page);
+    });
+
+    // Search filter + highlight
+    $("#mcqSearch").on("keyup", function () {
+        const keyword = $(this).val().trim().toLowerCase();
+
+        // Reset to original HTML before filtering/highlighting
+        $mcqs.each(function () {
+            $(this).html($(this).data("original-html"));
+        });
+
+        // Filter
+        if (keyword) {
+            filteredMcqs = $mcqs.filter(function () {
+                return $(this).text().toLowerCase().indexOf(keyword) > -1;
+            });
+
+            // Apply highlights
+            filteredMcqs.each(function () {
+                highlight($(this), keyword);
+            });
+        } else {
+            filteredMcqs = $mcqs; // reset
+        }
+
+        showPage(1); // reset to page 1
+    });
+
+    // Init
+    showPage(1);
+});
+JS;
+$this->registerJs($js, View::POS_END);
+?>

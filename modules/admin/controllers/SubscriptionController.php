@@ -10,7 +10,7 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
-class SubscriptionController extends Controller
+class SubscriptionController extends AdminBaseController
 {
     public function behaviors()
     {
@@ -25,10 +25,11 @@ class SubscriptionController extends Controller
         ];
     }
 
-    /**
-     * Main dashboard for subscriptions.
-     * Shows analytics, a list of plans, and active user subscriptions.
-     */
+    protected function allowedRoles(): array
+    {
+        return ['Super Admin'];
+    }
+
     public function actionIndex()
     {
         // --- Analytics Data ---
@@ -40,7 +41,7 @@ class SubscriptionController extends Controller
                 ->andWhere(['between', 'end_date', date('Y-m-d'), date('Y-m-d', strtotime('+7 days'))])
                 ->count(),
         ];
-        
+
         // Find most popular plan
         $mostPopular = UserSubscriptions::find()
             ->select(['subscription_id', 'COUNT(*) as count'])

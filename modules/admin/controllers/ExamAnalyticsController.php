@@ -11,8 +11,14 @@ use app\models\UserMcqInteractions;
 use yii\db\Expression;
 use yii\helpers\ArrayHelper;
 
-class ExamAnalyticsController extends Controller
+class ExamAnalyticsController extends AdminBaseController
 {
+
+    protected function allowedRoles(): array
+    {
+        return ['Super Admin'];
+    }
+
     public function actionIndex($from = null, $to = null, $user_id = null, $exam_type = null, $mode = null)
     {
         $query = ExamSessions::find()->with(['user', 'specialty', 'examType']);

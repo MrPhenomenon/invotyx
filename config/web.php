@@ -88,6 +88,8 @@ $config = [
                 '/admin/team-management' => '/admin/default/team-management',
                 '/register' => 'site/registration',
                 '/pricing' => 'site/pricing',
+                '/about' => 'site/about',
+                '/contact' => 'site/contact',
                 '/login' => 'site/login',
                 '/admin/login' => 'site/admin-login',
 

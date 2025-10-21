@@ -196,11 +196,6 @@ $this->registerCss(<<<CSS
         width: 100%;
     }
 
-    .profile-card-section {
-        border-bottom: 1px dashed #e9ecef;
-        padding-bottom: 1rem;
-        margin-bottom: 1rem;
-    }
     .profile-card-section:last-of-type {
         border-bottom: none;
         margin-bottom: 0;
@@ -218,10 +213,71 @@ CSS);
 <div class="container">
     <div class="row">
         <div class="col-12">
-            <div class="dashboard-header text-center">
-                <h1 class="mb-2 text-white">Welcome, <?= Html::encode($user->name) ?>!</h1>
-                <p class="lead">Your personalized learning journey starts here.</p>
+            <div class="dashboard-header text-center text-md-start">
+                <div class="row g-3 align-items-center">
+
+                    <div class="col-md-6 text-center">
+                        <h1 class="mb-2 text-white">Welcome, <?= Html::encode($user->name) ?>!</h1>
+                        <p class="lead text-light mb-0">Your personalized learning journey starts here.</p>
+                    </div>
+
+                    <div class="col-md-6 border-start text-center">
+                        <?php if ($user->expected_exam_date): ?>
+                            <?php
+                            $today = new DateTime();
+                            $examDate = new DateTime($user->expected_exam_date);
+                            $daysLeft = $today->diff($examDate)->days;
+                            ?>
+                            <h6 class="fw-bold text-white mb-2">Exam Countdown</h6>
+                            <div class="display-6 fw-bold text-warning"><?= $daysLeft ?></div>
+                            <p class="mb-0 text-light">Days left until
+                                <?= Yii::$app->formatter->asDate($user->expected_exam_date) ?>
+                            </p>
+                        <?php else: ?>
+                            <h6 class="fw-bold text-white mb-2">Exam Countdown</h6>
+                            <p class="text-muted mb-0">No exam date set</p>
+                        <?php endif; ?>
+                    </div>
+
+                </div>
+
+                <div class="row g-3 border-top mt-4 pt-2">
+                    <div class="col-md-6 profile-card-section text-center">
+                        <h6 class="fw-bold text-white mb-2">Exam Details:</h6>
+                        <?php if ($user->speciality): ?>
+                            <p class="card-text mb-1">
+                                <i class="fas fa-stethoscope me-2 text-info"></i>
+                                <?= Html::encode($user->speciality->name) ?>
+                            </p>
+                        <?php endif; ?>
+                        <?php if ($user->expected_exam_date): ?>
+                            <p class="card-text mb-1">
+                                <i class="fas fa-calendar-alt me-2 text-warning"></i>
+                                Target Exam: <?= Yii::$app->formatter->asDate($user->expected_exam_date) ?>
+                            </p>
+                        <?php endif; ?>
+                        <?= Html::a('<i class="fas fa-user-edit me-2"></i>Edit Profile', ['/user/profile'], ['class' => 'btn btn-outline-light btn-sm mt-3']) ?>
+                    </div>
+                    <div class="col-md-6 profile-card-section border-start text-center">
+                        <h6 class="fw-bold text-white mb-2">Subscription:</h6>
+                        <div class="profile-card-subscription-status">
+                            <?php if ($subscription && $subscription->subscription): ?>
+                                <p class="mb-0 status-text text-success">
+                                    <?= Html::encode($subscription->subscription->name) ?>
+                                </p>
+                                <p class="card-text small text-white">Expires:
+                                    <?= Yii::$app->formatter->asDate($subscription->end_date) ?>
+                                </p>
+                            <?php else: ?>
+                                <p class="mb-0 status-text text-danger">No Active Subscription</p>
+                                <p class="card-text small text-muted">Upgrade for more features!</p>
+                            <?php endif; ?>
+                        </div>
+                        <?= Html::a('<i class="fas fa-credit-card me-2"></i>Manage', ['/payments/subscriptions'], ['class' => 'btn btn-outline-light btn-sm mt-3']) ?>
+                    </div>
+                </div>
             </div>
+
         </div>
     </div>
 </div>
@@ -232,57 +288,12 @@ CSS);
         <div class="col-md-6 col-lg-6">
             <div class="card dashboard-card h-100 shadow-sm">
                 <div class="card-body">
-
-                    <div class="text-center mb-4">
-                        <?php if ($user->profile_picture): ?>
-                            <?= Html::img($user->profile_picture, ['alt' => 'Profile Picture', 'class' => 'rounded-circle profile-img mb-3']) ?>
-                        <?php else: ?>
-                            <div
-                                class="profile-placeholder rounded-circle d-inline-flex align-items-center justify-content-center mb-3">
-                                <i class="fas fa-user-circle"></i>
-                            </div>
-                        <?php endif; ?>
-                        <h5 class="card-title mb-1 fw-bold text-dark"><?= Html::encode($user->name) ?></h5>
-                        <p class="card-text text-muted small"><?= Html::encode($user->email) ?></p>
-                    </div>
-
-                    <div class="row g-3 border-top pt-4">
-                        <div class="col-md-6 profile-card-section text-center ps-md-4">
-                            <h6 class="fw-bold text-dark mb-2">Exam Details:</h6>
-                            <?php if ($user->speciality): ?>
-                                <p class="card-text mb-1"><i
-                                        class="fas fa-stethoscope me-2 text-info"></i><?= Html::encode($user->speciality->name) ?>
-                                </p>
-                            <?php endif; ?>
-                            <?php if ($user->expected_exam_date): ?>
-                                <p class="card-text mb-1"><i class="fas fa-calendar-alt me-2 text-warning"></i>Target Exam:
-                                    <?= Yii::$app->formatter->asDate($user->expected_exam_date) ?>
-                                </p>
-                            <?php endif; ?>
-                            <?= Html::a('<i class="fas fa-user-edit me-2"></i>Edit Profile', ['/user/profile'], ['class' => 'btn btn-outline-primary btn-sm mt-3']) ?>
-                        </div>
-                        <div class="col-md-6 profile-card-section border-start  text-center">
-                            <h6 class="fw-bold text-dark mb-2">Subscription:</h6>
-                            <div class="profile-card-subscription-status">
-                                <?php if ($subscription && $subscription->subscription): ?>
-                                    <p class="mb-0 status-text text-success">
-                                        <?= Html::encode($subscription->subscription->name) ?>
-                                    </p>
-                                    <p class="card-text small text-muted">Expires:
-                                        <?= Yii::$app->formatter->asDate($subscription->end_date) ?>
-                                    </p>
-                                <?php else: ?>
-                                    <p class="mb-0 status-text text-danger">No Active Subscription</p>
-                                    <p class="card-text small text-muted">Upgrade for more features!</p>
-                                <?php endif; ?>
-                            </div>
-                            <?= Html::a('<i class="fas fa-credit-card me-2"></i>Manage', ['/payments/subscriptions'], ['class' => 'btn btn-outline-primary btn-sm mt-3']) ?>
-                        </div>
-
-                    </div>
+                    <h5 class="card-title mb-3 fw-bold text-dark">Accuracy Trend</h5>
+                    <div id="accuracyTrendChart" style="height: 300px;"></div>
                 </div>
             </div>
         </div>
+
 
         <div class="col-md-6 col-lg-6">
             <div class="card dashboard-card card-quick-actions h-100 shadow-lg">
@@ -349,8 +360,7 @@ CSS);
                             <div>
                                 <h6 class="mb-1 fw-bold text-dark">
                                     <i class="fas fa-history text-warning me-2"></i>
-                                    <?= Html::encode($exam->mode) ?> Exam on
-                                    <?= Html::encode($exam->specialty->name ?? 'N/A') ?>
+                                  <?= $exam->getName() ?>
                                 </h6>
                                 <p class="mb-0 small text-muted">
                                     Started: <?= Yii::$app->formatter->asRelativeTime($exam->start_time) ?>
@@ -392,7 +402,7 @@ CSS);
                             <div>
                                 <h6 class="mb-1 fw-bold text-dark">
                                     <i class="fas fa-medal text-success me-2"></i>
-                                    <?= Html::encode(ucfirst($exam->mode)) ?> Exam
+                                   <?= $exam->getName() ?>
                                 </h6>
                                 <p class="mb-0 small text-muted">
                                     Completed: <?= Yii::$app->formatter->asRelativeTime($exam->end_time) ?> | Accuracy: <span
@@ -413,3 +423,39 @@ CSS);
     </div>
 
 </div>
+
+<?php
+$trendLabels = json_encode(array_map(fn($row) => date('M d', strtotime($row['end_time'])), $accuracyTrend));
+$trendData = json_encode(array_map(fn($row) => (float) $row['accuracy'], $accuracyTrend));
+
+$js = <<<JS
+var options = {
+    chart: {
+        type: 'line',
+        height: 300,
+        toolbar: { show: false }
+    },
+    series: [{
+        name: 'Accuracy %',
+        data: $trendData
+    }],
+    xaxis: {
+        categories: $trendLabels,
+        title: { text: 'Exam Date' }
+    },
+    yaxis: {
+        min: 0,
+        max: 100,
+        title: { text: 'Accuracy %' }
+    },
+    stroke: { curve: 'smooth' },
+    markers: { size: 4 },
+    colors: ['#0d6efd']
+};
+
+var chart = new ApexCharts(document.querySelector("#accuracyTrendChart"), options);
+chart.render();
+JS;
+
+$this->registerJs($js);
+?>

@@ -2,291 +2,275 @@
 
 /** @var yii\web\View $this */
 
-$this->title = 'Part 1 - Home';
+$this->title = 'Part 1 AI - Smart Study Partner';
+
 ?>
-    <!-- Hero Section -->
-    <section id="hero" class="hero section pb-0 pt-0"> <!-- Removed pb-0, padding will be handled by CSS -->
-
-      <div class="container">
-        <div class="row align-items-center">
-
-          <!-- Text Content Column -->
-          <div class="col-lg-6 hero-text-content" data-aos="fade-right" data-aos-delay="100">
-            <h2>Your personal <br> AI-Powered Study Partner for Exam Success</h2>
-            <p>This isn’t just another MCQ app.
-              This is your personalized, intelligent, exam-focused preparation companion
-            </p>
-
-            <div class="mt-3 d-flex gap-3 flex-wrap" data-aos="fade-up" data-aos-delay="250">
-              <span class="badge rounded-pill bg-primary"><i class="bi bi-graph-up-arrow"></i> Adaptive Learning</span>
-              <span class="badge rounded-pill bg-primary"><i class="bi bi-bar-chart-fill"></i> Analytics</span>
-              <span class="badge rounded-pill bg-primary"><i class="bi bi-lock-fill"></i> Secure Mode</span>
-            </div>
-
-
-            <div class="d-flex mt-5">
-              <a href="register" class="btn-get-started">Get Started</a>
-            </div>
-          </div>
-
-          <!-- Image Content Column -->
-          <div class="col-lg-6 hero-image-column text-center text-lg-end" data-aos="fade-left" data-aos-delay="300">
-            <div class="hero-image-blob-container">
-              <img src="<?= Yii::getAlias('@web') ?>/siteassets/img/hero-bg.png" alt="AI Study Partner" class="img-fluid">
-            </div>
-          </div>
-
+<section id="hero" class="hero-section-new p-0">
+  <div class="container" style="max-width: 1500px">
+    <div class="row align-items-center gy-5">
+      <div class="col-lg-6 hero-content" data-aos="fade-right" data-aos-delay="100">
+        <h1>Your personal <br> AI-Powered Study Partner for Exam Success</h1>
+        <p>
+         This isn’t just another MCQ app.
+          This is your personalized, intelligent, exam-focused preparation companion.
+        </p>
+        <div class="my-3 d-flex gap-3 flex-wrap aos-init aos-animate" data-aos="fade-up" data-aos-delay="250">
+          <span class="badge rounded-pill bg-danger"><i class="bi bi-graph-up-arrow"></i> Adaptive Learning</span>
+          <span class="badge rounded-pill bg-danger"><i class="bi bi-bar-chart-fill"></i> Analytics</span>
+          <span class="badge rounded-pill bg-danger"><i class="bi bi-lock-fill"></i> Secure Mode</span>
         </div>
+        <a href="register" class="btn-hero mt-2" data-aos="fade-up" data-aos-delay="300">Get Started</a>
       </div>
-
-    </section>
-
-    <section id="counts" class="section counts light-background">
-      <div class="container" data-aos="fade-up" data-aos-delay="100">
-        <div class="row gy-4">
-    
-          <div class="col-lg-3 col-md-6">
-            <div class="stats-item text-center w-100 h-100">
-              <span data-purecounter-start="0" data-purecounter-end="1200" data-purecounter-duration="1" class="purecounter"></span>
-              <p>Registered Students</p>
-            </div>
-          </div>
-    
-          <div class="col-lg-3 col-md-6">
-            <div class="stats-item text-center w-100 h-100">
-              <span data-purecounter-start="0" data-purecounter-end="3800" data-purecounter-duration="1" class="purecounter"></span>
-              <p>Exams Taken</p>
-            </div>
-          </div>
-    
-          <div class="col-lg-3 col-md-6">
-            <div class="stats-item text-center w-100 h-100">
-              <span data-purecounter-start="0" data-purecounter-end="45000" data-purecounter-duration="1" class="purecounter"></span>
-              <p>MCQs Attempted</p>
-            </div>
-          </div>
-    
-          <div class="col-lg-3 col-md-6">
-            <div class="stats-item text-center w-100 h-100">
-              <span data-purecounter-start="0" data-purecounter-end="95" data-purecounter-duration="1" class="purecounter"></span>
-              <p>% Student Satisfaction</p>
-            </div>
-          </div>
-  
-        </div>
+      <div class="col-lg-6 text-center hero-image-blob-container" data-aos="fade-left" data-aos-delay="200">
+        <img src="<?= Yii::getAlias('@web') ?>/siteassets/img/hero-bg(2).png" class="img-fluid"
+          alt="AI Study Partner Dashboard">
       </div>
-    </section>
-    
+    </div>
+  </div>
+</section>
 
-    <!-- SECTION 1: SMART STUDY TOOLKIT - TOP PART -->
-    <section class="py-5">
-      <div class="container">
 
-        <h2 class="text-center text-uppercase fw-bold mb-5 text-primary" data-aos="fade-up">What Makes Us Different?
-        </h2>
-        <div class="row align-items-center">
-          <div class="col-lg-6 col-md-7 mb-4 mb-lg-0" data-aos="fade-right">
-            <div class="card shadow-sm border-0 p-3 mb-3">
-              <div class="card-body d-flex align-items-center">
-                <i class="bi bi-journal-text fs-2 text-primary me-3"></i>
-                <div>
-                  <h5 class="card-title fw-bold mb-1">Topic-wise Study</h5>
-                  <p class="card-text text-muted small mb-0">Practice MCQs by topic</p>
-                </div>
-              </div>
-            </div>
-            <div class="card shadow-sm border-0 p-3 mb-3">
-              <div class="card-body d-flex align-items-center">
-                <i class="bi bi-file-earmark-medical fs-2 text-primary me-3"></i>
-                <div>
-                  <h5 class="card-title fw-bold mb-1">Mock Exams</h5>
-                  <p class="card-text text-muted small mb-0">Structured by medical System</p>
-                </div>
-              </div>
-            </div>
-            <div class="card shadow-sm border-0 p-3">
-              <div class="card-body d-flex align-items-center">
-                <i class="bi bi-sliders fs-2 text-primary me-3"></i>
-                <div>
-                  <h5 class="card-title fw-bold mb-1">Practice Mode & Exam Mode</h5>
-                  <p class="card-text text-muted small mb-0">Simulate real exam conditions</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-6 col-md-5 text-center text-md-end shadow-sm" data-aos="fade-left" data-aos-delay="200">
-            <img src="<?= Yii::getAlias('@web') ?>/siteassets/img/dashboard.png" alt="Image of User Panel will go here" class="img-fluid"
-              style="max-height: 500px;">
-            <!-- Replace with your actual image -->
+<section id="usp" class="usp-section py-5">
+  <div class="container">
+    <div class="text-center" data-aos="fade-up">
+      <h2 class="section-heading-new">Seamlessly Integrated Study Experience</h2>
+      <p class="section-subheading">Unlock your full potential with an intelligent platform designed for ultimate exam preparation.</p>
+    </div>
+
+    <div class="row gy-4 mt-3">
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+        <div class="usp-item">
+          <div class="usp-icon"><i class="bi bi-cpu"></i></div>
+          <div class="usp-content">
+            <h3>AI-Driven Personalization</h3>
+            <p>Our algorithms learn your strengths and weaknesses to deliver a truly custom study path.</p>
           </div>
         </div>
       </div>
-    </section>
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+        <div class="usp-item">
+          <div class="usp-icon"><i class="bi bi-search"></i></div>
+          <div class="usp-content">
+            <h3>Detailed Performance Insights</h3>
+            <p>Gain clarity with in-depth analytics, helping you focus exactly where it matters most.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+        <div class="usp-item">
+          <div class="usp-icon"><i class="bi bi-clock-history"></i></div>
+          <div class="usp-content">
+            <h3>Time-Efficient Study</h3>
+            <p>Optimize your study hours with high-yield questions and adaptive scheduling.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- App Screenshots Section -->
+<section id="app-screenshots" class="app-screenshots-section">
+  <div class="container">
+    <div class="text-center" data-aos="fade-up">
+      <h2 class="section-heading-new">A Glimpse Inside Your Study Partner</h2>
+      <p class="section-subheading">Discover the intuitive interface and powerful features designed to simplify your exam preparation.</p>
+    </div>
+
+    <div class="row gy-4 mt-5 justify-content-center">
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+        <div class="screenshot-card text-center h-100">
+          <img src="<?= Yii::getAlias('@web') ?>/siteassets/img/app-screenshot-1.jpg" class="img-fluid rounded shadow" alt="App Dashboard Overview">
+          <h5 class="mt-3">Dashboard Overview</h5>
+          <p>Your personalized hub to track progress and access study modules.</p>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+        <div class="screenshot-card text-center h-100">
+          <img src="<?= Yii::getAlias('@web') ?>/siteassets/img/app-screenshot-2.jpg" class="img-fluid rounded shadow" alt="Adaptive MCQ Practice Interface">
+          <h5 class="mt-3">Adaptive Questions</h5>
+          <p>Engage with AI-powered questions tailored to your learning needs.</p>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+        <div class="screenshot-card text-center h-100">
+          <img src="<?= Yii::getAlias('@web') ?>/siteassets/img/app-screenshot-3.jpg" class="img-fluid rounded shadow" alt="Performance Analytics Charts">
+          <h5 class="mt-3">Performance Analytics</h5>
+          <p>Visualize your strengths and weaknesses with detailed reports.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- END App Screenshots Section -->
 
 
-    <!-- SECTION 2: SMART STUDY TOOLKIT - FEATURES -->
-    <section class="py-5 bg-primary">
-      <div class="container">
-        <h2 class="text-center text-uppercase fw-bold mb-5 text-white" data-aos="fade-up">Your Smart Study Toolkit</h2>
-        <div class="row gy-4">
-          <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
-            <div class="card shadow-sm border-0 p-3 h-100 text-center">
-              <div class="card-body d-flex flex-column align-items-center">
-                <i class="bi bi-bank fs-1 text-primary mb-2"></i>
-                <h5 class="card-title fw-bold mb-1">MCQ Bank</h5>
-                <p class="card-text text-muted small">Authentic, reference backed questions</p>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
-            <div class="card shadow-sm border-0 p-3 h-100 text-center">
-              <div class="card-body d-flex flex-column align-items-center">
-                <i class="bi bi-pc-display fs-1 text-primary mb-2"></i>
-                <h5 class="card-title fw-bold mb-1">Mock Exams</h5>
-                <p class="card-text text-muted small">Two full mocks before exam</p>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
-            <div class="card shadow-sm border-0 p-3 h-100 text-center">
-              <div class="card-body d-flex flex-column align-items-center">
-                <i class="bi bi-bar-chart-line fs-1 text-primary mb-2"></i>
-                <h5 class="card-title fw-bold mb-1">Analytics</h5>
-                <p class="card-text text-muted small">Progress & performance tracking</p>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
-            <div class="card shadow-sm border-0 p-3 h-100 text-center">
-              <div class="card-body d-flex flex-column align-items-center">
-                <i class="bi bi-pie-chart fs-1 text-primary mb-2"></i> <!-- Or bi-calendar-check for planning -->
-                <h5 class="card-title fw-bold mb-1">Study Planner</h5>
-                <p class="card-text text-muted small">Personalized plans based-on weak areas</p>
-              </div>
+<section id="features" class="features-grid-section py-5">
+  <div class="container">
+    <div class="text-center" data-aos="fade-up">
+      <h2 class="section-heading-new">Tools Designed for Your Academic Excellence</h2>
+      <p class="section-subheading">From comprehensive question banks to secure mock exams, we've got you covered.</p>
+    </div>
+
+    <div class="row gy-4 mt-3">
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+        <div class="feature-card">
+          <i class="bi bi-book icon"></i>
+          <h3>Extensive MCQ Library</h3>
+          <p>Access thousands of expert-vetted, referenced multiple-choice questions covering all key topics.</p>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+        <div class="feature-card">
+          <i class="bi bi-award icon"></i>
+          <h3>Authentic Mock Exams</h3>
+          <p>Prepare with full-length simulated exams under realistic conditions, mirroring your actual test.</p>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+        <div class="feature-card">
+          <i class="bi bi-graph-up icon"></i>
+          <h3>Smart Progress Tracking</h3>
+          <p>Monitor your learning journey with intuitive charts and graphs that highlight your improvements.</p>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="400">
+        <div class="feature-card">
+          <i class="bi bi-calendar-event icon"></i>
+          <h3>Personalized Study Plans</h3>
+          <p>Let AI craft a dynamic study schedule, ensuring you cover all essential material efficiently.</p>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="500">
+        <div class="feature-card">
+          <i class="bi bi-lightbulb icon"></i>
+          <h3>Detailed Explanations</h3>
+          <p>Reinforce learning with clear, comprehensive explanations for every question, enhancing understanding.</p>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="600">
+        <div class="feature-card">
+          <i class="bi bi-lock icon"></i>
+          <h3>Secure Exam Environment</h3>
+          <p>Practice in a secure mode with trust-breach detection to build confidence for the real exam day.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how-it-works" class="process-section">
+  <div class="container">
+    <div class="text-center" data-aos="fade-up">
+      <h2 class="section-heading-new">Achieve Your Goals in 3 Simple Steps</h2>
+      <p class="section-subheading">Getting started with your AI-powered study partner is easy and intuitive.</p>
+    </div>
+
+    <div class="position-relative d-none d-md-block">
+      <div class="process-line"></div>
+    </div>
+
+    <div class="row justify-content-center mt-5 position-relative gy-5"> <!-- Added mt-5 for better spacing -->
+      <div class="col-md-4 d-flex justify-content-center">
+        <div class="process-step-item" data-aos="fade-up" data-aos-delay="100">
+          <div class="step-number">1</div>
+          <h3>Register & Onboard</h3>
+          <p>Sign up, complete a brief profile, and let our AI begin understanding your learning style.</p>
+        </div>
+      </div>
+      <div class="col-md-4 d-flex justify-content-center">
+        <div class="process-step-item" data-aos="fade-up" data-aos-delay="200">
+          <div class="step-number">2</div>
+          <h3>Engage & Adapt</h3>
+          <p>Dive into practice questions and mock exams. Our platform adapts to your performance in real-time.</p>
+        </div>
+      </div>
+      <div class="col-md-4 d-flex justify-content-center">
+        <div class="process-step-item" data-aos="fade-up" data-aos-delay="300">
+          <div class="step-number">3</div>
+          <h3>Succeed with Confidence</h3>
+          <p>Build exam readiness, track your mastery, and confidently achieve your academic objectives.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section id="testimonials" class="testimonials-section">
+  <div class="container">
+    <div class="text-center" data-aos="fade-up">
+      <h2 class="section-heading-new">What Our Students Say</h2>
+      <p class="section-subheading">Hear firsthand from those who achieved their goals with our AI study partner.</p>
+    </div>
+
+    <div class="row gy-4 mt-3">
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+        <div class="testimonial-card">
+          <i class="bi bi-quote quote-icon"></i>
+          <p>
+            "Part 1 AI completely changed my study strategy. The adaptive questions helped me target my weak spots,
+            and the mock exams felt exactly like the real thing. Highly recommend!"
+          </p>
+          <div class="author-info">
+            <img
+              src="<?= Yii::getAlias('@web') ?>/siteassets/img/avatar-1.jpg"
+              alt="Student 1">
+            <div>
+              <h4>Dr. Hamza</h4>
+              <span>House Officer, Pakistan Institute of Medical Sciences</span>
             </div>
           </div>
         </div>
       </div>
-    </section>
-
-  
-
-    <section id="features-list" class="features-list-section py-5">
-      <div class="container">
-        <div class="text-center pb-5">
-          <h2 class="fw-bold">What Makes Us Different?</h2>
-        </div>
-        <div class="row gy-4">
-
-          <!-- Feature 1: High-Yield MCQs -->
-          <div class="col-md-6" data-aos="fade-up" data-aos-delay="100">
-            <div class="feature-item d-flex align-items-start">
-              <div class="feature-icon-wrap me-3">
-                <i class="bi bi-patch-check-fill fs-2 text-primary"></i>
-              </div>
-              <div>
-                <h4 class="fw-bold">High-Yield, Exam-Focused MCQs</h4>
-                <p class="text-muted">
-                  Every question is carefully crafted to reflect real exam patterns — high yield, authentic, and
-                  thoroughly referenced from trusted medical literature.
-                </p>
-              </div>
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+        <div class="testimonial-card">
+          <i class="bi bi-quote quote-icon"></i>
+          <p>
+            "The analytics dashboard is a game-changer! I finally understood where I was spending too much time
+            and which topics needed more attention. My scores improved dramatically."
+          </p>
+          <div class="author-info">
+            <img
+              src="<?= Yii::getAlias('@web') ?>/siteassets/img/avatar-2.jpg"
+              alt="Student 2">
+            <div>
+              <h4>Dr. Umar</h4>
+              <span>House Officer, Pakistan Institute of Medical Sciences</span>
             </div>
           </div>
-
-          <!-- Feature 2: Chapter-wise & System-wise Prep -->
-          <div class="col-md-6" data-aos="fade-up" data-aos-delay="100">
-            <div class="feature-item d-flex align-items-start">
-              <div class="feature-icon-wrap me-3">
-                <i class="bi bi-journals fs-2 text-primary"></i>
-              </div>
-              <div>
-                <h4 class="fw-bold">Chapter-wise & System-wise Prep</h4>
-                <p class="text-muted">
-                  Master one topic at a time or zoom out to tackle an entire system. Flex your preparation your way.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Feature 3: Practice Mode & Exam Mode -->
-          <div class="col-md-6" data-aos="fade-up" data-aos-delay="200">
-            <div class="feature-item d-flex align-items-start">
-              <div class="feature-icon-wrap me-3">
-                <i class="bi bi-toggles2 fs-2 text-primary"></i> <!-- or bi-sliders -->
-              </div>
-              <div>
-                <h4 class="fw-bold">Practice Mode & Exam Mode</h4>
-                <p class="text-muted mb-2">
-                  Switch between learning and testing:
-                </p>
-                <ul class="list-unstyled text-muted ps-3">
-                  <li class="mb-1"><i class="bi bi-check-lg text-success me-2"></i><strong>Practice Mode:</strong> Learn
-                    with explanations</li>
-                  <li><i class="bi bi-check-lg text-success me-2"></i><strong>Exam Mode:</strong> Simulated environment,
-                    no hints, strict timer — just like the real thing</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <!-- Feature 4: Mock Exams -->
-          <div class="col-md-6" data-aos="fade-up" data-aos-delay="200">
-            <div class="feature-item d-flex align-items-start">
-              <div class="feature-icon-wrap me-3">
-                <i class="bi bi-pc-display-horizontal fs-2 text-primary"></i> <!-- or bi-puzzle-fill -->
-              </div>
-              <div>
-                <h4 class="fw-bold">Mock Exams with Real Exam Simulation</h4>
-                <p class="text-muted">
-                  Timed, two-part exams with AI-enforced trust breach detection (tab switch alerts, resume on
-                  reconnect).
-                  Feel the pressure before the real thing — and master it.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Feature 5: Smart Performance Analytics -->
-          <div class="col-md-6" data-aos="fade-up" data-aos-delay="300">
-            <div class="feature-item d-flex align-items-start">
-              <div class="feature-icon-wrap me-3">
-                <i class="bi bi-bar-chart-line-fill fs-2 text-primary"></i>
-              </div>
-              <div>
-                <h4 class="fw-bold">Smart Performance Analytics</h4>
-                <p class="text-muted">
-                  See how you perform, what your weak areas are, and how much time you're spending — with detailed
-                  breakdowns after every session.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Feature 6: Personalized Study Plans -->
-          <div class="col-md-6" data-aos="fade-up" data-aos-delay="300">
-            <div class="feature-item d-flex align-items-start">
-              <div class="feature-icon-wrap me-3">
-                <i class="bi bi-calendar-check-fill fs-2 text-primary"></i>
-              </div>
-              <div>
-                <h4 class="fw-bold">Personalized Study Plans</h4>
-                <p class="text-muted">
-                  The app learns from your progress and builds a dynamic plan tailored to your strengths, weaknesses,
-                  and goals.
-                </p>
-              </div>
-            </div>
-          </div>
-
         </div>
       </div>
-    </section>
-
-    <!-- SECTION 5: CALL TO ACTION -->
-    <section class="py-5 bg-light">
-      <div class="container text-center" data-aos="fade-up" data-aos-delay="100">
-        <h2 class="text-uppercase fw-bold mb-4 text-primary">Start Your Journey Now</h2>
-        <a href="register" class="btn btn-primary btn-lg rounded-pill px-4 py-2">Register & Start Free Trial</a>
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+        <div class="testimonial-card">
+          <i class="bi bi-quote quote-icon"></i>
+          <p>
+            "As a busy professional, the dynamic study planner was invaluable. It kept me organized and ensured
+            I made progress even with limited time. Couldn't have passed without it."
+          </p>
+          <div class="author-info">
+            <img
+              src="<?= Yii::getAlias('@web') ?>/siteassets/img/avatar-3.jpg"
+              alt="Student 3">
+            <div>
+              <h4>Dr. Sumaira</h4>
+              <span>Medical Officer, Tehsil Headquarter Hospital Gujjar Khan</span>
+            </div>
+          </div>
+        </div>
       </div>
-    </section>
+    </div>
+  </div>
+</section>
+
+
+<section id="cta-bottom" class="cta-section-new">
+  <div class="container" data-aos="zoom-in">
+    <h2>Don't Just Study, Master Your Future</h2>
+    <p>
+      Experience the next generation of exam preparation. Our AI study partner is here to provide clarity, confidence,
+      and the competitive edge you need to excel.
+    </p>
+    <a href="register" class="btn-cta">Enroll and Start Learning</a>
+  </div>
+</section>

@@ -5,9 +5,11 @@ namespace app\controllers;
 use app\models\ExamSpecialties;
 use app\models\ExamType;
 use app\models\ManagementTeam;
+use app\models\Subjects;
 use app\models\Subscriptions;
 use app\models\Users;
 use app\models\UserSubscriptions;
+use app\services\StudyPlanGenerator;
 use yii\authclient\ClientInterface;
 use Yii;
 use yii\helpers\Url;
@@ -79,7 +81,7 @@ class SiteController extends Controller
 
     public function actionPricing()
     {
-        $plans = Subscriptions::find()->asArray()->all();
+        $plans = Subscriptions::find()->where(['active' => 1])->asArray()->all();
         return $this->render('pricing', [
             'plans' => $plans,
         ]);
@@ -100,9 +102,13 @@ class SiteController extends Controller
             $user = Users::findOne(['email' => $email, 'auth_type' => 'local']);
             if ($user && Yii::$app->getSecurity()->validatePassword($password, $user->password)) {
                 Yii::$app->user->login($user, 3600 * 24 * 30);
-                return $this->redirect('user');
+                StudyPlanGenerator::generateFullStudyPlan($user);
+
+                Yii::$app->response->data = ['success' => true, 'redirectUrl' => Url::to(['/user'])];
+                return Yii::$app->response;
             } else {
-                return ['success' => false, 'message' => 'Invalid username or password.'];
+                Yii::$app->response->data = ['success' => false, 'message' => 'Invalid username or password.'];
+                return Yii::$app->response;
             }
         } else {
             return $this->render('login', [
@@ -114,9 +120,11 @@ class SiteController extends Controller
     {
         $exams = ExamType::find()->asArray()->all();
         $plans = Subscriptions::find()->asArray()->all();
+        $subjects = Subjects::find()->asArray()->all();
         return $this->render('registration', [
             'exams' => $exams,
             'plans' => $plans,
+            'subjects' => $subjects
         ]);
     }
 
@@ -144,13 +152,16 @@ class SiteController extends Controller
         $userSub = new UserSubscriptions();
 
         try {
-            $user->attributes = $data;
+            $user->load($data, '');
             if (!empty($data['password'])) {
                 $user->password = Yii::$app->getSecurity()->generatePasswordHash($data['password']);
             }
             $user->auth_type = 'local';
-
-            if (!$user->save()) {
+            $user->mcqs_per_day = $data['mcqs_per_day'];
+            if (!empty($data['weak_subjects'])) {
+                $user->weak_subjects = json_encode($data['weak_subjects']);
+            }
+            if (!$user->save(false)) {
                 throw new \Exception('User validation failed');
             }
 
@@ -171,7 +182,8 @@ class SiteController extends Controller
 
             $transaction->commit();
             Yii::$app->user->login($user);
-            return ['success' => true, 'redirect' => Url::to(['user//'])];
+            $data['evaluation'] == 1 ? $redirect = Url::to(['/user/mcq/start-evaluation-exam']) : Url::to(['user//']);
+            return ['success' => true, 'redirect' => $redirect];
 
         } catch (\Exception $e) {
             $transaction->rollBack();
@@ -185,9 +197,6 @@ class SiteController extends Controller
             ];
         }
     }
-
-
-
     public function onAuthSuccess(ClientInterface $client)
     {
         $attributes = $client->getUserAttributes();

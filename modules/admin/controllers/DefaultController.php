@@ -6,19 +6,19 @@ use app\models\ExamSessions;
 use app\models\ManagementTeam;
 use app\models\Users;
 use Yii;
-use yii\web\Controller;
 use yii\web\Response;
 use yii\db\Query;
 /**
  * Default controller for the `admin` module
  */
-class DefaultController extends Controller
+class DefaultController extends AdminBaseController
 {
-    /**
-     * Renders the index view for the module
-     * @return string
-     */
-    public function actionIndex()
+    protected function allowedRoles(): array
+    {
+        return ['Super Admin'];
+    }
+
+    public function actionDashboard()
     {
         $userCount = Users::find()->count();
         $proUserCount = Users::find()

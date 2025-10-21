@@ -3,6 +3,9 @@ $this->title = 'Register';
 $planColors = ['primary', 'success', 'danger'];
 $planIndex = 1;
 use yii\helpers\Url;
+$this->registerCssFile('https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css', [
+    'depends' => [\yii\bootstrap5\BootstrapAsset::class],
+]);
 ?>
 
 <style>
@@ -12,6 +15,11 @@ use yii\helpers\Url;
 
     .step.active {
         display: block;
+    }
+
+    .choices__list--multiple .choices__item {
+        background-color: #0e273c;
+        border: #0e273c;
     }
 </style>
 
@@ -38,7 +46,7 @@ use yii\helpers\Url;
         <form id="register" data-url="<?= Url::to(['site/register-user']) ?>">
             <!-- Step 1: Sign Up -->
             <div class="step active" data-step="1">
-                <section class="p-3 p-md-4 p-xl-5">
+                <section class="p-2 mb-5">
                     <div class="container card card-body p-5 shadow border-0 w-50">
                         <h3>Create Account</h3>
                         <div class="row gy-3 mt-2 overflow-hidden">
@@ -91,17 +99,16 @@ use yii\helpers\Url;
 
             <!-- Step 2: Subscription -->
             <div class="step" data-step="2">
-                <section id="pricing" class="pricing section">
+                <section id="pricing" class="pricing section pt-5">
                     <div class="container">
                         <div class="row gy-4 justify-content-center">
-                            <div class="col-12 text-center mb-4">
-                                <h3>Select a Subscription</h3>
-                            </div>
 
                             <?php foreach ($plans as $index => $plan): ?>
                                 <div class="col-xl-3 col-md-6 d-flex">
-                                    <div class="pricing-item shadow p-4 w-100 d-flex flex-column <?= $index === 1 ? 'featured' : '' ?>"
-                                        style="<?= $index === 1 ? 'scale: 1.05; z-index: 9;' : '' ?>">
+                                    <div class="pricing-item  w-100 d-flex flex-column <?= $index === 0 ? 'featured' : '' ?> <?= !$plan['active'] ? 'opacity-50' : '' ?> plan-card"
+                                        data-plan="<?= $plan['id'] ?>"
+                                        style="<?= !$plan['active'] ? 'pointer-events: none;' : '' ?>">
+
                                         <div class="mb-3 text-center">
                                             <h3><?= htmlspecialchars($plan['name']) ?></h3>
                                             <h4><sup>$</sup><?= $plan['price'] ?><span> / <?= $plan['duration_days'] ?>
@@ -111,11 +118,9 @@ use yii\helpers\Url;
                                         <ul class="list-unstyled flex-grow-1">
                                             <?php
                                             $decoded = json_decode($plan['features_json'], true);
-
                                             if (is_string($decoded)) {
                                                 $decoded = json_decode($decoded, true);
                                             }
-
                                             $features = is_array($decoded) ? $decoded : [];
                                             foreach ($features as $f):
                                                 $isAvailable = strpos($f, '[x]') === false;
@@ -130,14 +135,12 @@ use yii\helpers\Url;
                                             <?php endforeach ?>
                                         </ul>
 
-                                        <div class="btn-wrap mt-3 text-center">
-                                            <input type="radio" class="btn-check" name="subscription_id"
-                                                id="plan-<?= $plan['id'] ?>" value="<?= $plan['id'] ?>" required>
-                                            <label class="btn btn-outline-primary px-4"
-                                                for="plan-<?= $plan['id'] ?>">Select</label>
-                                        </div>
+                                        <!-- hidden radio -->
+                                        <input type="radio" class="btn-check plan-radio" name="subscription_id"
+                                            id="plan-<?= $plan['id'] ?>" value="<?= $plan['id'] ?>" required>
                                     </div>
                                 </div>
+
                             <?php endforeach; ?>
 
                             <div class="col-12 text-center mt-4">
@@ -148,10 +151,9 @@ use yii\helpers\Url;
                 </section>
             </div>
 
-
             <!-- Step 3: Profile Config -->
             <div class="step" data-step="3">
-                <section class="p-3 p-md-4 p-xl-5">
+                <section class="p-2 mb-5">
                     <div class="container card card-body p-5 shadow border-0 w-50">
                         <h3>Profile</h3>
                         <div class="row gy-3 mt-2 overflow-hidden">
@@ -167,8 +169,7 @@ use yii\helpers\Url;
                             </div>
                             <div class="col-12">
                                 <label for="" class="form-label">Exam Specialization</label>
-                                <select name="speciality_id" class="form-select py-3" id="specializationSelect"
-                                    required>
+                                <select name="specialty_id" class="form-select py-3" id="specializationSelect" required>
                                     <option value="">Select</option>
                                 </select>
                             </div>
@@ -176,6 +177,33 @@ use yii\helpers\Url;
                                 <label for="" class="form-label">Expected Exam Date</label>
                                 <input type="date" class="form-control py-3" name="expected_exam_date"
                                     min="<?= date('Y-m-d', strtotime('+1 day')) ?>" required>
+                            </div>
+                            <div class="col-12">
+                                <label for="" class="form-label">MCQs per day (Recommended: 150 - 180)</label>
+                                <input type="number" class="form-control py-3" name="mcqs_per_day" required min="100">
+                            </div>
+                            <div class="col-12">
+                                <label for="" class="form-label">Subjects you feel weak in (Optional)</label>
+                                <select name="weak_subjects[]" id="subjectSelect" class="form-select py-3" id=""
+                                    multiple>
+                                    <?php foreach ($subjects as $subject): ?>
+                                        <option value="<?= $subject['id'] ?>"><?= $subject['name'] ?></option>
+                                    <?php endforeach ?>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label for="" class="form-label">Would you like to take a Pre-Evaluation Exam ?</label>
+                                <br>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="evaluation" id="inlineRadio1"
+                                        value="1">
+                                    <label class="form-check-label" for="inlineRadio1">Yes</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="evaluation" id="inlineRadio2"
+                                        value="0">
+                                    <label class="form-check-label" for="inlineRadio2">No</label>
+                                </div>
                             </div>
 
                             <div class="col-12 mt-4 ">
@@ -194,7 +222,17 @@ use yii\helpers\Url;
 
 
 <?php
+$this->registerJsFile('https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js', [
+    'depends' => [\yii\web\JqueryAsset::class],
+]);
 $js = <<<JS
+
+$(document).on("click", ".plan-card", function () {
+    $(".plan-card").removeClass("active");
+    $(this).addClass("active");
+    $("#plan-" + $(this).data("plan")).prop("checked", true);
+});
+
     $('#register').on('submit', function(e){
         e.preventDefault();
 
@@ -250,6 +288,12 @@ $js = <<<JS
     });
 });
 
+const subjectSelectChoice = new Choices('#subjectSelect', {
+    removeItemButton: true,
+    placeholder: true,
+    placeholderValue: 'Select subjects',
+    noChoicesText: 'No subjects available'
+});
 
     function validateCurrentStep() {
          const currentTab = document.querySelector('.step.active');

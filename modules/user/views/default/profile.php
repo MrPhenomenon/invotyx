@@ -95,13 +95,13 @@ $examTypeName = $examTypes[$user->exam_type] ?? 'Not set';
                             'prompt' => 'Select Exam Type',
                             'onchange' => '
                                 $.get("' . \yii\helpers\Url::to(['default/specialties']) . '?exam_type=" + $(this).val(), function(data) {
-                                    $("#users-speciality_id").html(data).prop("disabled", false);
+                                    $("#users-specialty_id").html(data).prop("disabled", false);
                                 });
                             '
                         ]) ?>
                     </div>
                     <div class="col-md-4">
-                        <?= $form->field($user, 'speciality_id')->dropDownList($specialties, ['prompt' => 'Select Specialty']) ?>
+                        <?= $form->field($user, 'specialty_id')->dropDownList($specialties, ['prompt' => 'Select Specialty']) ?>
                     </div>
                     <div class="col-md-4">
                         <?= $form->field($user, 'expected_exam_date')->input('date') ?>

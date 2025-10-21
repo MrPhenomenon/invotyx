@@ -51,7 +51,7 @@ use yii\helpers\Url;
 </section>
 
 <?php
-$adminUrl = Url::to(['admin//']);
+$adminUrl = Url::to(['admin/admin-base']);
 $js = <<<JS
     $('#admin-form').on('submit', function(e){
         e.preventDefault();

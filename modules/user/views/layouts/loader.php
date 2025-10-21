@@ -21,7 +21,6 @@
 <div id="global-loader">
   <div class="loader-inner">
     <div class="spinner-border text-primary" role="status"></div>
-    <div>Processing...</div>
   </div>
 </div>
 

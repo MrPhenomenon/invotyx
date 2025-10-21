@@ -22,6 +22,7 @@ class UserAsset extends AssetBundle
     public $css = [
         'https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap',
         'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css',
+        'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
         'https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css',
         'userassets/css/style.css',
         'userassets/css/style-preset.css',

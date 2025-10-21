@@ -104,7 +104,7 @@ class ExamSpecialties extends \yii\db\ActiveRecord
      */
     public function getUsers()
     {
-        return $this->hasMany(Users::class, ['speciality_id' => 'id']);
+        return $this->hasMany(Users::class, ['specialty_id' => 'id']);
     }
 
 }

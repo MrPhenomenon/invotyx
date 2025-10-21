@@ -12,30 +12,42 @@
 --------------------------------------------------------------*/
 /* Fonts */
 :root {
-  --default-font: "Open Sans",  system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --heading-font: "Poppins",  sans-serif;
-  --nav-font: "Poppins",  sans-serif;
+  --default-font: "Open Sans", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --heading-font: "Poppins", sans-serif;
+  --nav-font: "Poppins", sans-serif;
 }
 
 /* Global Colors - The following color variables are used throughout the website. Updating them here will change the color scheme of the entire website */
-:root { 
-  --background-color: #fff; /* Background color for the entire website, including individual sections */
-  --default-color: #444444; /* Default color used for the majority of the text content across the entire website */
+:root {
+  --background-color: #fff;
+  /* Background color for the entire website, including individual sections */
+  --default-color: #444444;
+  /* Default color used for the majority of the text content across the entire website */
   --blue-back: #0e273c;
-  --heading-color: #fff; /* Color for headings, subheadings and title throughout the website */
-  --accent-color: #0e273c; /* Accent color that represents your brand on the website. It's used for buttons, links, and other elements that need to stand out */
-  --surface-color: #ffffff; /* The surface color is used as a background of boxed elements within sections, such as cards, icon boxes, or other elements that require a visual separation from the global background. */
-  --contrast-color: #ffffff; /* Contrast color for text, ensuring readability against backgrounds of accent, heading, or default colors. */
+  --heading-color: #fff;
+  /* Color for headings, subheadings and title throughout the website */
+  --accent-color: #0e273c;
+  /* Accent color that represents your brand on the website. It's used for buttons, links, and other elements that need to stand out */
+  --surface-color: #ffffff;
+  /* The surface color is used as a background of boxed elements within sections, such as cards, icon boxes, or other elements that require a visual separation from the global background. */
+  --contrast-color: #ffffff;
+  /* Contrast color for text, ensuring readability against backgrounds of accent, heading, or default colors. */
 }
 
 /* Nav Menu Colors - The following color variables are used specifically for the navigation menu. They are separate from the global colors to allow for more customization options */
 :root {
-  --nav-color: #fff;  /* The default color of the main navmenu links */
-  --nav-hover-color: #87cefa; /* Applied to main navmenu links when they are hovered over or active */
-  --nav-mobile-background-color: #ffffff; /* Used as the background color for mobile navigation menu */
-  --nav-dropdown-background-color: #ffffff; /* Used as the background color for dropdown items that appear when hovering over primary navigation items */
-  --nav-dropdown-color: #272828; /* Used for navigation links of the dropdown items in the navigation menu. */
-  --nav-dropdown-hover-color: #87cefa; /* Similar to --nav-hover-color, this color is applied to dropdown navigation links when they are hovered over. */
+  --nav-color: #fff;
+  /* The default color of the main navmenu links */
+  --nav-hover-color: #87cefa;
+  /* Applied to main navmenu links when they are hovered over or active */
+  --nav-mobile-background-color: #ffffff;
+  /* Used as the background color for mobile navigation menu */
+  --nav-dropdown-background-color: #ffffff;
+  /* Used as the background color for dropdown items that appear when hovering over primary navigation items */
+  --nav-dropdown-color: #272828;
+  /* Used for navigation links of the dropdown items in the navigation menu. */
+  --nav-dropdown-hover-color: #87cefa;
+  /* Similar to --nav-hover-color, this color is applied to dropdown navigation links when they are hovered over. */
 }
 
 /* Color Presets - These classes override global colors when applied to any section or element, providing reuse of the sam color scheme. */
@@ -263,10 +275,12 @@ h6 {
   color: var(--contrast-color);
   background: color-mix(in srgb, var(--nav-hover-color), transparent 15%);
 }
+
 .text-primary {
   --bs-text-opacity: 1;
   color: var(--blue-back) !important;
 }
+
 .btn-primary {
   --bs-btn-color: #fff;
   --bs-btn-bg: #0e273c;
@@ -274,7 +288,7 @@ h6 {
   --bs-btn-hover-color: #fff;
   --bs-btn-hover-bg: #0e273c;
   --bs-btn-hover-border-color: #0e273c;
-  --bs-btn-focus-shadow-rgb: 49,132,253;
+  --bs-btn-focus-shadow-rgb: 49, 132, 253;
   --bs-btn-active-color: #fff;
   --bs-btn-active-bg: #0e273c;
   --bs-btn-active-border-color: #0e273c;
@@ -803,7 +817,7 @@ h6 {
 
 /*--------------------------------------------------------------
 # Global Page Titles & Breadcrumbs
---------------------------------------------------------------*/
+----------------------------------------------------------------*/
 .page-title {
   --default-color: var(--contrast-color);
   --background-color: var(--accent-color);
@@ -917,12 +931,17 @@ section,
 /* Hero Section General Styling */
 .hero {
   width: 100%;
-  min-height: 90vh; /* Adjust as needed, ensures it takes up significant viewport height */
-  background-color: var(--blue-back); /* Your existing dark blue background */
+  min-height: 90vh;
+  /* Adjust as needed, ensures it takes up significant viewport height */
+  background-color: var(--blue-back);
+  /* Your existing dark blue background */
   color: #ffffff;
-  display: flex; /* For vertical centering of content if container doesn't fill height */
-  align-items: center; /* For vertical centering */
-  overflow: hidden; /* Prevents blob from causing scrollbars if it's too large */
+  display: flex;
+  /* For vertical centering of content if container doesn't fill height */
+  align-items: center;
+  /* For vertical centering */
+  overflow: hidden;
+  /* Prevents blob from causing scrollbars if it's too large */
 }
 
 .hero .container {
@@ -932,7 +951,8 @@ section,
 
 /* Text Content Styling */
 .hero .hero-text-content h2 {
-  font-size: 2.8rem; /* Responsive font size */
+  font-size: 2.8rem;
+  /* Responsive font size */
   font-weight: 700;
   line-height: 1.2;
   margin-bottom: 20px;
@@ -968,14 +988,18 @@ section,
 
 .hero-image-blob-container {
   position: relative;
-  display: inline-block; /* So it wraps the image tightly */
+  display: inline-block;
+  /* So it wraps the image tightly */
   max-width: 100%;
 }
 
 .hero-image-blob-container img {
-  position: relative; /* To ensure it's above the blob */
-  z-index: 2;        /* Higher z-index than the blob */
-  max-width: 100%;   /* Make image responsive within its container */
+  position: relative;
+  /* To ensure it's above the blob */
+  z-index: 2;
+  /* Higher z-index than the blob */
+  max-width: 100%;
+  /* Make image responsive within its container */
   height: auto;
 }
 
@@ -996,40 +1020,50 @@ section,
 
 
 /* Responsive Adjustments */
-@media (max-width: 991.98px) { /* Bootstrap's lg breakpoint (tablet and below) */
+@media (max-width: 991.98px) {
+  /* Bootstrap's lg breakpoint (tablet and below) */
   .hero {
-    min-height: auto; /* Allow height to be determined by content */
+    min-height: auto;
+    /* Allow height to be determined by content */
     padding: 60px 0;
-    text-align: center; /* Center text content on smaller screens */
+    text-align: center;
+    /* Center text content on smaller screens */
   }
 
   .hero .hero-text-content {
-    margin-bottom: 40px; /* Space between text and image when stacked */
+    margin-bottom: 40px;
+    /* Space between text and image when stacked */
   }
 
   .hero .hero-text-content h2 {
-    font-size: 2.2rem; /* Slightly smaller font for mobile */
+    font-size: 2.2rem;
+    /* Slightly smaller font for mobile */
   }
-  
+
   .hero .hero-text-content .d-flex {
-    justify-content: center; /* Center the button */
+    justify-content: center;
+    /* Center the button */
   }
 
   .hero-image-blob-container::before {
-    width: 110%; 
+    width: 110%;
     height: 100%;
-    transform: translate(-50%, -50%) rotate(-10deg); /* Simpler transform for mobile */
-    filter: blur(25px); /* Slightly less blur if needed */
+    transform: translate(-50%, -50%) rotate(-10deg);
+    /* Simpler transform for mobile */
+    filter: blur(25px);
+    /* Slightly less blur if needed */
   }
 }
 
-@media (max-width: 767.98px) { /* Bootstrap's md breakpoint (mobile) */
-    .hero .hero-text-content h2 {
-        font-size: 1.8rem;
-    }
-    .hero .hero-text-content p {
-        font-size: 1rem;
-    }
+@media (max-width: 767.98px) {
+  /* Bootstrap's md breakpoint (mobile) */
+  .hero .hero-text-content h2 {
+    font-size: 1.8rem;
+  }
+
+  .hero .hero-text-content p {
+    font-size: 1rem;
+  }
 }
 
 
@@ -1055,7 +1089,7 @@ section,
   font-size: 24px;
 }
 
-.hero .badge{
+.hero .badge {
   font-size: 14px;
 }
 
@@ -1819,6 +1853,10 @@ section,
   color: var(--accent-color);
 }
 
+.border-primary {
+  --bs-border-opacity: 1;
+  border-color: var(--accent-color) !important;
+}
 /*--------------------------------------------------------------
 # Pricing Section
 --------------------------------------------------------------*/
@@ -1830,8 +1868,14 @@ section,
   border-radius: 5px;
   position: relative;
   overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
 }
-
+.plan-card.active {
+  transform: scale(1.04);
+  box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+  border: 2px solid var(--accent-color);
+}
 .pricing .pricing-item h3 {
   margin: -20px -20px 20px -20px;
   padding: 20px 15px;
@@ -2020,7 +2064,7 @@ section,
   --light-gray-color: #dad6ce;
   --text-color: #4b4b4b;
   --step-number-text-color: white;
-  --body-bg-color: white; 
+  --body-bg-color: white;
   --line-height: 2px;
   --line-top-position: 20px;
 }
@@ -2029,13 +2073,13 @@ section,
   counter-reset: step-count;
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); 
+  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
   position: relative;
 }
 
 .progress-step {
   text-align: center;
-  position: relative; 
+  position: relative;
 }
 
 /* Common styles for line pseudo-elements */
@@ -2051,25 +2095,27 @@ section,
 
 
 .progress-step::after {
-  left: 50%; 
+  left: 50%;
   width: 100%;
 }
 
 
 .progress-step:first-child::before {
-  right: 50%; 
-  width: 50%;  
+  right: 50%;
+  width: 50%;
   background-color: transparent !important;
 }
 
 
 .progress-step:last-child::after {
   width: 50%;
-  background-color: transparent !important; /* Effectively hide it */
+  background-color: transparent !important;
+  /* Effectively hide it */
 }
 
 /* Responsive overrides from SCSS for start/end lines on small screens */
 @media screen and (max-width: 640px) {
+
   .progress-step:first-child::before,
   .progress-step:last-child::after {
     /* Use body background or transparent to hide */
@@ -2085,8 +2131,10 @@ section,
   border-radius: 50%;
   color: var(--step-number-text-color);
   line-height: 30px;
-  position: relative; /* To ensure it's above the z-index: -1 lines */
-  z-index: 1; /* Or use the SCSS's z-index: 100; if preferred, works because lines are -1 */
+  position: relative;
+  /* To ensure it's above the z-index: -1 lines */
+  z-index: 1;
+  /* Or use the SCSS's z-index: 100; if preferred, works because lines are -1 */
   border: 7px solid var(--body-bg-color);
   font-size: 0.8rem;
   font-weight: 500;
@@ -2107,7 +2155,8 @@ section,
 /* --- Active Step and Subsequent Steps Styling --- */
 
 .progress-step.is-active .step-description {
-  font-weight: 500; /* SCSS specified font-weight: 500 for active description */
+  font-weight: 500;
+  /* SCSS specified font-weight: 500 for active description */
 }
 
 /* The line segment drawn by the ::after of the active step becomes light gray */
@@ -2116,11 +2165,539 @@ section,
 }
 
 /* Circles of all steps *after* the active one become light gray */
-.progress-step.is-active ~ .progress-step .step-count {
+.progress-step.is-active~.progress-step .step-count {
   background-color: var(--light-gray-color);
 }
 
 /* Line segments drawn by ::after of steps *after* the active one become light gray */
-.progress-step.is-active ~ .progress-step::after {
+.progress-step.is-active~.progress-step::after {
   background-color: var(--light-gray-color);
+}
+
+/* Additional styling for sections */
+.features-list-section .feature-item {
+  background-color: var(--surface-color);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  border-radius: 8px;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  height: 100%; /* Ensure consistent height for cards */
+}
+
+.features-list-section .feature-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+}
+
+.features-list-section .feature-icon-wrap {
+  min-width: 50px; /* Ensure icon area has a minimum width */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.features-list-section .feature-item h4 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.features-list-section .feature-item p {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* Adjustments for the Smart Study Toolkit section */
+.card.shadow-sm.border-0.p-3.mb-3,
+.card.shadow-sm.border-0.p-3 {
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.card.shadow-sm.border-0.p-3.mb-3:hover,
+.card.shadow-sm.border-0.p-3:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08) !important;
+}
+
+.card-body .card-title {
+  color: var(--blue-back); /* Ensure card titles maintain primary color */
+}
+
+/* Call to Action button styling refinements */
+.btn.btn-primary.btn-lg.rounded-pill {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn.btn-primary.btn-lg.rounded-pill:hover {
+  background-color: color-mix(in srgb, var(--accent-color), transparent 20%);
+  border-color: color-mix(in srgb, var(--accent-color), transparent 20%);
+  transform: translateY(-2px);
+}
+
+/*--------------------------------------------------------------
+# NEW: Custom Index View Styling (Refined for Sleekness)
+--------------------------------------------------------------*/
+
+/* Define custom variables for consistency and easy modification */
+:root {
+  --primary-brand-color: #0e273c; /* Your required primary color */
+  --secondary-accent-color: #87cefa; /* A complementary light blue for hover/subtle accents */
+  --light-bg-color: #f8f9fa; /* A very light grey for subtle section breaks */
+  --dark-text-color: #343a40; /* Darker text for readability */
+  --light-text-color: #6c757d; /* Lighter text for descriptions */
+  --white-color: #ffffff;
+  --border-color-light: #e9ecef; /* Light border color for cards/dividers */
+  --box-shadow-subtle: rgba(0, 0, 0, 0.05);
+  --box-shadow-mild: rgba(0, 0, 0, 0.1);
+  --section-padding-large: 90px 0;
+  --section-padding-medium: 70px 0;
+}
+
+/* Base Heading and Paragraph Adjustments (global, but ensure these apply) */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--heading-font);
+  color: var(--primary-brand-color); /* Ensure headings use the brand primary color by default */
+}
+p {
+  color: var(--light-text-color);
+  line-height: 1.7;
+}
+
+
+/* --- Hero Section --- */
+.hero-section-new {
+  background-color: var(--primary-brand-color);
+  color: var(--white-color);
+  padding: var(--section-padding-large);
+  position: relative;
+  overflow: hidden;
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+}
+
+.hero-section-new .hero-content h1 {
+  font-size: 3rem; /* Reduced from 3.8rem */
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 20px;
+  color: var(--white-color);
+}
+
+.hero-section-new .hero-content p {
+  font-size: 1.1rem; /* Reduced from 1.3rem */
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 35px;
+  line-height: 1.7;
+  max-width: 550px;
+}
+
+.hero-section-new .btn-hero {
+  display: inline-block;
+  background-color: transparent;
+  color: var(--secondary-accent-color);
+  border-color: var(--secondary-accent-color);
+  padding: 12px 35px;
+  border-radius: 40px; 
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease-in-out;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 2px solid var(--secondary-accent-color);
+}
+
+.hero-section-new .btn-hero:hover {
+  background-color: var(--secondary-accent-color);
+  color: var(--primary-brand-color);
+  transform: translateY(-2px);
+}
+
+.hero-image-blob-container::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  width: 120%;
+  height: 110%;
+  top: 60%;
+  left: 50%;
+  transform: translate(-55%, -52%) rotate(-15deg);
+  background: linear-gradient(135deg, rgba(60, 120, 180, 0.4), rgba(80, 150, 220, 0.25));
+  border-radius: 60% 40% 30% 70% / 50% 60% 40% 50%;
+  opacity: 0.6;
+  filter: blur(35px);
+}
+/* Responsive adjustments for Hero */
+@media (max-width: 991.98px) {
+  .hero-section-new {
+    padding: var(--section-padding-medium);
+    min-height: auto;
+    text-align: center;
+  }
+  .hero-section-new .hero-content h1 {
+    font-size: 2.5rem;
+  }
+  .hero-section-new .hero-content p {
+    font-size: 1rem;
+    max-width: 100%;
+  }
+  .hero-section-new .hero-image-new {
+    margin-top: 40px;
+  }
+}
+@media (max-width: 767.98px) {
+  .hero-section-new .hero-content h1 {
+    font-size: 2rem;
+  }
+  .hero-section-new .hero-content p {
+    font-size: 0.95rem;
+  }
+}
+
+/* --- Section Heading Base Styles --- */
+.section-heading-new {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-brand-color);
+  position: relative;
+  display: inline-block;
+}
+
+.section-heading-new::after {
+  content: '';
+  display: block;
+  width: 60px; /* Shorter underline */
+  height: 3px; /* Thinner underline */
+  background-color: var(--secondary-accent-color);
+  margin: 12px auto 0; /* Reduced margin */
+  border-radius: 2px;
+}
+
+/* --- Features Grid Section --- */
+.features-grid-section {
+  padding: var(--section-padding-medium);
+  background-color: var(--light-bg-color);
+}
+
+.features-grid-section .feature-card {
+  background-color: var(--white-color);
+  border-radius: 8px; /* Slightly less rounded */
+  padding: 30px 25px; /* Reduced padding */
+  text-align: center;
+  box-shadow: 0 5px 15px var(--box-shadow-subtle); /* Softer shadow */
+  transition: all 0.3s ease-in-out;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* Align content to top */
+  border: 1px solid var(--border-color-light); /* Subtle border */
+}
+
+.features-grid-section .feature-card:hover {
+  transform: translateY(-5px); /* Less aggressive lift */
+  box-shadow: 0 10px 25px var(--box-shadow-mild); /* Mild hover shadow */
+}
+
+.features-grid-section .feature-card .icon {
+  font-size: 3rem; /* Reduced from 3.5rem */
+  color: var(--primary-brand-color);
+  margin-bottom: 20px; /* Reduced margin */
+  display: block;
+}
+
+.features-grid-section .feature-card h3 {
+  font-size: 1.4rem; /* Reduced from 1.6rem */
+  font-weight: 600;
+  color: var(--dark-text-color);
+  margin-bottom: 12px; /* Reduced margin */
+}
+
+.features-grid-section .feature-card p {
+  font-size: 0.95rem; /* Reduced font size */
+  color: var(--light-text-color);
+  line-height: 1.6;
+  flex-grow: 1;
+}
+
+/* --- Call To Action Section --- */
+.cta-section-new {
+  background: linear-gradient(45deg, var(--primary-brand-color) 0%, rgba(14, 39, 60, 0.85) 100%), url('https://images.unsplash.com/photo-1517430160494-d4509ad7f5e8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1MDcxMzJ8MHwxfHNlYXJjaHw1NXx8c3R1ZHlpbmd8ZW58MHx8fHwxNjk5NTQ1NTQ2fDA&ixlib=rb-4.0.3&q=80&w=1080') center center no-repeat; /* New background image for better visual */
+  background-size: cover;
+  background-attachment: fixed; /* Parallax effect */
+  padding: var(--section-padding-large);
+  text-align: center;
+  color: var(--white-color);
+  position: relative;
+  z-index: 1; /* Ensure text is above overlay */
+}
+.cta-section-new::before { /* Dark overlay for better text readability */
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(14, 39, 60, 0.7); /* Adjusted overlay opacity */
+    z-index: 0;
+}
+.cta-section-new .container {
+    position: relative;
+    z-index: 1;
+}
+
+
+.cta-section-new h2 {
+  font-size: 2.2rem;
+   font-weight: 700;
+  margin-bottom: 20px;
+  color: var(--white-color);
+}
+
+.cta-section-new p {
+  font-size: 1.1rem; /* Reduced from 1.2rem */
+  max-width: 700px; /* Constrained width */
+  margin: 0 auto 35px auto;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.7;
+}
+
+.cta-section-new .btn-cta {
+  display: inline-block;
+  background-color: var(--secondary-accent-color);
+  color: var(--primary-brand-color);
+  padding: 14px 40px; /* Reduced padding */
+  border-radius: 40px;
+  font-size: 1.1rem; /* Reduced font size */
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  transition: all 0.3s ease-in-out;
+  border: 2px solid var(--secondary-accent-color);
+}
+
+.cta-section-new .btn-cta:hover {
+  background-color: transparent;
+  color: var(--secondary-accent-color);
+  border-color: var(--secondary-accent-color);
+  transform: translateY(-2px);
+}
+
+/* --- Process Section (How It Works) --- */
+.process-section {
+    padding: var(--section-padding-medium);
+    background-color: var(--white-color);
+}
+
+.process-step-item {
+    text-align: center;
+    position: relative;
+    padding-top: 60px; /* Space for the line and number */
+    margin-bottom: 30px; /* Reduced margin */
+}
+
+.process-step-item .step-number {
+    width: 50px; /* Reduced size */
+    height: 50px;
+    background-color: var(--primary-brand-color);
+    color: var(--white-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem; /* Reduced font size */
+    font-weight: 700;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    border: 4px solid var(--white-color); /* Thinner border */
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1); /* Softer shadow */
+}
+
+.process-step-item h3 {
+    font-size: 1.6rem; /* Reduced font size */
+    font-weight: 600;
+    color: var(--dark-text-color);
+    margin-top: 25px; /* Reduced margin */
+    margin-bottom: 12px;
+}
+
+.process-step-item p {
+    font-size: 0.95rem; /* Reduced font size */
+    color: var(--light-text-color);
+    line-height: 1.6;
+}
+
+/* Line connecting steps */
+.process-line {
+    position: absolute;
+    top: 25px; /* Aligns with middle of step number */
+    left: 0;
+    right: 0;
+    height: 2px; /* Thinner line */
+    background-color: var(--border-color-light); /* Light grey line */
+    z-index: 5;
+}
+
+/* Responsive for Process Section */
+@media (min-width: 768px) {
+    .process-step-item:first-child .step-number::before,
+    .process-step-item:last-child .step-number::after {
+        background-color: var(--white-color);
+    }
+}
+@media (max-width: 767.98px) {
+    .process-line { display: none; }
+    .process-step-item {
+        padding-top: 0;
+        margin-bottom: 50px;
+        text-align: left;
+    }
+    .process-step-item .step-number {
+        position: static;
+        transform: none;
+        float: left;
+        margin-right: 20px;
+    }
+    .process-step-item h3,
+    .process-step-item p {
+        margin-left: 70px; /* Adjusted offset */
+        margin-top: 0;
+    }
+}
+
+/* --- Testimonials Section (New) --- */
+.testimonials-section {
+    padding: var(--section-padding-medium);
+    background-color: var(--light-bg-color);
+}
+
+.testimonials-section .testimonial-card {
+    background-color: var(--white-color);
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 5px 15px var(--box-shadow-subtle);
+    transition: all 0.3s ease-in-out;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border: 1px solid var(--border-color-light);
+}
+
+.testimonials-section .testimonial-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px var(--box-shadow-mild);
+}
+
+.testimonials-section .testimonial-card .quote-icon {
+    font-size: 2.5rem;
+    color: var(--secondary-accent-color);
+    opacity: 0.7;
+    margin-bottom: 15px;
+}
+
+.testimonials-section .testimonial-card p {
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--dark-text-color);
+    margin-bottom: 20px;
+    flex-grow: 1;
+}
+
+.testimonials-section .testimonial-card .author-info {
+    display: flex;
+    align-items: center;
+    margin-top: auto; /* Push to bottom */
+}
+
+.testimonials-section .testimonial-card .author-info img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 15px;
+    border: 2px solid var(--secondary-accent-color);
+    object-fit: cover;
+}
+
+.testimonials-section .testimonial-card .author-info h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--primary-brand-color);
+}
+
+.testimonials-section .testimonial-card .author-info span {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--light-text-color);
+}
+
+
+/* --- USP Section (New - Unique Selling Proposition) --- */
+.usp-section {
+    padding: var(--section-padding-medium);
+    background-color: var(--white-color);
+}
+
+.usp-section .usp-item {
+    display: flex;
+    align-items: flex-start; /* Align icon and text at top */
+    padding: 20px;
+    background-color: var(--light-bg-color); /* Light background for each item */
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+    border: 1px solid var(--border-color-light);
+    height: 100%;
+}
+
+.usp-section .usp-item:hover {
+    box-shadow: 0 8px 20px var(--box-shadow-subtle);
+    transform: translateY(-3px);
+}
+
+.usp-section .usp-icon {
+    font-size: 2.5rem;
+    color: var(--secondary-accent-color);
+    min-width: 60px; /* Fixed width for icon */
+    text-align: center;
+    margin-right: 25px;
+}
+
+.usp-section .usp-content h3 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--dark-text-color);
+}
+
+.usp-section .usp-content p {
+    font-size: 0.95rem;
+    color: var(--light-text-color);
+    margin-bottom: 0;
+}
+
+
+/* General section padding */
+.section-new {
+  padding: var(--section-padding-medium);
+}
+
+/* Custom button for secondary action if needed */
+.btn-outline-primary-brand {
+  border: 2px solid var(--primary-brand-color);
+  color: var(--primary-brand-color);
+  background-color: transparent;
+  padding: 10px 30px;
+  border-radius: 40px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all 0.3s ease-in-out;
+}
+.btn-outline-primary-brand:hover {
+  background-color: var(--primary-brand-color);
+  color: var(--white-color);
 }

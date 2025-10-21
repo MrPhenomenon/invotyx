@@ -2,11 +2,11 @@
 namespace app\commands;
 
 use yii\console\Controller;
-use app\models\OrganSystem; // Create these models first
+use app\models\OrganSystem;
 use app\models\Subject;
 use app\models\Chapters;
 use app\models\Topics;
-use PhpOffice\PhpSpreadsheet\IOFactory; // Assuming you have phpoffice/phpspreadsheet installed
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class ImportHierarchyController extends Controller
 {

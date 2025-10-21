@@ -102,17 +102,13 @@ $('#user-login').on('submit', function(e) {
             if (res.success && res.redirectUrl) {
                 window.location.href = res.redirectUrl;
             } else {
-                errorMessageDiv.text(res.message || 'An unknown error occurred.').show();
+                showToast(res.message || 'Login failed.', 'danger');
+                spinner.hide();
+                buttonText.text('LOGIN');
+                button.prop('disabled', false);
             }
+            hideloader();
         },
-        error: function() {
-            errorMessageDiv.text('Could not connect to the server. Please try again.').show();
-        },
-        complete: function() {
-            button.prop('disabled', false);
-            spinner.hide();
-            buttonText.text('LOGIN');
-        }
     });
 });
 JS;

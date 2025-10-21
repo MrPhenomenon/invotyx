@@ -56,24 +56,14 @@ class ResultsController extends Controller
             throw new NotFoundHttpException('The requested exam session does not exist.');
         }
 
-        $interactionsQuery = $session->getUserMcqInteractions()
+        $interactions = $session->getUserMcqInteractions()
             ->with('mcq')
-            ->orderBy(['id' => SORT_ASC]);
-
-        $pagination = new Pagination([
-            'totalCount' => $interactionsQuery->count(),
-            'pageSize' => 50,
-        ]);
-
-        $interactions = $interactionsQuery
-            ->offset($pagination->offset)
-            ->limit($pagination->limit)
+            ->orderBy(['id' => SORT_ASC])
             ->all();
 
         return $this->render('view', [
             'session' => $session,
             'interactions' => $interactions,
-            'pagination' => $pagination,
         ]);
     }
 

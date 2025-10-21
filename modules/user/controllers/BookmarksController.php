@@ -38,14 +38,13 @@ class BookmarksController extends Controller
     public function actionIndex()
     {
         $userId = Yii::$app->user->id;
-        $user = Users::findOne($userId); // Fetch the user model to get their default exam/specialty info
+        $user = Users::findOne($userId);
 
         if (!$user) {
             Yii::$app->session->setFlash('error', 'User not found.');
             return $this->goHome();
         }
 
-        // Fetch all bookmarked MCQs for the current user
         $query = Mcqs::find()
             ->joinWith('userBookmarks')
             ->where(['user_bookmarked_mcqs.user_id' => $userId])
@@ -65,10 +64,4 @@ class BookmarksController extends Controller
             'userDefaultSpecialty' => $user->speciality->name ?? 'N/A',
         ]);
     }
-
-    // You might want to also add the actionToggleBookmark here if you use this controller
-    // for all bookmarking operations outside of an active exam session.
-    // For now, actionToggleBookmark remains in ExamController, but consider moving it here
-    // for better separation of concerns if 'BookmarkedController' becomes your primary
-    // bookmark management.
 }

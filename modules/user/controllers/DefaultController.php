@@ -4,9 +4,16 @@ namespace app\modules\user\controllers;
 
 use app\models\ExamSessions;
 use app\models\ExamSpecialties;
+use app\models\Hierarchy;
+use app\models\Mcqs;
+use app\models\OrganSystems;
+use app\models\Reports;
+use app\models\Topics;
 use app\models\UserMcqInteractions;
 use app\models\Users;
 use app\models\UserSubscriptions;
+use yii\data\ArrayDataProvider;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\web\Controller;
 use Yii;
@@ -27,7 +34,7 @@ class DefaultController extends Controller
 
         if (!$user) {
             Yii::$app->session->setFlash('error', 'User not found.');
-            return $this->goHome(); // Or redirect to login
+            return $this->goHome();
         }
 
         // 1. Subscription Status
@@ -37,7 +44,14 @@ class DefaultController extends Controller
             ->orderBy(['end_date' => SORT_DESC]) // Get the latest active
             ->joinWith('subscription') // Load subscription details
             ->one();
-            
+
+        $accuracyTrend = ExamSessions::find()
+            ->select(['end_time', 'accuracy'])
+            ->where(['user_id' => $userId, 'status' => 'Completed'])
+            ->andWhere(['not', ['accuracy' => null]])
+            ->orderBy(['end_time' => SORT_ASC])
+            ->asArray()
+            ->all();
 
         // 2. Ongoing Exams
         $ongoingExams = ExamSessions::find()
@@ -89,9 +103,9 @@ class DefaultController extends Controller
             'ongoingExams' => $ongoingExams,
             'recentExams' => $recentExams,
             'overallStats' => $overallStats,
+            'accuracyTrend' => $accuracyTrend,
         ]);
     }
-
 
     public function actionProfile()
     {
@@ -156,6 +170,140 @@ class DefaultController extends Controller
         }
 
         return $options;
+    }
+
+    public function actionAnalytics()
+    {
+        $userId = Yii::$app->user->id;
+
+        // Basic stats
+        $totalExams = ExamSessions::find()->where(['user_id' => $userId])->count();
+        $completedExams = ExamSessions::find()->where(['user_id' => $userId, 'status' => 'complete'])->count();
+        $totalQuestions = UserMcqInteractions::find()->where(['user_id' => $userId])->count();
+        $totalTimeSpent = ExamSessions::find()->where(['user_id' => $userId])->sum('time_spent_seconds');
+        $correctCount = UserMcqInteractions::find()
+            ->where(['user_id' => $userId, 'is_correct' => 1])
+            ->count();
+        $accuracy = $totalQuestions > 0 ? round(($correctCount / $totalQuestions) * 100, 2) : null;
+        $avgTimePerMcq = $totalTimeSpent / $totalQuestions;
+
+        $seconds = (int) round($avgTimePerMcq);
+        $minutes = floor($seconds / 60);
+        $remainingSeconds = $seconds % 60;
+        $formattedTime = "{$minutes}m {$remainingSeconds}s";
+
+
+        $chapterStats = (new \yii\db\Query())
+            ->select([
+                'c.id as chapter_id',
+                'c.name as chapter_name',
+                'COUNT(umi.id) as total_attempts',
+                'SUM(umi.is_correct) as correct_count',
+                'ROUND(SUM(umi.is_correct)/COUNT(umi.id)*100, 2) as accuracy',
+                'AVG(umi.time_spent_seconds) as avg_time',
+            ])
+            ->from('user_mcq_interactions umi')
+            ->innerJoin('mcqs m', 'm.id = umi.mcq_id')
+            ->innerJoin('hierarchy h', 'h.id = m.hierarchy_id')
+            ->innerJoin('chapters c', 'c.id = h.chapter_id')
+            ->where(['umi.user_id' => $userId])
+            ->groupBy(['c.id'])
+            ->all();
+
+
+        foreach ($chapterStats as &$stat) {
+            $acc = $stat['accuracy'];
+            if ($acc >= 75) {
+                $stat['strength'] = 'Good';
+            } elseif ($acc >= 60) {
+                $stat['strength'] = 'Need Preparation';
+            } else {
+                $stat['strength'] = 'Weak';
+            }
+        }
+
+        return $this->render('analytics', [
+            'totalExams' => $totalExams,
+            'completedExams' => $completedExams,
+            'totalQuestions' => $totalQuestions,
+            'accuracy' => $accuracy,
+            'avgTimePerMcq' => $formattedTime,
+            'chapterStats' => $chapterStats,
+        ]);
+    }
+
+    public function actionTopicsByChapter($chapterId)
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $userId = Yii::$app->user->id;
+
+        $topics = (new \yii\db\Query())
+            ->select([
+                't.id as topic_id',
+                't.name as topic_name',
+                'ROUND(SUM(umi.is_correct)/COUNT(umi.id)*100, 2) as accuracy'
+            ])
+            ->from('user_mcq_interactions umi')
+            ->innerJoin('mcqs m', 'm.id = umi.mcq_id')
+            ->innerJoin('hierarchy h', 'h.id = m.hierarchy_id')
+            ->innerJoin('topics t', 't.id = h.topic_id')
+            ->where(['umi.user_id' => $userId, 'h.chapter_id' => $chapterId])
+            ->groupBy(['t.id'])
+            ->all();
+
+        return [
+            'labels' => array_column($topics, 'topic_name'),
+            'accuracy' => array_column($topics, 'accuracy'),
+            'colors' => array_map(function ($t) {
+                if ($t['accuracy'] >= 75)
+                    return '#28a745';
+                if ($t['accuracy'] >= 60)
+                    return '#fd7e14';
+                return '#dc3545';
+            }, $topics),
+        ];
+    }
+
+
+    public function actionReportMcq()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $request = Yii::$app->request;
+
+        if (!$request->isPost) {
+            return ['success' => false, 'error' => 'Invalid request'];
+        }
+
+        $mcqId = $request->post('mcq_id');
+        $message = trim($request->post('message'));
+
+        if (empty($mcqId) || empty($message)) {
+            return ['success' => false, 'error' => 'MCQ ID and message are required'];
+        }
+
+        $exists = Reports::find()
+            ->where(['mcq_id' => $mcqId, 'status' => 'pending'])
+            ->exists();
+
+        if ($exists) {
+            return ['success' => false, 'error' => 'This MCQ is already reported and pending review.'];
+        }
+
+        $report = new Reports();
+        $report->mcq_id = $mcqId;
+        $report->reported_by = Yii::$app->user->id;
+        $report->message = $message;
+
+        if ($report->save()) {
+            return ['success' => true];
+        }
+
+        return [
+            'success' => false,
+            'error' => $report->getErrors(),
+        ];
     }
 
 }

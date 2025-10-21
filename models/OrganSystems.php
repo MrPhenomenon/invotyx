@@ -12,6 +12,8 @@ use Yii;
  */
 class OrganSystems extends \yii\db\ActiveRecord
 {
+    public $mcq_count;
+    
     public static function tableName()
     {
         return 'organ_systems';

@@ -3,6 +3,7 @@
 namespace app\modules\admin\controllers;
 
 use app\models\Chapters;
+use app\models\Hierarchy;
 use app\models\OrganSystems;
 use app\models\Subjects;
 use app\models\Topics;
@@ -19,17 +20,24 @@ use yii\data\Pagination;
 /**
  * Mcq controller for the `admin` module
  */
-class McqController extends Controller
+class McqController extends AdminBaseController
 {
-    /**
-     * Renders the index view for the module
-     * @return string
-     */
+    protected function allowedRoles(): array
+    {
+        return ['Super Admin', 'Content Manager'];
+    }
+
     public function actionAdd()
     {
         $topics = Topics::find()->asArray()->all();
+        $chapters = Chapters::find()->asArray()->all();
+        $subjects = Subjects::find()->asArray()->all();
+        $organsys = OrganSystems::find()->asArray()->all();
         return $this->render('add', [
             'topics' => $topics,
+            'chapters' => $chapters,
+            'subjects' => $subjects,
+            'organsys' => $organsys,
         ]);
     }
 
@@ -40,72 +48,50 @@ class McqController extends Controller
 
     public function actionManage()
     {
-        $topics = Topics::find()->asArray()->all();
+        $query = Mcqs::find()
+            ->joinWith('hierarchy');
 
-        $query = Mcqs::find()->with('topic');
+        $filters = Yii::$app->request->get();
+
+        if (!empty($filters['question_id'])) {
+            $query->andWhere(['like', 'question_id', $filters['question_id']]);
+        }
+        if (!empty($filters['organ_system'])) {
+            $query->andWhere(['hierarchy.organsys_id' => $filters['organ_system']]);
+        }
+        if (!empty($filters['subject'])) {
+            $query->andWhere(['hierarchy.subject_id' => $filters['subject']]);
+        }
+        if (!empty($filters['chapter'])) {
+            $query->andWhere(['hierarchy.chapter_id' => $filters['chapter']]);
+        }
+        if (!empty($filters['topic'])) {
+            $query->andWhere(['hierarchy.topic_id' => $filters['topic']]);
+        }
+        if (!empty($filters['question_text'])) {
+            $query->andWhere(['like', 'question_text', $filters['question_text']]);
+        }
 
         $pagination = new Pagination([
             'totalCount' => $query->count(),
-            'pageSize' => 20,
+            'pageSize' => 40,
         ]);
 
         $mcqs = $query
             ->offset($pagination->offset)
             ->limit($pagination->limit)
             ->orderBy(['created_at' => SORT_DESC])
-            ->asArray()
             ->all();
 
         return $this->render('manage', [
             'mcqs' => $mcqs,
-            'topics' => $topics,
             'pagination' => $pagination,
+            'filters' => $filters,
+            'subjects' => Subjects::find()->all(),
+            'organSystems' => OrganSystems::find()->all(),
+            'chapters' => Chapters::find()->all(),
+            'topics' => Topics::find()->all(),
         ]);
-    }
-
-    public function actionManageTopics()
-    {
-        $chapters = (new \yii\db\Query())
-            ->select([
-                'c.id',
-                'c.name',
-                'COUNT(t.id) AS topic_count'
-            ])
-            ->from(['c' => 'chapters'])
-            ->leftJoin(['t' => 'topics'], 't.chapter_id = c.id')
-            ->groupBy('c.id')
-            ->all();
-        $topics = Topics::find()
-            ->select(['topics.*', 'chapters.name AS chapter_name'])
-            ->leftJoin('chapters', 'chapters.id = topics.chapter_id')
-            ->asArray()
-            ->all();
-
-        return $this->render('topics', [
-            'topics' => $topics,
-            'chapters' => $chapters,
-        ]);
-    }
-
-    public function actionAddTopic()
-    {
-        Yii::$app->response->format = Response::FORMAT_JSON;
-        $data = Yii::$app->request->post();
-        $model = new Topics();
-        $model->name = $data['name'];
-        $model->chapter_id = $data['chapter_id'];
-        return $model->save()
-            ? ['success' => true, 'message' => 'Added Topic']
-            : ['success' => false, 'message' => 'Topic couldnt be added'];
-    }
-    public function actionAddChapter()
-    {
-        Yii::$app->response->format = Response::FORMAT_JSON;
-        $model = new Chapters();
-        $model->name = Yii::$app->request->post('name');
-        return $model->save()
-            ? ['success' => true, 'message' => 'Added Chapter']
-            : ['success' => false, 'message' => 'Chapter couldnt be added'];
     }
 
     public function actionSaveMultiple()
@@ -126,6 +112,21 @@ class McqController extends Controller
                 continue;
             }
 
+            $hierarchy = Hierarchy::find()
+                ->where(['topic_id' => $mcqData['topic'], 'chapter_id' => $mcqData['chapter'], 'subject_id' => $mcqData['subject'], 'organsys_id' => $mcqData['organ_sys']])
+                ->one();
+            if ($hierarchy) {
+                $hierarchy_id = $hierarchy->id;
+            } else {
+                $hierarchy = new Hierarchy();
+                $hierarchy->topic_id = $mcqData['topic'];
+                $hierarchy->chapter_id = $mcqData['chapter'];
+                $hierarchy->subject_id = $mcqData['subject'];
+                $hierarchy->organsys_id = $mcqData['organ_sys'];
+                $hierarchy->save();
+                $hierarchy_id = $hierarchy->id;
+            }
+
             $mcq = new Mcqs();
             $mcq->question_id = $mcqData['question_id'];
             $mcq->question_text = $mcqData['question_text'];
@@ -138,7 +139,8 @@ class McqController extends Controller
             $mcq->correct_option = strtoupper($mcqData['correct_option']);
             $mcq->explanation = $mcqData['explanation'] ?? null;
             $mcq->reference = $mcqData['reference'] ?? null;
-            $mcq->topic_id = $mcqData['topic_id'];
+            $mcq->hierarchy_id = $hierarchy_id;
+            $mcq->tags = $mcqData['tags'] ?? null;
             $mcq->created_by = Yii::$app->admin->identity->id;
 
             if ($mcq->save()) {
@@ -188,13 +190,15 @@ class McqController extends Controller
             'categories' => [$importCategory],
         ]);
 
-
         $organSystems = OrganSystems::find()->select(['id', 'name'])->indexBy('name')->asArray()->all();
         $subjects = Subjects::find()->select(['id', 'name'])->indexBy('name')->asArray()->all();
-        $topicsLookup = [];
-        $chaptersLookup = Chapters::find()->select(['id', 'name'])->indexBy('name')->asArray()->all();
-        foreach (Topics::find()->all() as $topic) {
-            $topicsLookup[strtolower($topic->name)][$topic->chapter_id] = $topic->id;
+        $chapters = Chapters::find()->select(['id', 'name'])->indexBy('name')->asArray()->all();
+        $topics = Topics::find()->select(['id', 'name'])->indexBy('name')->asArray()->all();
+
+        $hierarchyIndex = [];
+        foreach (Hierarchy::find()->all() as $h) {
+            $key = strtolower($h->organsys_id . '|' . $h->subject_id . '|' . $h->chapter_id . '|' . $h->topic_id);
+            $hierarchyIndex[$key] = $h->id;
         }
 
         $transaction = Yii::$app->db->beginTransaction();
@@ -203,7 +207,6 @@ class McqController extends Controller
             $sheet = $spreadsheet->getActiveSheet();
             $rows = $sheet->toArray();
 
-            // Header validation
             $header = array_map('trim', array_map('strtoupper', array_slice($rows[0], 0, 15)));
             $expectedHeader = [
                 'QUESTION ID',
@@ -241,16 +244,12 @@ class McqController extends Controller
             $mcqBatchForDb = [];
 
             foreach ($rows as $rowIndex => $row) {
-                // Skip empty rows
+
                 if (empty(array_filter($row))) {
                     continue;
                 }
 
-                $questionId = trim($row[0] ?? '');
-                $organSystemName = trim($row[1] ?? '');
-                $subjectName = trim($row[2] ?? '');
-                $chapterName = trim($row[3] ?? '');
-                $topicName = trim($row[4] ?? '');
+                [$questionId, $osName, $subName, $chName, $topName] = array_map('trim', array_slice($row, 0, 5));
                 $questionText = trim($row[5] ?? '');
                 $optionA = $row[6] ?? '';
                 $optionB = $row[7] ?? '';
@@ -270,19 +269,21 @@ class McqController extends Controller
                     continue;
                 }
 
-                $organSystemId = $organSystems[$organSystemName]['id'] ?? null;
-                $subjectId = $subjects[$subjectName]['id'] ?? null;
-                $chapterId = $chaptersLookup[$chapterName]['id'] ?? null;
-                $topicId = $topicsLookup[$topicName][$chapterId] ?? null;
+                $osId = $organSystems[$osName]['id'] ?? null;
+                $subId = $subjects[$subName]['id'] ?? null;
+                $chId = $chapters[$chName]['id'] ?? null;
+                $topId = $topics[$topName]['id'] ?? null;
 
-                if (!$organSystemId || !$subjectId || !$chapterId || !$topicId) {
+                $key = strtolower($osId . '|' . $subId . '|' . $chId . '|' . $topId);
+                $hierarchyId = $hierarchyIndex[$key] ?? null;
+
+                if (!$hierarchyId) {
                     $failed++;
-                    $reason = "Hierarchy lookup failed. OS: '{$organSystemName}' (ID: {$organSystemId}), Subject: '{$subjectName}' (ID: {$subjectId}), Chapter: '{$chapterName}' (ID: {$chapterId}), Topic: '{$topicName}' (ID: {$topicId}).";
+                    $reason = "Hierarchy not found. OS: {$osName} ({$osId}), Sub: {$subName} ({$subId}), Ch: {$chName} ({$chId}), Top: {$topName} ({$topId})";
                     Yii::info("Row " . ($rowIndex + 2) . " (QID: {$questionId}): FAILED - {$reason}", $importCategory);
                     continue;
                 }
 
-                // --- Basic Data Validation ---
                 if (empty($questionText) || empty($correctOption) || !in_array($correctOption, ['A', 'B', 'C', 'D', 'E'])) {
                     $failed++;
                     $reason = "Missing or invalid essential MCQ data (Question Text or Correct Option).";
@@ -303,9 +304,7 @@ class McqController extends Controller
                 $mcq->explanation = $explanation;
                 $mcq->reference = $reference;
                 $mcq->difficulty_level = $difficultyLevel;
-                $mcq->topic_id = $topicId;
-                $mcq->organ_system_id = $organSystemId;
-                $mcq->subject_id = $subjectId;
+                $mcq->hierarchy_id = $hierarchyId;
                 $mcq->created_by = $userId;
 
                 $mcqBatchForDb[] = $mcq;
@@ -367,37 +366,6 @@ class McqController extends Controller
         }
     }
 
-    public function actionSearch()
-    {
-        Yii::$app->response->format = Response::FORMAT_JSON;
-
-        $params = Yii::$app->request->post();
-        $query = Mcqs::find()->with('topic');
-
-        if (!empty($params['question_id'])) {
-            $query->andWhere(['question_id' => $params['question_id']]);
-        }
-
-        if (!empty($params['topic'])) {
-            $query->andWhere(['topic_id' => $params['topic']]);
-        }
-
-        if (!empty($params['dates'])) {
-            $parts = explode(' to ', $params['dates']);
-
-            if (count($parts) === 2) {
-                $dateFrom = trim($parts[0]);
-                $dateTo = trim($parts[1]);
-
-                $query->andWhere(['between', 'created_at', $dateFrom . ' 00:00:00', $dateTo . ' 23:59:59']);
-            }
-        }
-
-        $mcqs = $query->orderBy(['created_at' => SORT_DESC])->asArray()->all();
-
-        return ['data' => $mcqs];
-    }
-
     public function actionDeleteMcq()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
@@ -425,17 +393,29 @@ class McqController extends Controller
             return ['success' => false, 'message' => 'MCQ not found'];
         }
 
+        $hierarchy = Hierarchy::findOne([
+            'organsys_id' => $data['mcq_organ_system_id'],
+            'subject_id' => $data['mcq_subject_id'],
+            'chapter_id' => $data['mcq_chapter_id'],
+            'topic_id' => $data['mcq_topic_id'],
+        ]);
+
+        if (!$hierarchy) {
+            return ['success' => false, 'message' => 'Invalid hierarchy combination'];
+        }
+
         $mcq->question_id = $data['mcq_question_id'] ?? $mcq->question_id;
-        $mcq->topic_id = $data['mcq_topic_id'] ?? $mcq->topic_id;
         $mcq->question_text = $data['mcq_question_text'] ?? $mcq->question_text;
         $mcq->option_a = $data['mcq_option_a'] ?? $mcq->option_a;
         $mcq->option_b = $data['mcq_option_b'] ?? $mcq->option_b;
         $mcq->option_c = $data['mcq_option_c'] ?? $mcq->option_c;
         $mcq->option_d = $data['mcq_option_d'] ?? $mcq->option_d;
         $mcq->option_e = $data['mcq_option_e'] ?? $mcq->option_e;
+        $mcq->hierarchy_id = $hierarchy->id;
         $mcq->correct_option = isset($data['mcq_correct_option']) ? strtoupper($data['mcq_correct_option']) : $mcq->correct_option;
         $mcq->explanation = $data['mcq_explanation'] ?? $mcq->explanation;
         $mcq->reference = $data['mcq_reference'] ?? $mcq->reference;
+        $mcq->tags = $data['mcq_tags'] ?? $mcq->tags;
 
 
         if (isset($data['mcq_question_text'])) {
@@ -447,42 +427,6 @@ class McqController extends Controller
             return ['success' => true, 'message' => 'MCQ updated successfully'];
         } else {
             return ['success' => false, 'message' => 'Update failed', 'errors' => $mcq->getErrors()];
-        }
-    }
-
-    public function actionDeleteChapter()
-    {
-        Yii::$app->response->format = Response::FORMAT_JSON;
-        $id = Yii::$app->request->post('id');
-        if (!$id) {
-            return ['success' => false, 'message' => 'Missing chapter ID'];
-        }
-        $model = Chapters::findOne($id);
-        if (!$model) {
-            return ['success' => false, 'message' => 'Chapter not found'];
-        }
-        if ($model->delete()) {
-            return ['success' => true, 'message' => 'Chapter deleted'];
-        } else {
-            return ['success' => false, 'message' => 'Delete failed'];
-        }
-    }
-
-    public function actionDeleteTopics()
-    {
-        Yii::$app->response->format = Response::FORMAT_JSON;
-        $id = Yii::$app->request->post('id');
-        if (!$id) {
-            return ['success' => false, 'message' => 'Missing topic ID'];
-        }
-        $model = Topics::findOne($id);
-        if (!$model) {
-            return ['success' => false, 'message' => 'Topic not found'];
-        }
-        if ($model->delete()) {
-            return ['success' => true, 'message' => 'Topic deleted'];
-        } else {
-            return ['success' => false, 'message' => 'Delete failed'];
         }
     }
     public function actionDownloadLog($filename)

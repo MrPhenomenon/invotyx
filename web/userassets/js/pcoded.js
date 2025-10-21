@@ -748,13 +748,28 @@ function hideloader() {
   $("#global-loader").fadeOut();
 }
 
+$(document).on("click", "a", function (e) {
+  let href = $(this).attr("href");
+
+  if (href && href !== "#" && !href.startsWith("javascript:") && !href.startsWith("#")) {
+    showloader();
+  }
+});
+
+$(document).on("submit", "form", function () {
+  showloader();
+});
+
+$(window).on("load", function () {
+  hideloader();
+});
+
 function showToast(message, type = 'success') {
   const $toast = $('#global-toast');
   const $body = $('#global-toast-body');
 
   $body.text(message);
 
-  // Update type (Bootstrap color class)
   $toast.removeClass('bg-success bg-danger bg-warning bg-info')
         .addClass(`bg-${type}`);
 

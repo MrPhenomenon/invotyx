@@ -736,6 +736,22 @@ $(document).on({
   },
 });
 
+$(document).on("click", "a", function (e) {
+  let href = $(this).attr("href");
+
+  if (href && href !== "#" && !href.startsWith("javascript:") && !href.startsWith("#")) {
+    showloader();
+  }
+});
+
+$(document).on("submit", "form", function () {
+  showloader();
+});
+
+$(window).on("load", function () {
+  hideloader();
+});
+
 function showloader() {
   $("#global-loader").fadeIn();
 }

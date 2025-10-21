@@ -170,7 +170,7 @@ CREATE TABLE `users` (
   `role` smallint(6) NOT NULL DEFAULT 0,
   `subscription_id` int(11) DEFAULT NULL,
   `exam_type` enum('FCPS','USMLE','PLAB') DEFAULT NULL,
-  `speciality_id` int(11) DEFAULT NULL,
+  `specialty_id` int(11) DEFAULT NULL,
   `expected_exam_date` date DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -265,7 +265,7 @@ ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `email` (`email`),
   ADD KEY `subscription_id` (`subscription_id`),
-  ADD KEY `specialty_id` (`speciality_id`);
+  ADD KEY `specialty_id` (`specialty_id`);
 
 --
 -- Indexes for table `user_mcq_interactions`
@@ -383,7 +383,7 @@ ALTER TABLE `topics`
 --
 ALTER TABLE `users`
   ADD CONSTRAINT `users_ibfk_1` FOREIGN KEY (`subscription_id`) REFERENCES `subscriptions` (`id`) ON DELETE SET NULL,
-  ADD CONSTRAINT `users_ibfk_2` FOREIGN KEY (`speciality_id`) REFERENCES `exam_specialties` (`id`) ON DELETE SET NULL;
+  ADD CONSTRAINT `users_ibfk_2` FOREIGN KEY (`specialty_id`) REFERENCES `exam_specialties` (`id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `user_mcq_interactions`

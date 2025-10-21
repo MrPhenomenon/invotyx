@@ -18,20 +18,19 @@ use Yii;
  * @property string|null $option_e
  * @property string $correct_option
  * @property string|null $explanation
- * @property int $topic_id
- * @property int|null $organ_system_id Foreign Key to organ_systems table
- * @property int|null $subject_id Foreign Key to subjects table
  * @property string|null $reference
  * @property string|null $difficulty_level
+ * @property string|null $tags
+ * @property int $hierarchy_id
  * @property string|null $image_path
  * @property int $created_by
  * @property string $created_at
  * @property string $updated_at
  *
  * @property ManagementTeam $createdBy
- * @property OrganSystems $organSystem
- * @property Subjects $subject
- * @property Topics $topic
+ * @property Hierarchy $hierarchy
+ * @property UserBookmarkedMcqs[] $userBookmarkedMcqs
+ * @property Users[] $users
  */
 class Mcqs extends \yii\db\ActiveRecord
 {
@@ -62,20 +61,18 @@ class Mcqs extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['question_id', 'option_d', 'option_e', 'explanation', 'organ_system_id', 'subject_id', 'reference', 'difficulty_level', 'image_path'], 'default', 'value' => null],
-            [['question_text', 'question_hash', 'option_a', 'option_b', 'option_c', 'correct_option', 'topic_id', 'created_by'], 'required'],
+            [['question_id', 'option_d', 'option_e', 'explanation', 'reference', 'difficulty_level', 'image_path'], 'default', 'value' => null],
+            [['question_text', 'question_hash', 'option_a', 'option_b', 'option_c', 'correct_option', 'hierarchy_id', 'created_by'], 'required'],
             [['question_text', 'correct_option', 'explanation', 'reference', 'difficulty_level'], 'string'],
-            [['topic_id', 'organ_system_id', 'subject_id', 'created_by'], 'integer'],
-            [['created_at', 'updated_at'], 'safe'],
+            [['hierarchy_id', 'created_by'], 'integer'],
+            [['created_at', 'updated_at', 'tags'], 'safe'],
             [['question_id'], 'string', 'max' => 20],
             [['question_hash'], 'string', 'max' => 64],
             [['option_a', 'option_b', 'option_c', 'option_d', 'option_e', 'image_path'], 'string', 'max' => 255],
             ['correct_option', 'in', 'range' => array_keys(self::optsCorrectOption())],
             ['difficulty_level', 'in', 'range' => array_keys(self::optsDifficultyLevel())],
             [['question_hash'], 'unique'],
-            [['organ_system_id'], 'exist', 'skipOnError' => true, 'targetClass' => OrganSystems::class, 'targetAttribute' => ['organ_system_id' => 'id']],
-            [['subject_id'], 'exist', 'skipOnError' => true, 'targetClass' => Subjects::class, 'targetAttribute' => ['subject_id' => 'id']],
-            [['topic_id'], 'exist', 'skipOnError' => true, 'targetClass' => Topics::class, 'targetAttribute' => ['topic_id' => 'id']],
+            [['hierarchy_id'], 'exist', 'skipOnError' => true, 'targetClass' => Hierarchy::class, 'targetAttribute' => ['hierarchy_id' => 'id']],
             [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => ManagementTeam::class, 'targetAttribute' => ['created_by' => 'id']],
         ];
     }
@@ -97,11 +94,10 @@ class Mcqs extends \yii\db\ActiveRecord
             'option_e' => 'Option E',
             'correct_option' => 'Correct Option',
             'explanation' => 'Explanation',
-            'topic_id' => 'Topic ID',
-            'organ_system_id' => 'Organ System ID',
-            'subject_id' => 'Subject ID',
             'reference' => 'Reference',
             'difficulty_level' => 'Difficulty Level',
+            'tags' => 'Tags',
+            'hierarchy_id' => 'Hierarchy ID',
             'image_path' => 'Image Path',
             'created_by' => 'Created By',
             'created_at' => 'Created At',
@@ -120,33 +116,33 @@ class Mcqs extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[OrganSystem]].
+     * Gets query for [[Hierarchy]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getOrganSystem()
+    public function getHierarchy()
     {
-        return $this->hasOne(OrganSystems::class, ['id' => 'organ_system_id']);
+        return $this->hasOne(Hierarchy::class, ['id' => 'hierarchy_id']);
     }
 
     /**
-     * Gets query for [[Subject]].
+     * Gets query for [[UserBookmarkedMcqs]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getSubject()
+    public function getUserBookmarkedMcqs()
     {
-        return $this->hasOne(Subjects::class, ['id' => 'subject_id']);
+        return $this->hasMany(UserBookmarkedMcqs::class, ['mcq_id' => 'id']);
     }
 
     /**
-     * Gets query for [[Topic]].
+     * Gets query for [[Users]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getTopic()
+    public function getUsers()
     {
-        return $this->hasOne(Topics::class, ['id' => 'topic_id']);
+        return $this->hasMany(Users::class, ['id' => 'user_id'])->viaTable('user_bookmarked_mcqs', ['mcq_id' => 'id']);
     }
 
 
@@ -189,115 +185,27 @@ class Mcqs extends \yii\db\ActiveRecord
     /**
      * @return bool
      */
-    public function isCorrectOptionA()
+
+
+    public function getOrganSystemName()
     {
-        return $this->correct_option === self::CORRECT_OPTION_A;
+        return $this->hierarchy ? $this->hierarchy->organsys->name : null;
     }
 
-    public function setCorrectOptionToA()
+    public function getSubjectName()
     {
-        $this->correct_option = self::CORRECT_OPTION_A;
+        return $this->hierarchy ? $this->hierarchy->subject->name : null;
     }
 
-    /**
-     * @return bool
-     */
-    public function isCorrectOptionB()
+    public function getChapterName()
     {
-        return $this->correct_option === self::CORRECT_OPTION_B;
+        return $this->hierarchy ? $this->hierarchy->chapter->name : null;
     }
 
-    public function setCorrectOptionToB()
+    public function getTopicName()
     {
-        $this->correct_option = self::CORRECT_OPTION_B;
+        return $this->hierarchy ? $this->hierarchy->topic->name : null;
     }
-
-    /**
-     * @return bool
-     */
-    public function isCorrectOptionC()
-    {
-        return $this->correct_option === self::CORRECT_OPTION_C;
-    }
-
-    public function setCorrectOptionToC()
-    {
-        $this->correct_option = self::CORRECT_OPTION_C;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isCorrectOptionD()
-    {
-        return $this->correct_option === self::CORRECT_OPTION_D;
-    }
-
-    public function setCorrectOptionToD()
-    {
-        $this->correct_option = self::CORRECT_OPTION_D;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isCorrectOptionE()
-    {
-        return $this->correct_option === self::CORRECT_OPTION_E;
-    }
-
-    public function setCorrectOptionToE()
-    {
-        $this->correct_option = self::CORRECT_OPTION_E;
-    }
-
-    /**
-     * @return string
-     */
-    public function displayDifficultyLevel()
-    {
-        return self::optsDifficultyLevel()[$this->difficulty_level];
-    }
-
-    /**
-     * @return bool
-     */
-    public function isDifficultyLevelEasy()
-    {
-        return $this->difficulty_level === self::DIFFICULTY_LEVEL_EASY;
-    }
-
-    public function setDifficultyLevelToEasy()
-    {
-        $this->difficulty_level = self::DIFFICULTY_LEVEL_EASY;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isDifficultyLevelModerate()
-    {
-        return $this->difficulty_level === self::DIFFICULTY_LEVEL_MODERATE;
-    }
-
-    public function setDifficultyLevelToModerate()
-    {
-        $this->difficulty_level = self::DIFFICULTY_LEVEL_MODERATE;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isDifficultyLevelHard()
-    {
-        return $this->difficulty_level === self::DIFFICULTY_LEVEL_HARD;
-    }
-
-    public function setDifficultyLevelToHard()
-    {
-        $this->difficulty_level = self::DIFFICULTY_LEVEL_HARD;
-    }
-
     public function getUserBookmarks()
     {
         return $this->hasMany(UserBookmarkedMcqs::class, ['mcq_id' => 'id']);

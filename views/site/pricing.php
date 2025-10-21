@@ -12,11 +12,13 @@ $this->title = 'Pricing';
 
       <?php foreach ($plans as $index => $plan): ?>
         <div class="col-xl-3 col-md-6 d-flex">
-          <div class="pricing-item shadow p-4 w-100 d-flex flex-column <?= $index === 1 ? 'featured' : '' ?>"
-            style="<?= $index === 1 ? 'scale: 1.05; z-index: 9;' : '' ?>">
+          <div
+            class="pricing-item shadow p-4 w-100 d-flex flex-column <?= $index === 0 ? 'featured' : '' ?> <?= !$plan['active'] ? 'opacity-50' : '' ?>"
+            style="<?= $index === 0 ? 'scale: 1.05; z-index: 9;' : '' ?> <?= !$plan['active'] ? 'pointer-events: none;' : '' ?>">
+
             <div class="mb-3 text-center">
               <h3><?= htmlspecialchars($plan['name']) ?></h3>
-              <h4><sup>$</sup><?= $plan['price'] ?><span> / <?= $plan['duration_days'] ?>
+              <h4><sup>Rs.</sup><?= $plan['price'] ?><span> / <?= $plan['duration_days'] ?>
                   days</span></h4>
             </div>
 
@@ -43,7 +45,7 @@ $this->title = 'Pricing';
 
             <div class="btn-wrap mt-3 text-center">
               <a href="<?= Url::to(['/register']) ?>">
-                <label class="btn btn-outline-primary px-4" for="plan-<?= $plan['id'] ?>">Register Now</label>
+                <label class="btn btn-outline-primary px-4" for="plan-<?= $plan['id'] ?>"><?= $plan['active'] == 1 ? 'Register Now' : 'Coming Soon' ?></label>
               </a>
             </div>
           </div>

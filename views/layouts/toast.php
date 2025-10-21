@@ -1,4 +1,4 @@
-<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999999;">
   <div id="global-toast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
     <div class="d-flex">
       <div class="toast-body" id="global-toast-body">

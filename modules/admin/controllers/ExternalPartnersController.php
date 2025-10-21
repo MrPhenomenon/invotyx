@@ -6,8 +6,12 @@ use app\models\ExternalPartners;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 
-class ExternalPartnersController extends Controller
+class ExternalPartnersController extends AdminBaseController
 {
+      protected function allowedRoles(): array
+    {
+        return ['Super Admin'];
+    }
     public function actionCreate()
     {
         $model = new ExternalPartners();

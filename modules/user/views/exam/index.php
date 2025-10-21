@@ -49,22 +49,21 @@ $this->registerCssFile('https://cdn.jsdelivr.net/npm/choices.js/public/assets/st
                     <label for="subjectSelect" class="form-label fw-semibold">Select Subjects</label>
                     <select id="subjectSelect" name="subject_ids[]" multiple>
                         <?php foreach ($subjects as $subject): ?>
-                            <option value="<?= $subject->id ?>"><?= Html::encode($subject->name) ?></option>
+                            <option value="<?= $subject->id ?>"><?= Html::encode($subject->name) ?>
+                                (<?= $subject->mcq_count ?>)</option>
                         <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="mb-3">
                     <label for="chapterSelect" class="form-label fw-semibold">Select Chapters</label>
                     <select id="chapterSelect" name="chapter_ids[]" multiple>
-                        <?php foreach ($chapters as $chapter): ?>
-                            <option value="<?= $chapter->id ?>"><?= Html::encode($chapter->name) ?></option>
-                        <?php endforeach; ?>
+                        <option value="0" selected>All Chapters</option>
                     </select>
                 </div>
                 <div class="mb-3">
                     <label for="topicSelect" class="form-label fw-semibold">Select Topics</label>
-                    <select id="topicSelect" name="topic_ids[]" multiple data-url="<?= Url::to(['exam/get-topics']) ?>">
-                        <option value="0" selected>All topics for selected chapters</option>
+                    <select id="topicSelect" name="topic_ids[]" multiple data-url="<?= Url::to(['/api/get-topics']) ?>">
+                        <option value="0" selected>All topics</option>
                     </select>
                 </div>
             </div>
@@ -74,13 +73,13 @@ $this->registerCssFile('https://cdn.jsdelivr.net/npm/choices.js/public/assets/st
                     <label for="organSystemSelect" class="form-label fw-semibold">Select Organ Systems</label>
                     <select id="organSystemSelect" name="organ_system_ids[]" multiple>
                         <?php foreach ($organSystems as $organSystem): ?>
-                            <option value="<?= $organSystem->id ?>"><?= Html::encode($organSystem->name) ?></option>
+                            <option value="<?= $organSystem->id ?>"><?= Html::encode($organSystem->name) ?>
+                                (<?= $organSystem->mcq_count ?>)</option>
                         <?php endforeach; ?>
                     </select>
                 </div>
             </div>
 
-            <!-- Common customization fields (Number of Questions, Difficulty, Tags, Time Limit, Randomize, Bookmarked) -->
             <div id="commonCustomizationSection">
                 <div class="mb-3">
                     <?= Html::label('Number of Questions', 'numQuestions', ['class' => 'form-label fw-semibold']) ?>
@@ -94,33 +93,23 @@ $this->registerCssFile('https://cdn.jsdelivr.net/npm/choices.js/public/assets/st
                 </div>
 
                 <div class="mb-3">
-                    <?= Html::label('Difficulty Level', null, ['class' => 'form-label d-block fw-semibold']) ?>
-                    <div class="btn-group" role="group" aria-label="Difficulty Level">
-                        <?= Html::radio('difficulty', false, ['value' => 'Easy', 'class' => 'btn-check', 'id' => 'difficultyEasy', 'autocomplete' => 'off']) ?>
-                        <?= Html::label('Easy', 'difficultyEasy', ['class' => 'btn btn-outline-primary']) ?>
-
-                        <?= Html::radio('difficulty', true, ['value' => 'Moderate', 'class' => 'btn-check', 'id' => 'difficultyMedium', 'autocomplete' => 'off']) ?>
-                        <?= Html::label('Moderate', 'difficultyMedium', ['class' => 'btn btn-outline-primary']) ?>
-
-                        <?= Html::radio('difficulty', false, ['value' => 'Hard', 'class' => 'btn-check', 'id' => 'difficultyHard', 'autocomplete' => 'off']) ?>
-                        <?= Html::label('Hard', 'difficultyHard', ['class' => 'btn btn-outline-primary']) ?>
-                    </div>
+                    <?= Html::label('Difficulty Level', null, ['class' => 'form-label fw-semibold']) ?>
+                    <select id="difficulty-select" multiple name="difficulty[]" class="form-select">
+                        <option value="0" selected>All difficulties</option>
+                    </select>
                 </div>
+
 
                 <div class="mb-4">
                     <?= Html::label('Filter by Tags (optional)', null, ['class' => 'form-label d-block mb-3 fw-semibold']) ?>
-                    <div class="d-flex flex-wrap gap-4 p-3 bg-light rounded-3 shadow-sm"> <!-- Grouped in a light box with gap -->
-                        <div class="form-check form-check-inline"> <!-- Inline for better layout within group -->
-                            <?= Html::checkbox('tags[]', false, ['value' => 'unseen', 'class' => 'form-check-input', 'id' => 'unseen']) ?>
-                            <?= Html::label('Unseen Questions', 'unseen', ['class' => 'form-check-label text-dark fw-medium']) ?>
-                        </div>
+                    <div class="d-flex flex-wrap gap-4 p-3 bg-light rounded-3 shadow-sm">
                         <div class="form-check form-check-inline">
                             <?= Html::checkbox('tags[]', false, ['value' => 'attemptedWrong', 'class' => 'form-check-input', 'id' => 'attemptedWrong']) ?>
                             <?= Html::label('Answered Incorrectly', 'attemptedWrong', ['class' => 'form-check-label text-dark fw-medium']) ?>
                         </div>
                         <div class="form-check form-check-inline">
                             <?= Html::checkbox('tags[]', false, ['value' => 'previously-asked', 'class' => 'form-check-input', 'id' => 'tagPreviouslyAsked']) ?>
-                            <?= Html::label('From Past Exams', 'tagPreviouslyAsked', ['class' => 'form-check-label text-dark fw-medium']) ?>
+                            <?= Html::label('Previously Attempted', 'tagPreviouslyAsked', ['class' => 'form-check-label text-dark fw-medium']) ?>
                         </div>
                     </div>
                 </div>
@@ -128,8 +117,8 @@ $this->registerCssFile('https://cdn.jsdelivr.net/npm/choices.js/public/assets/st
                 <div class="mb-4" id="timeSection">
                     <label for="time_limit" class="form-label d-block mb-3 fw-semibold">Time Limit</label>
                     <div class="form-check form-switch mb-3">
-                        <input class="form-check-input form-switch-lg" type="checkbox" id="untimedToggle" name="untimed" value="1"
-                            onchange="toggleTimer(this)">
+                        <input class="form-check-input form-switch-lg" type="checkbox" id="untimedToggle" name="untimed"
+                            value="1" onchange="toggleTimer(this)">
                         <label class="form-check-label fw-medium" for="untimedToggle">Untimed Exam</label>
                     </div>
                     <div class="row g-3 align-items-center" id="timerControls">
@@ -139,15 +128,17 @@ $this->registerCssFile('https://cdn.jsdelivr.net/npm/choices.js/public/assets/st
                                 oninput="document.getElementById('timeDisplay').textContent = this.value + ' min'">
                         </div>
                         <div class="col-3 text-end">
-                            <div class="text-primary fw-bold" id="timeDisplay">60 min</div> <!-- Slightly larger time display -->
+                            <div class="text-primary fw-bold" id="timeDisplay">60 min</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-light rounded-3 shadow-sm"> <!-- Integrated box for toggle -->
-                    <label class="form-check-label fw-semibold text-dark flex-grow-1 me-3" for="randomizeQuestionsSwitch">
+                <div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-light rounded-3 shadow-sm">
+                    <label class="form-check-label fw-semibold text-dark flex-grow-1 me-3"
+                        for="randomizeQuestionsSwitch">
                         Randomize Questions Order
-                        <span class="d-block text-muted fw-normal small">Shuffle questions to prevent predictability.</span>
+                        <span class="d-block text-muted fw-normal small">Shuffle questions to prevent
+                            predictability.</span>
                     </label>
                     <?= Html::checkbox('randomize_questions', false, [
                         'class' => 'form-check-input form-switch-lg',
@@ -156,10 +147,12 @@ $this->registerCssFile('https://cdn.jsdelivr.net/npm/choices.js/public/assets/st
                     ]) ?>
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-light rounded-3 shadow-sm"> <!-- Integrated box for toggle -->
-                    <label class="form-check-label fw-semibold text-dark flex-grow-1 me-3" for="includeBookmarkedSwitch">
+                <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-light rounded-3 shadow-sm">
+                    <label class="form-check-label fw-semibold text-dark flex-grow-1 me-3"
+                        for="includeBookmarkedSwitch">
                         Include Bookmarked Questions
-                        <span class="d-block text-muted fw-normal small">Add questions you've previously bookmarked.</span>
+                        <span class="d-block text-muted fw-normal small">Add questions you've previously
+                            bookmarked.</span>
                     </label>
                     <?= Html::checkbox('include_bookmarked', false, [
                         'class' => 'form-check-input form-switch-lg',
@@ -191,7 +184,6 @@ $js = <<<JS
 
 $('#startExamBtn').on('click', function () {
     const selectedExamType = $('input[name="examtype"]:checked').val();
-    // Assuming you have 'rulesModals.php' with modals like #practiceModal, #testModal
     switch (selectedExamType) {
         case 'practice':
             $('#practiceModal').modal('show');
@@ -200,7 +192,6 @@ $('#startExamBtn').on('click', function () {
             $('#testModal').modal('show');
             break;
         default:
-            // This should ideally not happen if only practice/test are options
             showToast('Please select an exam type (Practice or Test).', 'warning');
     }
 });
@@ -247,7 +238,6 @@ function updateUIBasedOnExamScope(selectedScope) {
     }
 }
 
-// Attach change listener for Exam Type
 $('input[name="examtype"]').on('change', function () {
     updateUIBasedOnExamType($(this).val());
 });
@@ -275,7 +265,6 @@ function toggleTimer(checkbox) {
     }
 }
 
-// Initialize Choices.js for all select elements
 const subjectSelectChoice = new Choices('#subjectSelect', {
     removeItemButton: true,
     placeholder: true,
@@ -303,13 +292,27 @@ const organSystemSelectChoice = new Choices('#organSystemSelect', {
     noChoicesText: 'No organ systems available'
 });
 
+const difficultyChoices = new Choices('#difficulty-select', {
+    removeItemButton: true,
+    placeholderValue: 'Select difficulties',
+    searchEnabled: false,
+    shouldSort: false,
+});
+
+difficultyChoices.setChoices([
+    { value: 'Easy', label: 'Easy' },
+    { value: 'Moderate', label: 'Moderate' },
+    { value: 'Hard', label: 'Hard' },
+], 'value', 'label', true);
+
 let selectedChaptersForTopics = [];
 let topicsLoaded = false;
 
-// Event listener for chapter selection (to load topics)
+
 $('#chapterSelect').on('change', function () {
     selectedChaptersForTopics = $(this).val() || [];
-    topicsLoaded = false; // Reset flag to force reload
+    const selectedSubjects = $('#subjectSelect').val() || [];
+    topicsLoaded = false;
 
     topicSelectChoice.clearStore();
     topicSelectChoice.setChoices([{ value: '', label: 'Select chapters to see topics', disabled: true }], 'value', 'label', true);
@@ -320,18 +323,21 @@ $('#chapterSelect').on('change', function () {
     }
 
     console.log('Loading topics...');
-    topicSelectChoice.clearStore();
     topicSelectChoice.setChoices([{ value: '', label: 'Loading topics...', disabled: true }], 'value', 'label', true);
 
     $.ajax({
-        url: $('#topicSelect').data('url'), // Ensure the data-url attribute is on topicSelect
-        type: 'GET',
-        data: { chapter_ids: selectedChaptersForTopics },
+        url: $('#topicSelect').data('url'),
+        type: 'POST',
+        data: {
+            chapter_ids: selectedChaptersForTopics,
+            subject_ids: selectedSubjects
+        },
         success: function (data) {
             const choices = [{ value: '0', label: 'All topics for selected chapters', selected: true }]
-                .concat(data.map(topic => ({ value: topic.id, label: topic.name })));
+                .concat(data.map(topic => ({ value: topic.id, label: topic.name + ' (' + topic.mcq_count + ')'})));
             topicSelectChoice.setChoices(choices, 'value', 'label', true);
             topicsLoaded = true;
+            updateDifficultyCounts();
         },
         error: function () {
             topicSelectChoice.setChoices([{ value: '', label: 'Failed to load topics', disabled: true }], 'value', 'label', true);
@@ -339,34 +345,91 @@ $('#chapterSelect').on('change', function () {
     });
 });
 
-// Handle default "All topics" logic (if 0 is selected, unselect others)
+$('#subjectSelect').on('change', function () {
+    const selectedSubjects = $(this).val() || [];
+
+    // Reset chapters + topics
+    chapterSelectChoice.clearStore();
+    topicSelectChoice.clearStore();
+
+    chapterSelectChoice.setChoices([{ value: '', label: 'Select subjects to see chapters', disabled: true }], 'value', 'label', true);
+    topicSelectChoice.setChoices([{ value: '', label: 'Select chapters to see topics', disabled: true }], 'value', 'label', true);
+
+    if (selectedSubjects.length === 0) {
+        return;
+    }
+
+    console.log('Loading chapters...');
+    chapterSelectChoice.setChoices([{ value: '', label: 'Loading chapters...', disabled: true }], 'value', 'label', true);
+
+    $.ajax({
+        url: '/api/get-chapters',
+        type: 'POST',
+        data: { subject_ids: selectedSubjects },
+        success: function (data) {
+            const choices = data.map(chap => ({ value: chap.id, label: chap.name + ' (' + chap.mcq_count + ')' }));
+            chapterSelectChoice.setChoices(choices, 'value', 'label', true);
+            updateDifficultyCounts();
+        },
+        error: function () {
+            chapterSelectChoice.setChoices([{ value: '', label: 'Failed to load chapters', disabled: true }], 'value', 'label', true);
+        }
+    });
+});
+
+
 document.getElementById('topicSelect').addEventListener('change', function () {
     const selected = topicSelectChoice.getValue();
     const hasAllTopicsSelected = selected.some(item => item.value === '0');
-
+    updateDifficultyCounts();
     if (hasAllTopicsSelected && selected.length > 1) {
-        // If "All topics" is selected along with others, remove the others
         topicSelectChoice.removeActiveItemsByValue(selected.filter(item => item.value !== '0').map(item => item.value));
-        // Ensure "All topics" remains selected
         if (!topicSelectChoice.getValue(true).includes('0')) {
              topicSelectChoice.setChoiceByValue('0');
         }
     } else if (!hasAllTopicsSelected && selected.length === 0) {
-        // If nothing is selected, default to "All topics"
         topicSelectChoice.setChoiceByValue('0');
     }
 });
+document.getElementById('chapterSelect').addEventListener('change', function () {
+    const selected = chapterSelectChoice.getValue();
+    const hasAllChaptersSelected = selected.some(item => item.value === '0');
+
+    if (hasAllChaptersSelected && selected.length > 1) {
+        hasAllChaptersSelected.removeActiveItemsByValue(selected.filter(item => item.value !== '0').map(item => item.value));
+        if (!hasAllChaptersSelected.getValue(true).includes('0')) {
+             hasAllChaptersSelected.setChoiceByValue('0');
+        }
+    } else if (!hasAllChaptersSelected && selected.length === 0) {
+        hasAllChaptersSelected.setChoiceByValue('0');
+    }
+});
+
+function updateDifficultyCounts() {
+    var selectedSubjects = $('#subjectSelect').val() || [];
+    var selectedTopics = $('#topicSelect').val() || [];
+    var selectedChapters = $('#chapterSelect').val() || [];
+    $.ajax({
+        url: '/api/get-difficulty-counts',
+        type: 'POST',
+        data: { 
+            subject_ids: selectedSubjects,
+            chapter_ids: selectedChapters,
+            topic_ids: selectedTopics
+        },
+        success: function (counts) {
+            const diffChoices = [
+                { value: 'all', label: `All Difficulties (\${counts.all || 0})` },
+                { value: 'Easy', label: `Easy (\${counts.Easy || 0})` },
+                { value: 'Moderate', label: `Moderate (\${counts.Moderate || 0})` },
+                { value: 'Hard', label: `Hard (\${counts.Hard || 0})` }
+            ];
+            difficultyChoices.setChoices(diffChoices, 'value', 'label', true);
+        }
+    });
+}
+    
 JS;
 
 $this->registerJS($js, \yii\web\View::POS_END);
-?>
-
-<?php
-$js = '';
-foreach (Yii::$app->session->getAllFlashes() as $type => $message) {
-    $js .= "showToast(" . json_encode($message) . ", " . json_encode($type) . ");\n";
-}
-if ($js) {
-    $this->registerJs($js, \yii\web\View::POS_READY);
-}
 ?>

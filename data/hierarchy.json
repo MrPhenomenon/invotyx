@@ -1,0 +1,1622 @@
+{
+    "Behavioral Sciences": {
+        "Behavioral Sciences": {
+            "Behavioral Sciences": [
+                "behavioral change theories",
+                "biopsychosocial model",
+                "communication in healthcare",
+                "compliance and adherence",
+                "confidentiality and informed consent",
+                "doctor–patient relationship",
+                "health and illness behavior",
+                "health promotion and disease prevention",
+                "learning and behavior",
+                "medical ethics and professionalism",
+                "motivation and emotion",
+                "other",
+                "patient safety and medical errors",
+                "psychological response to illness",
+                "screening and diagnostic testing",
+                "stress and coping mechanisms",
+                "substance use and addiction"
+            ]
+        }
+    },
+    "Biostatistics": {
+        "Biostatistics": {
+            "Biostatistics": [
+                "bias and confounding",
+                "chi-square and fisher’s exact test",
+                "correlation and regression",
+                "data distribution and normality",
+                "evidence-based medicine (ebm) principles",
+                "hypothesis testing",
+                "incidence and prevalence",
+                "maternal mortality ratio",
+                "measures of central tendency",
+                "measures of dispersion",
+                "meta-analysis and systematic reviews",
+                "other",
+                "p-value and confidence intervals",
+                "relative risk and odds ratio",
+                "sampling methods",
+                "screening tests and diagnostic accuracy",
+                "sensitivity, specificity, predictive values",
+                "specificity, sensitivity, predictive values",
+                "study designs",
+                "survival analysis and kaplan–meier",
+                "t-test and anova",
+                "types of data and scales of measurement"
+            ]
+        }
+    },
+    "Cardiovascular System": {
+        "Anatomy": {
+            "Abdomen": [
+                "abdominal aorta and branches",
+                "inferior vena cava and tributaries",
+                "portal venous system"
+            ],
+            "Back And Vertebral Column": [
+                "blood supply of spinal cord"
+            ],
+            "General Anatomy": [
+                "blood supply and anastomoses"
+            ],
+            "Head And Neck": [
+                "carotid arteries and carotid body",
+                "external and internal carotid branches",
+                "scalp anatomy and blood supply",
+                "venous drainage of head and neck"
+            ],
+            "Lower Limb": [
+                "venous drainage of lower limb – superficial and deep veins"
+            ],
+            "Neuro Anatomy": [
+                "blood supply of the brain",
+                "blood supply of the spinal cord"
+            ],
+            "Pelvis And Perinium": [
+                "blood supply of pelvis (internal iliac artery and branches)"
+            ],
+            "Thorax": [
+                "azygos venous system",
+                "cardiac conduction system",
+                "coronary arteries and cardiac veins",
+                "fetal circulation and changes at birth",
+                "heart – external and internal features",
+                "mediastinum – divisions and contents",
+                "pericardium – layers and sinuses",
+                "pulmonary arteries and veins",
+                "right atrium and right ventricle",
+                "thoracic aorta – branches and course"
+            ],
+            "Upper Limb": [
+                "axillary artery and branches",
+                "brachial artery and its branches",
+                "radial and ulnar arteries – course and branches",
+                "scapular anastomosis",
+                "superficial and deep veins (cephalic, basilic, etc.)"
+            ]
+        },
+        "Embryology": {
+            "Embryology": [
+                "aortic arch derivatives",
+                "development of heart and great vessels",
+                "development of the heart and great vessels",
+                "fetal circulation and its changes after birth"
+            ]
+        },
+        "Pathology": {
+            "Cell Pathology": [
+                "hypertrophy",
+                "pathologic calcification"
+            ],
+            "Cvs Pathology": [
+                "aneurysms",
+                "aortic dissection",
+                "aortitis",
+                "atherosclerosis",
+                "atrial flutter",
+                "cardiac tumors",
+                "cardiogenic shock",
+                "cardiomyopathies",
+                "coarctation of the aorta",
+                "complete heart block",
+                "congenital heart diseases",
+                "cor pulmonale",
+                "heart failure (left, right, congestive)",
+                "hypertension and vascular pathology",
+                "hypertensive heart disease",
+                "hypovolemic shock",
+                "infective endocarditis",
+                "ischemic heart disease",
+                "kawasaki disease",
+                "myocardial infarction",
+                "myocarditis",
+                "noninfective endocarditis",
+                "pathology of pacemakers and artificial valves",
+                "pericardial effusion and tamponade",
+                "pericarditis",
+                "pulmonary hypertension",
+                "rheumatic heart disease",
+                "shock (cardiogenic, hypovolemic, septic)",
+                "sudden cardiac death",
+                "thrombosis and embolism",
+                "valvular heart diseases",
+                "vasculitis syndromes"
+            ],
+            "Heamodynamics": [
+                "cardiogenic shock",
+                "compensatory mechanisms in shock",
+                "edema – mechanisms and types",
+                "embolism – types (fat, air, amniotic, thromboembolism)",
+                "hemorrhage – types and clinical effects",
+                "hyperemia and congestion",
+                "hypovolemic shock",
+                "infarction – white and red infarcts",
+                "laboratory markers in hemodynamic disorders",
+                "pulmonary embolism",
+                "shock (cardiogenic, hypovolemic, septic)",
+                "systemic thromboembolism",
+                "thrombosis – pathogenesis (virchow’s triad)"
+            ],
+            "Neoplasia": [
+                "routes of metastasis"
+            ],
+            "Respiratory Pathology": [
+                "pulmonary embolism and infarction",
+                "pulmonary hypertension (primary and secondary)"
+            ]
+        },
+        "Pharmacology": {
+            "Pharmacology": [
+                "adrenergic agonists and antagonists",
+                "antiarrhythmic drugs",
+                "autonomic pharmacology – sympathetic and parasympathetic drugs",
+                "cardiovascular pharmacology",
+                "diuretics and antihypertensives"
+            ]
+        },
+        "Physiology": {
+            "Cvs Physiology": [
+                "autonomic nervous system effects on heart",
+                "baroreceptor and chemoreceptor reflexes",
+                "blood pressure regulation (short and long term)",
+                "blood volume",
+                "capillary dynamics and microcirculation",
+                "cardiac action potential (fast and slow fibers)",
+                "cardiac cycle",
+                "cardiac muscle physiology",
+                "cardiac output and its regulation",
+                "cardiovascular changes in posture and temperature",
+                "conducting system of the heart",
+                "ecg and cardiac vector",
+                "exercise physiology and cvs adaptations",
+                "fetal and neonatal circulation",
+                "frank-starling law",
+                "heart sounds",
+                "hemorrhage and compensatory mechanisms",
+                "mean arterial pressure (map)",
+                "pacemaker potential",
+                "preload, afterload, contractility",
+                "regional circulations (coronary, cerebral, pulmonary, cutaneous, renal, splanchnic)",
+                "shock (cardiogenic, hypovolemic, septic)",
+                "stroke volume and ejection fraction",
+                "vascular resistance and compliance",
+                "venous return and its regulation",
+                "venous system physiology"
+            ],
+            "Endocrine Physiology": [
+                "physiological actions of t3 and t4"
+            ],
+            "Respiratory Physiology": [
+                "carbon dioxide transport in blood",
+                "non-respiratory functions of lung (e.g., angiotensin conversion, filtration)",
+                "oxygen transport in blood"
+            ]
+        }
+    },
+    "Endocrine System": {
+        "Anatomy": {
+            "Abdomen": [
+                "suprarenal (adrenal) glands"
+            ],
+            "Head And Neck": [
+                "thyroid and parathyroid glands anatomy"
+            ],
+            "Histology": [
+                "endocrine glands – pituitary, thyroid, adrenal, parathyroid"
+            ]
+        },
+        "Biochemistry": {
+            "Biochemistry": [
+                "hormones and signal transduction"
+            ]
+        },
+        "Pathology": {
+            "Cvs Pathology": [
+                "hyperthyroidism"
+            ],
+            "Endocrine Pathology": [
+                "adrenal gland disorders",
+                "adrenal insufficiency",
+                "congenital adrenal hyperplasia",
+                "cushing syndrome and cushing disease",
+                "diabetes insipidus and siadh",
+                "endocrine pancreas (diabetes mellitus type 1 and 2)",
+                "hyperparathyroidism",
+                "hyperpituitarism (e.g., prolactinoma, gh-secreting adenoma)",
+                "hyperthyroidism (e.g., graves disease)",
+                "hypoparathyroidism",
+                "hypopituitarism",
+                "hypothyroidism (e.g., hashimoto thyroiditis, cretinism)",
+                "islet cell tumors (e.g., insulinoma, gastrinoma)",
+                "men syndromes (men i, iia, iib)",
+                "paraneoplastic endocrine syndromes",
+                "parathyroid disorders",
+                "pheochromocytoma and paraganglioma",
+                "pituitary gland disorders",
+                "primary hyperparathyroidism",
+                "secondary and tertiary hyperparathyroidism",
+                "sheehan syndrome",
+                "thyroid disorders (general)",
+                "thyroid neoplasms (papillary, follicular, medullary, anaplastic)"
+            ],
+            "Reproduction Pathology": [
+                "polycystic ovary syndrome (pcos)"
+            ]
+        },
+        "Pharmacology": {
+            "Pharmacology": [
+                "corticosteroids and sex hormones",
+                "endocrine pharmacology – insulin, oral hypoglycemics",
+                "thyroid and antithyroid drugs"
+            ]
+        },
+        "Physiology": {
+            "Cell Physiology": [
+                "homeostasis and feedback mechanisms"
+            ],
+            "Endocrine Physiology": [
+                "adrenal cortex hormones",
+                "adrenal medulla hormones",
+                "aging and endocrine function",
+                "anterior pituitary hormones",
+                "calcitonin and vitamin d physiology",
+                "cortisol: regulation, effects, and stress response",
+                "endocrine control of metabolism",
+                "endocrine function testing (dynamic and static tests)",
+                "endocrine rhythms (circadian, ultradian, infradian)",
+                "glucagon physiology and counterregulatory responses",
+                "hormone classification and mechanisms of action",
+                "hormone receptors and signal transduction pathways",
+                "hypothalamic-pituitary axis regulation",
+                "integration of endocrine responses (e.g., growth, puberty, stress)",
+                "pancreatic hormones (insulin, glucagon, somatostatin)",
+                "parathyroid hormone (pth) and calcium-phosphate homeostasis",
+                "pineal gland and melatonin secretion",
+                "posterior pituitary hormones (adh, oxytocin)",
+                "regulation of blood glucose homeostasis",
+                "thyroid hormone regulation and feedback loops",
+                "thyroid hormone synthesis, storage, and transport"
+            ],
+            "Endocrine Physiology.": [
+                "regulation of blood glucose homeostasis"
+            ],
+            "Renal Physiology": [
+                "renin-angiotensin-aldosterone system (raas)"
+            ],
+            "Reproductive Physiology": [
+                "feedback mechanisms in reproductive axis",
+                "hypothalamic-pituitary-gonadal axis",
+                "lactation and milk ejection reflex",
+                "male reproductive hormones (testosterone, fsh, lh)",
+                "maternal physiological changes in pregnancy",
+                "menopause and hormonal changes",
+                "menstrual cycle regulation",
+                "placental hormones (hcg, hpl, progesterone, estrogen)",
+                "prolactin and oxytocin functions",
+                "puberty and its hormonal control"
+            ]
+        }
+    },
+    "Gastrointestinal System": {
+        "Anatomy": {
+            "Abdomen": [
+                "development of abdominal organs",
+                "gallbladder and biliary apparatus",
+                "large intestine",
+                "liver",
+                "pancreas",
+                "peritoneum",
+                "posterior abdominal wall",
+                "small intestine",
+                "stomach"
+            ],
+            "Head And Neck": [
+                "parotid gland and duct",
+                "salivary glands (submandibular, sublingual)"
+            ],
+            "Histology": [
+                "digestive tract – esophagus to rectum histology",
+                "liver, pancreas, gallbladder – microscopic features",
+                "oral cavity – tongue, salivary glands, teeth"
+            ],
+            "Pelvis And Perinium": [
+                "rectum and anal canal – anatomy and relations"
+            ],
+            "Thorax": [
+                "esophagus – anatomy and relations"
+            ]
+        },
+        "Biochemistry": {
+            "Biochemistry": [
+                "carbohydrate metabolism",
+                "enzymes and enzyme kinetics",
+                "lipid metabolism",
+                "nutrition and metabolic disorders"
+            ]
+        },
+        "Embryology": {
+            "Embryology": [
+                "development of body cavities",
+                "development of gastrointestinal system",
+                "development of liver, pancreas, and spleen",
+                "gastrulation and germ layers"
+            ]
+        },
+        "Microbiology": {
+            "Bacteriology": [
+                "anaerobic bacteria",
+                "enteric bacterial pathogens",
+                "gram-negative bacilli",
+                "normal flora",
+                "zoonotic bacteria"
+            ],
+            "Mycology": [
+                "candidiasis"
+            ],
+            "Parasitology": [
+                "cestodes – intestinal (e.g., taenia solium, taenia saginata, diphyllobothrium)",
+                "cestodes – tissue (e.g., echinococcus granulosus)",
+                "cryptosporidium parvum",
+                "diphyllobothrium",
+                "entamoeba histolytica",
+                "epidemiology and prevention of parasitic infections",
+                "giardia lamblia",
+                "helminths – general characteristics",
+                "host-parasite relationship",
+                "introduction to parasitology",
+                "nematodes – intestinal (e.g., ascaris, enterobius, trichuris)",
+                "schistosoma species",
+                "treatment and control of parasitic diseases",
+                "trematodes – other (e.g., fasciola hepatica, clonorchis sinensis, paragonimus)"
+            ],
+            "Virology": [
+                "hepatitis viruses (a–e)",
+                "reoviruses (rotavirus)"
+            ]
+        },
+        "Pathology": {
+            "Cell Pathology": [
+                "metaplasia"
+            ],
+            "Git Pathology": [
+                "acute gastritis",
+                "appendicitis",
+                "autoimmune hepatitis",
+                "barrett's esophagus",
+                "cholangiocarcinoma",
+                "cholelithiasis and cholecystitis",
+                "chronic gastritis",
+                "colorectal carcinoma",
+                "crohn’s disease",
+                "diverticulosis and diverticulitis",
+                "esophageal carcinoma",
+                "esophageal disorders",
+                "familial adenomatous polyposis (fap)",
+                "gastric carcinoma",
+                "gastroesophageal reflux disease (gerd)",
+                "gi bleeding – pathologic causes",
+                "gi polyps and syndromes (peutz-jeghers, juvenile polyposis)",
+                "helicobacter pylori infection",
+                "hemochromatosis",
+                "hepatitis (a–e)",
+                "hepatocellular carcinoma",
+                "hereditary nonpolyposis colorectal cancer (hnpcc)",
+                "hirschsprung's disease",
+                "infectious enterocolitis",
+                "intestinal obstruction and ischemia",
+                "liver cirrhosis and portal hypertension",
+                "malabsorption syndromes (e.g., celiac disease, tropical sprue)",
+                "meckel's diverticulum",
+                "pancreatitis (acute and chronic)",
+                "peptic ulcer disease",
+                "primary biliary cholangitis",
+                "pseudomembranous colitis"
+            ]
+        },
+        "Pharmacology": {
+            "Pharmacology": [
+                "antidiarrheals",
+                "antiparasitic drugs",
+                "drug absorption and bioavailability",
+                "drug metabolism (liver enzymes, cytochrome p450)",
+                "first-pass metabolism",
+                "git pharmacology – antiemetics, antacids, laxatives, antidiarrheals"
+            ]
+        },
+        "Physiology": {
+            "Git Physiology": [
+                "bile secretion and function",
+                "defecation reflex",
+                "digestion and absorption of carbohydrates",
+                "digestion and absorption of lipids",
+                "fluid and electrolyte absorption in git",
+                "gastric motility and emptying",
+                "gastric secretion and control",
+                "gastrointestinal hormones (gastrin, cck, secretin, gip, motilin)",
+                "gastrointestinal pacemaker cells (interstitial cells of cajal)",
+                "gastrointestinal ph regulation",
+                "intestinal motility (small and large intestine)",
+                "liver regeneration",
+                "mucosal barrier and immune function in git",
+                "neural control of git (enteric nervous system)",
+                "pancreatic exocrine function",
+                "regulation of gastric emptying and intestinal transit",
+                "salivary secretion and regulation",
+                "swallowing mechanism (deglutition)",
+                "sympathetic and parasympathetic git control",
+                "vitamin and mineral absorption (iron, calcium, b12, etc.)"
+            ]
+        }
+    },
+    "General/Cellular/Basics": {
+        "Biochemistry": {
+            "Biochemistry": [
+                "bioenergetics and atp",
+                "cell structure and organelles",
+                "dna replication",
+                "molecular techniques in biochemistry",
+                "nucleic acids and dna structure",
+                "plasma membrane and transport",
+                "protein structure and function",
+                "translation and protein synthesis",
+                "vitamins and coenzymes"
+            ]
+        },
+        "Embryology": {
+            "Embryology": [
+                "cleavage and formation of blastocyst"
+            ]
+        },
+        "Microbiology": {
+            "Bacteriology": [
+                "bacterial structure"
+            ]
+        },
+        "Pathology": {
+            "Cell Pathology": [
+                "cell death",
+                "cell death mechanisms",
+                "cell injury",
+                "cellular adaptations",
+                "intracellular accumulations",
+                "membrane damage",
+                "necrosis",
+                "reversible and irreversible injury"
+            ],
+            "Inflamation And Repair": [
+                "acute inflammation"
+            ],
+            "Neoplasia": [
+                "dna repair genes and genomic instability",
+                "tumor suppressor genes"
+            ]
+        },
+        "Physiology": {
+            "Cell Physiology": [
+                "cell cycle",
+                "cell death mechanisms",
+                "cell membrane structure",
+                "endocytosis and exocytosis",
+                "enzymes and enzyme kinetics",
+                "intracellular organelles",
+                "membrane transport",
+                "mitochondrial function",
+                "osmosis and tonicity",
+                "protein synthesis"
+            ]
+        }
+    },
+    "Hematologic System": {
+        "Anatomy": {
+            "Abdomen": [
+                "spleen"
+            ]
+        },
+        "Biochemistry": {
+            "Biochemistry": [
+                "hemoglobin and heme metabolism"
+            ]
+        },
+        "Dermatology": {
+            "Dermatology": [
+                "cutaneous manifestations of systemic disease"
+            ]
+        },
+        "Embryology": {
+            "Embryology": [
+                "development of blood and blood vessels",
+                "development of the blood and blood vessels"
+            ]
+        },
+        "Microbiology": {
+            "Parasitology": [
+                "leishmania donovani",
+                "plasmodium species (malaria)",
+                "trematodes (flukes) – schistosoma species"
+            ]
+        },
+        "Pathology": {
+            "Git Pathology": [
+                "hemolytic anemia"
+            ],
+            "Heamatology": [
+                "acute leukemias (aml, all)",
+                "anemia",
+                "aplastic anemia and pancytopenia",
+                "autoimmune hemolytic anemia",
+                "bleeding disorders – lab diagnosis and screening tests",
+                "blood groups and transfusion",
+                "blood transfusion",
+                "bone marrow aspiration and biopsy",
+                "chronic leukemias (cml, cll)",
+                "coagulation cascade and clotting factors",
+                "disseminated intravascular coagulation (dic)",
+                "erythropoiesis and rbc maturation",
+                "hematopoiesis",
+                "hemoglobin structure and types",
+                "hemolytic anemia (intrinsic and extrinsic)",
+                "hemophilia a, b, and von willebrand disease",
+                "hereditary spherocytosis and elliptocytosis",
+                "hypercoagulable states and thrombophilia",
+                "iron deficiency anemia",
+                "iron metabolism and homeostasis",
+                "leukopoiesis and wbc maturation",
+                "megaloblastic anemia",
+                "multiple myeloma and plasma cell dyscrasias",
+                "myeloproliferative neoplasms",
+                "neutrophilia, neutropenia, and other leukocyte disorders",
+                "platelet formation and function",
+                "polycythemia (primary and secondary)",
+                "reticulocyte count and rbc indices interpretation",
+                "sickle cell anemia",
+                "thalassemia (alpha and beta)",
+                "thrombocytopenia (itp, ttp, dic)",
+                "vitamin b12 and folate metabolism"
+            ],
+            "Heamodynamics": [
+                "disseminated intravascular coagulation (dic)",
+                "hemostasis and coagulation"
+            ],
+            "Inflamation And Repair": [
+                "systemic effects of inflammation"
+            ],
+            "Musculoskeletal Pathology": [
+                "multiple myeloma (skeletal involvement)"
+            ]
+        },
+        "Pharmacology": {
+            "Pharmacology": [
+                "anticoagulants, antiplatelets, fibrinolytics",
+                "antimalarials and antiparasitic drugs",
+                "chemotherapy of neoplastic diseases",
+                "drugs acting on blood – anticoagulants, antiplatelets, fibrinolytics"
+            ]
+        }
+    },
+    "Immune/Lymphatic System": {
+        "Anatomy": {
+            "Abdomen": [
+                "lymphatic drainage of abdomen"
+            ],
+            "General Anatomy": [
+                "lymphatic system overview"
+            ],
+            "Head And Neck": [
+                "lymphatic drainage of head and neck"
+            ],
+            "Histology": [
+                "lymphoid organs – lymph nodes, spleen, thymus, tonsils"
+            ],
+            "Lower Limb": [
+                "lymphatic drainage of lower limb"
+            ],
+            "Pelvis And Perinium": [
+                "lymphatic drainage of the pelvis"
+            ],
+            "Thorax": [
+                "lymphatic drainage of thorax",
+                "thymus and developmental anatomy"
+            ],
+            "Upper Limb": [
+                "breast – anatomy and lymphatic drainage",
+                "lymphatic drainage of upper limb"
+            ]
+        },
+        "Microbiology": {
+            "Bacteriology": [
+                "host–bacteria interaction and immune response",
+                "vaccines against bacteria"
+            ],
+            "Immunology": [
+                "antigen and antibody structure",
+                "antigen presentation and processing",
+                "autoimmunity and autoimmune disorders",
+                "b-cell development and function",
+                "cells of the immune system",
+                "complement system – classical, alternative, lectin pathways",
+                "cytokines – types and roles",
+                "hypersensitivity reactions (type i–iv)",
+                "immunoassays (elisa, western blot, flow cytometry)",
+                "immunodeficiency disorders (primary and secondary)",
+                "immunoglobulin classes and functions",
+                "immunological memory and vaccination",
+                "innate vs adaptive immunity",
+                "major histocompatibility complex (mhc i and ii)",
+                "mucosal and neonatal immunity",
+                "t-cell development and function",
+                "transplant immunology and graft rejection",
+                "tumor immunology"
+            ],
+            "Virology": [
+                "antiviral drugs",
+                "antiviral immunity and host defenses",
+                "dna vs rna viruses – key differences",
+                "general properties of viruses",
+                "herpesviruses (hsv, vzv, cmv, ebv, hhv6/8)",
+                "oncogenic viruses and mechanisms",
+                "retroviruses (hiv, htlv)",
+                "togaviruses and flaviviruses (dengue, zika, yellow fever, hcv)",
+                "viral replication cycles"
+            ]
+        },
+        "Pathology": {
+            "Cell Pathology": [
+                "inflammatory cell response to injury"
+            ],
+            "Heamatology": [
+                "lymphomas – hodgkin and non-hodgkin"
+            ],
+            "Inflamation And Repair": [
+                "chemical mediators of inflammation",
+                "granulomatous inflammation",
+                "leukocyte recruitment and activation"
+            ]
+        },
+        "Pharmacology": {
+            "Pharmacology": [
+                "antiviral drugs",
+                "immunosuppressive drugs and biologics"
+            ]
+        },
+        "Physiology": {
+            "Cvs Physiology": [
+                "lymphatic circulation"
+            ]
+        }
+    },
+    "Integumentary System": {
+        "Anatomy": {
+            "Histology": [
+                "skin – epidermis and dermis structure"
+            ]
+        },
+        "Dermatology": {
+            "Dermatology": [
+                "bacterial skin infections",
+                "bullous skin disorders (pemphigus, bullous pemphigoid)",
+                "eczema and dermatitis (atopic, contact, nummular)",
+                "infant and pediatric dermatology",
+                "leprosy (hansen’s disease)",
+                "lichen planus",
+                "melanoma and non-melanoma skin cancers",
+                "parasitic skin infections (scabies, lice)",
+                "photosensitivity and photodermatoses",
+                "pigmentary disorders (vitiligo, melasma, albinism)",
+                "primary skin lesions",
+                "sexually transmitted skin diseases",
+                "skin anatomy and physiology",
+                "skin lesion terminology and description",
+                "skin tumors (benign and malignant)",
+                "viral skin infections (herpes, hpv, molluscum)"
+            ]
+        },
+        "Embryology": {
+            "Embryology": [
+                "development of integumentary system"
+            ]
+        },
+        "Microbiology": {
+            "Bacteriology": [
+                "skin and soft tissue infections"
+            ],
+            "Mycology": [
+                "cutaneous mycoses (dermatophytoses)",
+                "subcutaneous mycoses"
+            ]
+        },
+        "Pathology": {
+            "Inflamation And Repair": [
+                "factors affecting wound healing",
+                "pathologic aspects of healing (keloid, contracture, etc.)",
+                "phases of wound healing"
+            ]
+        }
+    },
+    "Musculoskeletal System": {
+        "Anatomy": {
+            "Abdomen": [
+                "abdominal wall"
+            ],
+            "Back And Vertebral Column": [
+                "congenital anomalies of spine",
+                "curvatures of the spine",
+                "development of vertebral column",
+                "ligaments of the vertebral column",
+                "muscles of the back",
+                "surface anatomy landmarks and dermatomes",
+                "vertebrae and vertebral column"
+            ],
+            "General Anatomy": [
+                "cartilage and bone structure",
+                "classification of bones",
+                "connective tissue (including fascia and fat)",
+                "growth and development of bones",
+                "muscle types and attachments",
+                "types of joints and joint movements"
+            ],
+            "Head And Neck": [
+                "deep cervical fascia layers",
+                "face muscles and innervation",
+                "neck triangles (anterior, posterior)",
+                "orbit and extraocular muscles",
+                "scalp, skull bones, and sutures",
+                "soft palate and palatine muscles",
+                "styloid apparatus and its attachments",
+                "temporal and infratemporal fossa",
+                "temporomandibular joint (tmj)",
+                "tongue muscles, blood supply, and innervation"
+            ],
+            "Histology": [
+                "bone formation – intramembranous and endochondral ossification",
+                "bone – structure and types",
+                "cartilage – hyaline, elastic, fibrocartilage",
+                "connective tissue – cells and fibers",
+                "muscle tissue – skeletal, cardiac, smooth"
+            ],
+            "Lower Limb": [
+                "ankle joint – ligaments and movements",
+                "bones of the lower limb",
+                "femoral triangle and adductor canal",
+                "foot muscles and arches",
+                "gluteal region – muscles and nerves",
+                "hip joint and ligaments",
+                "knee joint – ligaments and movements",
+                "leg muscles – anterior, lateral, and posterior compartments",
+                "lower limb surface anatomy",
+                "popliteal fossa – contents and boundaries",
+                "thigh muscles – compartments and innervation"
+            ],
+            "Pelvis And Perinium": [
+                "bony pelvis – anatomy and boundaries",
+                "ischioanal fossa",
+                "pelvic diaphragm (levator ani and coccygeus)",
+                "pelvic fascia",
+                "pelvic floor dysfunction and clinical correlates",
+                "pelvic inlet and outlet",
+                "pelvic ligaments (sacrotuberous, sacrospinous, etc.)",
+                "pelvic walls and floor"
+            ],
+            "Thorax": [
+                "thoracic wall and intercostal muscles"
+            ],
+            "Upper Limb": [
+                "arm muscles",
+                "clavipectoral fascia and axillary sheath",
+                "cubital fossa – contents and boundaries",
+                "flexor retinaculum and extensor retinaculum",
+                "forearm muscles – anterior compartment",
+                "forearm muscles – posterior compartment",
+                "hand muscles – thenar, hypothenar, lumbricals, interossei",
+                "joints of upper limb (elbow, wrist, radioulnar)",
+                "muscles of shoulder region",
+                "pectoral region and axilla",
+                "radiological anatomy of upper limb (x-ray, ct)",
+                "rotator cuff muscles and injuries",
+                "shoulder joint – anatomy and movements"
+            ]
+        },
+        "Embryology": {
+            "Embryology": [
+                "development of head and neck (pharyngeal arches)",
+                "development of limbs",
+                "somite formation and differentiation"
+            ]
+        },
+        "Microbiology": {
+            "Parasitology": [
+                "nematodes – tissue (e.g., trichinella, dracunculus, filarial worms)"
+            ]
+        },
+        "Pathology": {
+            "Cell Pathology": [
+                "cytoskeletal abnormalities"
+            ],
+            "Inflamation And Repair": [
+                "extracellular matrix and tissue remodeling"
+            ],
+            "Musculoskeletal Pathology": [
+                "ankylosing spondylitis and spondyloarthropathies",
+                "bone remodeling and metabolic bone disease",
+                "bone tumors – benign and malignant",
+                "fracture healing and complications",
+                "gout and pseudogout",
+                "hyperparathyroid bone disease",
+                "myopathies – inflammatory and hereditary",
+                "osteomyelitis",
+                "osteoporosis",
+                "osteosarcoma and ewing sarcoma",
+                "paget’s disease of bone (osteitis deformans)",
+                "rheumatoid arthritis – pathology",
+                "rickets and osteomalacia",
+                "septic arthritis"
+            ]
+        },
+        "Pharmacology": {
+            "Pharmacology": [
+                "anti-inflammatory drugs",
+                "drugs affecting calcium and bone metabolism"
+            ]
+        },
+        "Physiology": {
+            "Cell Physiology": [
+                "muscle contraction"
+            ]
+        }
+    },
+    "Nervous System": {
+        "Anatomy": {
+            "Abdomen": [
+                "autonomic nervous supply of abdomen"
+            ],
+            "Back And Vertebral Column": [
+                "spinal cord anatomy and tracts",
+                "spinal meninges",
+                "spinal nerves and roots",
+                "vertebral canal and contents"
+            ],
+            "General Anatomy": [
+                "dermatomes and myotomes",
+                "surface anatomy landmarks and dermatomes"
+            ],
+            "Head And Neck": [
+                "cervical plexus and its branches",
+                "cranial cavity and dural venous sinuses",
+                "cranial nerves overview (i–xii)",
+                "ear (external, middle, and inner) anatomy",
+                "eye and its nerve supply",
+                "facial nerve course and branches",
+                "pterygopalatine fossa contents",
+                "suboccipital region anatomy",
+                "trigeminal nerve and its divisions"
+            ],
+            "Histology": [
+                "nerve tissue – neurons and neuroglia"
+            ],
+            "Lower Limb": [
+                "dermatomes and cutaneous innervation of lower limb",
+                "sciatic nerve and its branches",
+                "tibial and common peroneal nerves"
+            ],
+            "Neuro Anatomy": [
+                "auditory pathway",
+                "autonomic nervous system (ans)",
+                "basal ganglia",
+                "brainstem anatomy",
+                "cerebellar anatomy and function",
+                "cerebellar connections",
+                "cerebellum anatomy and function",
+                "cerebral cortex anatomy",
+                "cortical and subcortical connections",
+                "cranial nerves and nuclei",
+                "diencephalon (thalamus & hypothalamus)",
+                "functional areas of the cerebral cortex",
+                "internal capsule",
+                "limbic system",
+                "meninges and dural venous sinuses",
+                "motor pathways (pyramidal & extrapyramidal)",
+                "neuroanatomical lesions and clinical correlations",
+                "neurons and neuroglia",
+                "reticular formation",
+                "somatosensory pathways",
+                "spinal cord anatomy and tracts and tracts",
+                "ventricular system and csf pathways",
+                "visual pathway"
+            ],
+            "Pelvis And Perinium": [
+                "nerve supply of pelvis – sacral plexus, pudendal nerve",
+                "pudendal canal (alcock’s canal)"
+            ],
+            "Thorax": [
+                "phrenic and vagus nerve course in thorax",
+                "sympathetic trunk and splanchnic nerves"
+            ],
+            "Upper Limb": [
+                "brachial plexus – roots to branches",
+                "carpal tunnel and its contents",
+                "cutaneous innervation of upper limb",
+                "median nerve – course and lesions",
+                "radial nerve – course and lesions",
+                "surface anatomy landmarks and dermatomes and dermatomes",
+                "ulnar nerve – course and lesions"
+            ]
+        },
+        "Embryology": {
+            "Embryology": [
+                "clinical correlations in embryology (e.g., neural tube defects, heart anomalies)",
+                "development of eye and ear",
+                "development of nervous system (brain and spinal cord)",
+                "neurulation and neural tube formation",
+                "teratogens and critical periods"
+            ],
+            "Genetics": [
+                "inborn errors of metabolism"
+            ]
+        },
+        "Microbiology": {
+            "Bacteriology": [
+                "central nervous system bacterial infections"
+            ],
+            "Mycology": [
+                "cryptococcosis"
+            ],
+            "Parasitology": [
+                "toxoplasma gondii"
+            ]
+        },
+        "Pathology": {
+            "Cell Pathology": [
+                "mitochondrial dysfunction"
+            ],
+            "Cns Pathology": [
+                "amyotrophic lateral sclerosis (als)",
+                "brain abscess",
+                "cerebrovascular diseases",
+                "cns autoimmune disorders (e.g., neuromyelitis optica)",
+                "cns infections (bacterial, viral, fungal, parasitic)",
+                "cns neoplasms",
+                "demyelinating diseases (e.g., multiple sclerosis)",
+                "epilepsy and seizure disorders",
+                "hemorrhagic stroke",
+                "huntington’s disease",
+                "hydrocephalus",
+                "increased intracranial pressure (icp)",
+                "ischemic stroke",
+                "meningitis",
+                "metastatic brain tumors",
+                "neurodegenerative disorders (e.g., alzheimer’s, parkinson’s)",
+                "peripheral neuropathies",
+                "spinal cord lesions",
+                "transient ischemic attack (tia)",
+                "traumatic brain injury"
+            ],
+            "Endocrine Pathology": [
+                "craniopharyngioma"
+            ],
+            "Git Pathology": [
+                "wilson’s disease"
+            ],
+            "Heamodynamics": [
+                "neurogenic shock"
+            ],
+            "Neoplasia": [
+                "paraneoplastic syndromes"
+            ],
+            "Respiratory Pathology": [
+                "paraneoplastic syndromes of lung cancer"
+            ]
+        },
+        "Pharmacology": {
+            "Pharmacology": [
+                "analgesics – opioid and non-opioid",
+                "antiemetics",
+                "antiepileptic drugs",
+                "cholinergic agonists and antagonists",
+                "cns pharmacology – sedatives, antidepressants, antipsychotics",
+                "drugs for parkinsonism and alzheimer’s disease",
+                "general and local anesthetics",
+                "general anesthetics",
+                "toxicology – drug overdose, antidotes"
+            ]
+        },
+        "Physiology": {
+            "Cell Physiology": [
+                "action potential",
+                "calcium signaling",
+                "cell signaling",
+                "ion channels",
+                "resting membrane potential",
+                "second messengers"
+            ],
+            "Cns Physiology": [
+                "autonomic nervous system (ans)",
+                "basal ganglia physiology",
+                "blood-brain barrier (bbb)",
+                "cerebellar functions",
+                "cerebral blood flow and metabolism",
+                "cerebral cortex functions",
+                "electroencephalogram (eeg)",
+                "hearing and auditory pathways",
+                "higher functions (speech, cognition, behavior)",
+                "hypothalamus functions",
+                "intracranial pressure and csf dynamics",
+                "memory and learning",
+                "motor pathways (pyramidal and extrapyramidal systems)",
+                "neurons and glial cells",
+                "neurotransmitters and neuromodulators",
+                "olfaction and gustation physiology",
+                "organization of the cns",
+                "posture and equilibrium",
+                "reflexes and reflex arc",
+                "reticular formation and sleep-wake cycle",
+                "sensory pathways (pain, touch, proprioception)",
+                "somatosensory cortex",
+                "spinal cord physiology",
+                "synaptic transmission",
+                "thermoregulation",
+                "vestibular system",
+                "vision and visual pathways"
+            ],
+            "Cvs Physiology": [
+                "heart rate regulation"
+            ],
+            "Git Physiology": [
+                "mechanism of vomiting"
+            ],
+            "Respiratory Physiology": [
+                "control of breathing (neural and chemical)"
+            ]
+        }
+    },
+    "Renal/Urinary System": {
+        "Anatomy": {
+            "Abdomen": [
+                "kidneys",
+                "ureters",
+                "urinary bladder"
+            ],
+            "Histology": [
+                "urinary system – kidney, ureter, bladder histology"
+            ],
+            "Pelvis And Perinium": [
+                "ureter – course, relations, and constrictions",
+                "urethra – course, relations, and constrictions",
+                "urinary bladder – structure and relations"
+            ]
+        },
+        "Biochemistry": {
+            "Biochemistry": [
+                "amino acid metabolism",
+                "detoxification and free radicals"
+            ]
+        },
+        "Embryology": {
+            "Embryology": [
+                "development of urogenital system (kidneys and gonads)"
+            ]
+        },
+        "Microbiology": {
+            "Bacteriology": [
+                "urinary tract and genital tract bacterial infections"
+            ]
+        },
+        "Pathology": {
+            "Endocrine Pathology": [
+                "siadh"
+            ],
+            "Renal Pathology": [
+                "acute kidney injury (aki)",
+                "amyloidosis of kidney",
+                "chronic kidney disease (ckd)",
+                "congenital anomalies of the kidney",
+                "diabetic nephropathy",
+                "glomerular diseases – overview",
+                "iga nephropathy (berger’s disease)",
+                "introduction to renal pathology",
+                "lupus nephritis",
+                "membranous nephropathy",
+                "nephritic syndrome",
+                "nephrotic syndrome",
+                "poststreptococcal glomerulonephritis",
+                "pyelonephritis (acute and chronic)",
+                "rapidly progressive glomerulonephritis (rpgn)",
+                "renal cell carcinoma",
+                "renal stones and nephrolithiasis",
+                "renal vascular disorders",
+                "tubulointerstitial nephritis",
+                "urothelial (transitional cell) carcinoma",
+                "wilms tumor (nephroblastoma)"
+            ]
+        },
+        "Pharmacology": {
+            "Pharmacology": [
+                "aminoglycosides, tetracyclines, macrolides",
+                "beta-lactam antibiotics",
+                "drug elimination – renal and hepatic clearance",
+                "factors modifying drug effects (age, weight, disease)",
+                "half-life and steady-state concentration",
+                "pharmacokinetics",
+                "quinolones and sulfonamides"
+            ]
+        },
+        "Physiology": {
+            "Cell Physiology": [
+                "acid-base balance"
+            ],
+            "Endocrine Physiology": [
+                "renin-angiotensin-aldosterone system (raas)"
+            ],
+            "Renal Physiology": [
+                "acid-base balance",
+                "antidiuretic hormone (adh) and water regulation",
+                "distal tubule and collecting duct functions",
+                "filtration barrier and starling forces",
+                "glomerular filtration rate (gfr)",
+                "glucose handling and transport maximum (tm)",
+                "inulin and creatinine clearance",
+                "loop of henle and countercurrent mechanism",
+                "micturition reflex",
+                "natriuretic peptides and volume regulation",
+                "overview of renal functions",
+                "potassium handling in the nephron",
+                "proximal tubule functions",
+                "regulation of erythropoietin production",
+                "renal blood flow and autoregulation",
+                "renal clearance concepts",
+                "sodium and water balance",
+                "structure and function of nephron",
+                "tubular reabsorption and secretion",
+                "urea handling",
+                "urine concentration and dilution",
+                "vitamin d activation by kidney"
+            ]
+        }
+    },
+    "Reproductive System": {
+        "Anatomy": {
+            "Abdomen": [
+                "inguinal canal"
+            ],
+            "Histology": [
+                "female reproductive system – ovary, uterus, fallopian tubes",
+                "male reproductive system – testes, ducts, prostate"
+            ],
+            "Pelvis And Perinium": [
+                "female pelvic organs (uterus, ovaries, fallopian tubes, vagina)",
+                "male pelvic organs (bladder, prostate, seminal vesicles, vas deferens)",
+                "pelvic cavity – contents and organization",
+                "pelvic measurements and obstetric relevance",
+                "pelvic peritoneum and pouches",
+                "perineum – boundaries and subdivisions (urogenital and anal triangles)",
+                "superficial perineal pouch and its contents"
+            ]
+        },
+        "Embryology": {
+            "Embryology": [
+                "development of genital system and external genitalia",
+                "development of placenta and fetal membranes",
+                "fertilization",
+                "gametogenesis (spermatogenesis and oogenesis)",
+                "implantation and early pregnancy",
+                "twins and multiple pregnancies"
+            ],
+            "Genetics": [
+                "chromosomes and chromatin",
+                "genetic screening and counseling",
+                "genomic imprinting",
+                "karyotyping and chromosome banding",
+                "mendelian inheritance patterns",
+                "mitochondrial inheritance",
+                "molecular techniques in genetics (pcr, fish, southern blot)",
+                "non-mendelian inheritance",
+                "x-linked and y-linked disorders"
+            ]
+        },
+        "Microbiology": {
+            "Bacteriology": [
+                "sexually transmitted bacterial infections"
+            ],
+            "Parasitology": [
+                "trichomonas vaginalis"
+            ],
+            "Virology": [
+                "papillomaviruses (hpv)"
+            ]
+        },
+        "Pathology": {
+            "Cell Pathology": [
+                "hyperplasia"
+            ],
+            "Reproduction Pathology": [
+                "benign breast diseases",
+                "breast carcinoma (ductal, lobular, inflammatory)",
+                "breast pathology overview",
+                "cervical carcinoma (hpv-related)",
+                "cervicitis and cervical intraepithelial neoplasia (cin)",
+                "cryptorchidism and orchitis",
+                "endometrial hyperplasia and carcinoma",
+                "endometriosis",
+                "epididymitis and prostatitis",
+                "female reproductive system disorders",
+                "gestational trophoblastic diseases (mole, choriocarcinoma)",
+                "leiomyoma (fibroid) and leiomyosarcoma",
+                "male breast disorders (gynecomastia, carcinoma)",
+                "male reproductive system disorders",
+                "ovarian cysts and tumors (serous, mucinous, germ cell, sex cord-stromal)",
+                "pelvic inflammatory disease (pid)",
+                "penile disorders and carcinoma",
+                "prostatic hyperplasia and carcinoma",
+                "testicular tumors"
+            ]
+        },
+        "Pharmacology": {
+            "Pharmacology": [
+                "drugs in pregnancy and lactation",
+                "reproductive pharmacology – contraceptives, fertility drugs",
+                "reproductive pharmacology – contraceptives, fertility drugs, fertility drugs"
+            ]
+        },
+        "Physiology": {
+            "Endocrine Physiology": [
+                "reproductive hormones (estrogen, progesterone, testosterone)"
+            ],
+            "Reproductive Physiology": [
+                "female reproductive hormones (estrogen, progesterone, fsh, lh)",
+                "female sexual response cycle",
+                "fertilization process",
+                "implantation and early pregnancy and early pregnancy",
+                "male sexual response (erection, ejaculation)",
+                "ovarian cycle (follicular, ovulation, luteal phases)",
+                "role of estrogen and progesterone",
+                "semen composition and transport",
+                "spermatogenesis",
+                "uterine (menstrual) cycle"
+            ]
+        }
+    },
+    "Respiratory System": {
+        "Anatomy": {
+            "Abdomen": [
+                "diaphragm"
+            ],
+            "Head And Neck": [
+                "larynx anatomy and innervation",
+                "nose, nasal cavity, and paranasal sinuses",
+                "pharynx – nasopharynx, oropharynx, laryngopharynx"
+            ],
+            "Histology": [
+                "respiratory epithelium and airways"
+            ],
+            "Thorax": [
+                "bronchial tree and pulmonary segments",
+                "diaphragm – anatomy and openings",
+                "lungs – lobes, surfaces, and borders",
+                "pleura – types and recesses",
+                "radiological anatomy of thorax (x-ray, ct)",
+                "surface anatomy landmarks and dermatomes",
+                "thoracic inlet and outlet",
+                "trachea and carina"
+            ]
+        },
+        "Embryology": {
+            "Embryology": [
+                "development of respiratory system"
+            ]
+        },
+        "Microbiology": {
+            "Bacteriology": [
+                "acid-fast bacteria",
+                "respiratory bacterial pathogens"
+            ],
+            "Mycology": [
+                "aspergillosis",
+                "histoplasmosis",
+                "opportunistic mycoses",
+                "systemic mycoses",
+                "zygomycosis"
+            ],
+            "Virology": [
+                "coronaviruses (sars, mers, covid-19)",
+                "orthomyxoviruses (influenza)",
+                "paramyxoviruses (mumps, measles, rsv, parainfluenza)",
+                "picornaviruses (polio, coxsackie, echo, rhinovirus)",
+                "zoonotic and emerging viral infections"
+            ]
+        },
+        "Pathology": {
+            "Cvs Pathology": [
+                "fat embolism"
+            ],
+            "Git Pathology": [
+                "congenital diaphragmatic hernia"
+            ],
+            "Respiratory Pathology": [
+                "adult respiratory distress syndrome (ards)",
+                "asbestosis",
+                "atelectasis",
+                "bronchial asthma (pathogenesis and morphology)",
+                "bronchiectasis",
+                "chronic bronchitis",
+                "chronic obstructive pulmonary disease (copd)",
+                "coal workers' pneumoconiosis",
+                "cystic fibrosis",
+                "emphysema (types and pathogenesis)",
+                "interstital lung diseases (idiopathic pulmonary fibrosis, pneumoconioses)",
+                "interstitial lung diseases (idiopathic pulmonary fibrosis, pneumoconioses)",
+                "lung abscess",
+                "lung carcinoma (types and morphology)",
+                "mesothelioma (pathogenesis and asbestos link)",
+                "pleural effusion (transudate vs exudate)",
+                "pneumonia (lobar, bronchopneumonia, atypical)",
+                "pneumothorax, hemothorax, empyema",
+                "pulmonary edema (hemodynamic and permeability-related)",
+                "sarcoidosis (pulmonary involvement)",
+                "tuberculosis (primary, secondary, miliary)"
+            ]
+        },
+        "Pharmacology": {
+            "Pharmacology": [
+                "antituberculous drugs",
+                "respiratory pharmacology – bronchodilators, antihistamines"
+            ]
+        },
+        "Physiology": {
+            "Respiratory Physiology": [
+                "airway resistance and flow dynamics",
+                "alveolar ventilation and dead space",
+                "central and peripheral chemoreceptors",
+                "compliance of lung and chest wall",
+                "diffusion of gases across respiratory membrane",
+                "effects of exercise on respiratory function",
+                "functional anatomy of the respiratory system",
+                "hemoglobin-oxygen dissociation curve",
+                "high altitude physiology and acclimatization",
+                "hypercapnia and hypocapnia",
+                "hypoxia (types and causes)",
+                "lung function tests (spirometry and diffusion capacity)",
+                "lung volumes and capacities",
+                "mechanics of breathing (inspiration and expiration)",
+                "pulmonary circulation and v/q ratio",
+                "surfactant and alveolar stability",
+                "ventilation-perfusion mismatch",
+                "work of breathing"
+            ]
+        }
+    },
+    "Unclassified": {
+        "Anatomy": {
+            "Abdomen": [
+                "other"
+            ],
+            "Back And Vertebral Column": [
+                "other"
+            ],
+            "General Anatomy": [
+                "anatomical terminology and positions",
+                "epithelium and glandular tissue",
+                "histological organization of organs",
+                "types of tissues"
+            ],
+            "Head And Neck": [
+                "other"
+            ],
+            "Histology": [
+                "epithelium – types and functions",
+                "other"
+            ],
+            "Lower Limb": [
+                "other"
+            ],
+            "Neuro Anatomy": [
+                "other"
+            ],
+            "Pelvis And Perinium": [
+                "other"
+            ],
+            "Thorax": [
+                "other"
+            ],
+            "Upper Limb": [
+                "other"
+            ]
+        },
+        "Biochemistry": {
+            "Biochemistry": [
+                "clinical enzymology",
+                "gene expression and regulation",
+                "other"
+            ]
+        },
+        "Dermatology": {
+            "Dermatology": [
+                "other"
+            ]
+        },
+        "Embryology": {
+            "Embryology": [
+                "clinical correlations in embryology",
+                "embryological basis of congenital anomalies",
+                "other"
+            ],
+            "Genetics": [
+                "autosomal dominant and recessive disorders",
+                "autosomal recessive disorders",
+                "chromosomal abnormalities (numerical and structural)",
+                "epigenetics and gene silencing",
+                "gene expression and regulation",
+                "genetic basis of cancer",
+                "multifactorial inheritance",
+                "mutations (point, frameshift, etc.)",
+                "prenatal genetic diagnosis (amniocentesis, cvs)"
+            ]
+        },
+        "Microbiology": {
+            "Bacteriology": [
+                "antibiotics and mechanisms of resistance",
+                "bacterial classification",
+                "bacterial growth and culture",
+                "bacterial pathogenesis and virulence factors",
+                "bacterial physiology and metabolism",
+                "gram-negative cocci",
+                "gram-positive cocci",
+                "laboratory diagnosis of bacterial infections",
+                "other",
+                "spirochetes",
+                "sterilization and disinfection",
+                "vector-borne bacterial diseases"
+            ],
+            "Immunology": [
+                "other"
+            ],
+            "Mycology": [
+                "other"
+            ],
+            "Parasitology": [
+                "other"
+            ],
+            "Virology": [
+                "laboratory diagnosis of viral infections",
+                "other",
+                "viral pathogenesis and cytopathic effects",
+                "virus structure and classification"
+            ]
+        },
+        "Pathology": {
+            "Cell Pathology": [
+                "atrophy",
+                "dysplasia",
+                "free radical injury and oxidative stress",
+                "other"
+            ],
+            "Cns Pathology": [
+                "other"
+            ],
+            "Cvs Pathology": [
+                "other"
+            ],
+            "Endocrine Pathology": [
+                "other"
+            ],
+            "Git Pathology": [
+                "other"
+            ],
+            "Heamatology": [
+                "other",
+                "others"
+            ],
+            "Heamodynamics": [
+                "other"
+            ],
+            "Inflamation And Repair": [
+                "chronic inflammation – causes and features",
+                "fibrosis and scar formation",
+                "growth factors in repair",
+                "other",
+                "outcomes of acute inflammation",
+                "resolution of inflammation",
+                "tissue repair – regeneration and healing"
+            ],
+            "Musculoskeletal Pathology": [
+                "other"
+            ],
+            "Neoplasia": [
+                "benign vs malignant tumors",
+                "cancer epidemiology and risk factors",
+                "cancer treatment principles (general)",
+                "chemical carcinogenesis",
+                "clinical aspects of neoplasia",
+                "definition and characteristics of neoplasia",
+                "grading and staging of tumors",
+                "laboratory diagnosis of cancer",
+                "local invasion and metastasis",
+                "malignant transformation",
+                "mechanisms of tumor invasion and spread",
+                "microbial carcinogenesis (viruses, bacteria, parasites)",
+                "molecular basis of cancer",
+                "nomenclature of tumors",
+                "oncogenes and proto-oncogenes",
+                "other",
+                "radiation carcinogenesis",
+                "tumor differentiation and anaplasia",
+                "tumor markers",
+                "tumor microenvironment"
+            ],
+            "Renal Pathology": [
+                "other"
+            ],
+            "Reproduction Pathology": [
+                "other"
+            ],
+            "Respiratory Pathology": [
+                "other"
+            ]
+        },
+        "Pharmacology": {
+            "Pharmacology": [
+                "adverse drug reactions",
+                "antifungal drugs",
+                "antimicrobial drugs – general concepts",
+                "distribution of drugs – volume of distribution",
+                "dose-response curves",
+                "drug potency vs efficacy",
+                "drug-receptor interactions",
+                "enzyme induction and inhibition",
+                "enzyme inhibition",
+                "general principles of pharmacology",
+                "other",
+                "pharmacodynamics",
+                "routes of drug administration",
+                "therapeutic index and drug safety"
+            ]
+        },
+        "Physiology": {
+            "Cell Physiology": [
+                "other"
+            ],
+            "Cns Physiology": [
+                "other"
+            ],
+            "Cvs Physiology": [
+                "other"
+            ],
+            "Endocrine Physiology": [
+                "other"
+            ],
+            "Git Physiology": [
+                "other"
+            ],
+            "Renal Physiology": [
+                "other"
+            ],
+            "Reproductive Physiology": [
+                "other"
+            ],
+            "Respiratory Physiology": [
+                "other"
+            ]
+        }
+    }
+}

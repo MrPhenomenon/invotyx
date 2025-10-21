@@ -1,6 +1,7 @@
 <?php use yii\helpers\Html; ?>
 
 <input type="hidden" id="question-id" value="<?= $mcq->id ?>">
+<input type="hidden" id="report-id" value="<?= $mcq->question_id ?>">
 <input type="hidden" id="correct-answer" value="<?= Html::encode($mcq->correct_option) ?>">
 <!-- Hidden field for current question index within its phase, useful for some JS logic if needed -->
 <input type="hidden" id="current-phase-index" value="<?= $currentPhaseIndex ?>">
@@ -18,6 +19,12 @@
     <?php endif; ?>
 </p>
 <p class="fs-4 fw-medium" id="question-text"><?= Html::encode($mcq->question_text) ?></p>
+
+<?php if ($mcq->tags): ?>
+    <p class="text-muted">
+        <span class="badge bg-primary"><?= Html::encode($mcq->tags) ?></span>
+    </p>
+<?php endif; ?>
 
 <div class="mt-4">
     <p class="text-muted">Answer</p>

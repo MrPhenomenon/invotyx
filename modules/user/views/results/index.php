@@ -25,7 +25,7 @@ $badgeClasses = [
                         <div>
                             <h5 class="card-title mb-0">
                                 <i class="bi bi-file-text-fill me-2"></i> <!-- Icon for context -->
-                                <?= Html::encode(ucfirst($session->mode)) ?> Exam
+                                <?= $session->getName() ?>
                                 <span class="ms-2 badge rounded-pill <?= $badgeClasses[$session->status] ?? 'bg-secondary' ?>">
                                 <?= Html::encode($session->status) ?>
                             </span>
@@ -34,7 +34,7 @@ $badgeClasses = [
                         </div>
                         <?php if ($session->status === 'Completed'): ?>
                             <a href="<?= Url::to(['view', 'id' => $session->id]) ?>" class="btn btn-sm btn-primary rounded-4">
-                                View Details <i class="bi bi-arrow-right-circle ms-1"></i>
+                                View Result <i class="bi bi-arrow-right-circle ms-1"></i>
                             </a>
                         <?php elseif ($session->status === 'InProgress'): ?>
                             <a href="<?= Url::to(['/user/mcq/start', 'session_id' => $session->id]) ?>"

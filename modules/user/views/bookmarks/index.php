@@ -76,14 +76,13 @@ $(document).on('click', '.btn-unbookmark', function(e) {
         return;
     }
 
-    button.prop('disabled', true).addClass('disabled'); // Disable button
+    button.prop('disabled', true).addClass('disabled');
 
     $.post('$toggleBookmarkUrl', { mcq_id: mcqId, _csrf: csrfToken })
         .done(function(res) {
             if (res.success && res.action === 'removed') {
                 button.closest('.bookmarked-item').fadeOut(400, function() {
-                    $(this).remove(); // Remove the item from the DOM
-                    // If no more items, show a message
+                    $(this).remove();
                     if ($('.bookmarked-item').length === 0) {
                         $('#bookmarked-list-container').html('<div class="alert alert-info text-center py-4 rounded-3 shadow-sm">You haven\'t bookmarked any questions yet.</div>');
                     }
