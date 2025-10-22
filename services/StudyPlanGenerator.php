@@ -25,6 +25,11 @@ class StudyPlanGenerator
     const STATUS_UPCOMING = 'upcoming';
     const STATUS_IN_PROGRESS = 'in_progress';
 
+    const SPDS_TYPE_NEW_CONTENT = 'new_content';
+    const SPDS_TYPE_REDISTRIBUTED_SKIPPED = 'redistributed_skipped';
+    const SPDS_TYPE_REVIEW = 'review';
+
+
     public static function ensurePlan(Users $user)
     {
         $today = date('Y-m-d');
@@ -32,7 +37,10 @@ class StudyPlanGenerator
         $totalAvailableCurriculumMcqs = self::calculateTotalCurriculumMcqs($user->specialty_id);
 
         $plan = StudyPlans::findOne(['user_id' => $user->id]);
+        $isNewPlan = false;
+
         if (!$plan) {
+            $isNewPlan = true;
             $plan = new StudyPlans([
                 'user_id' => $user->id,
                 'start_date' => $today,
@@ -48,30 +56,42 @@ class StudyPlanGenerator
                 Yii::error("Failed to save StudyPlan for user {$user->id}: " . print_r($plan->errors, true));
                 return;
             }
-            self::generatePlanPeriod($plan, $plan->start_date, $plan->exam_date, $user, true);
         } else {
             $plan->mcqs_per_day = $mcqsPerDay;
             $plan->exam_date = $user->expected_exam_date;
             $plan->total_capacity = $totalAvailableCurriculumMcqs;
             $plan->updated_at = new Expression('NOW()');
             $plan->save(false);
+        }
 
+        $shouldGeneratePeriod = false;
+        if ($isNewPlan) {
+            $shouldGeneratePeriod = true;
+        } else {
             $lastGeneratedWeek = new \DateTime($plan->last_generated_week);
-            $nextRegenerationDate = (clone $lastGeneratedWeek)->modify('+1 week');
+            $nextGenerationTriggerDate = (clone $lastGeneratedWeek)->modify('+7 days');
+            
+            if (new \DateTime($today) >= $nextGenerationTriggerDate) {
+                $shouldGeneratePeriod = true;
+            }
+        }
 
-            if ($today >= $nextRegenerationDate->format('Y-m-d')) {
-                $startDateForGeneration = (new \DateTime($plan->last_generated_week))->modify('+1 day')->format('Y-m-d');
-                $endDateForGeneration = (new \DateTime($startDateForGeneration))->modify('+6 days')->format('Y-m-d');
-                $endDateForGeneration = min($endDateForGeneration, $plan->exam_date);
+        if ($shouldGeneratePeriod) {
+            $periodStartDate = $isNewPlan ? $plan->start_date : (new \DateTime($plan->last_generated_week))->modify('+1 day')->format('Y-m-d');
+            $periodEndDate = (new \DateTime($periodStartDate))->modify('+6 days')->format('Y-m-d');
+            $periodEndDate = min($periodEndDate, $plan->exam_date);
 
-                self::generatePlanPeriod($plan, $startDateForGeneration, $endDateForGeneration, $user, false);
+            if (new \DateTime($periodStartDate) <= new \DateTime($periodEndDate)) { 
+                self::generatePlanPeriod($plan, $periodStartDate, $periodEndDate, $user);
                 $plan->last_generated_week = $today;
                 $plan->save(false);
             }
-
-            self::ensureDay($plan, $today, $user);
-            self::updatePastDayStatuses($plan, $today);
         }
+
+        self::ensureDay($plan, $today, $user);
+        self::ensureDay($plan, (new \DateTime($today))->modify('+1 day')->format('Y-m-d'), $user);
+
+        self::updatePastDayStatuses($plan, $today);
     }
 
 
@@ -108,39 +128,42 @@ class StudyPlanGenerator
                 throw new \Exception("Could not create study plan.");
             }
         }
-        self::generatePlanPeriod($plan, $plan->start_date, $plan->exam_date, $user, true);
+        self::generatePlanPeriod($plan, $plan->start_date, $plan->exam_date, $user, true); 
         return $plan;
     }
 
 
-    protected static function generatePlanPeriod(StudyPlans $plan, string $startDate, string $endDate, Users $user, bool $isFullRebuild = false)
+    protected static function generatePlanPeriod(StudyPlans $plan, string $periodStartDate, string $periodEndDate, Users $user, bool $isFullPlanGeneration = false)
     {
         $today = date('Y-m-d');
-        $accumulatedSkippedMcqs = 0;
+        $accumulatedSkippedMcqs = []; 
 
-        if ($isFullRebuild) {
-            StudyPlanDaySubjects::deleteAll(['study_plan_day_id' => (new Query())->select('id')->from(StudyPlanDays::tableName())->where(['study_plan_id' => $plan->id])->andWhere(['>=', 'plan_date', $today])->andWhere(['!=', 'status', self::STATUS_COMPLETED])]);
-            StudyPlanDays::deleteAll(['study_plan_id' => $plan->id])->andWhere(['>=', 'plan_date', $today])->andWhere(['!=', 'status', self::STATUS_COMPLETED]);
-        } else {
-            StudyPlanDaySubjects::deleteAll(['study_plan_day_id' => (new Query())->select('id')->from(StudyPlanDays::tableName())->where(['study_plan_id' => $plan->id])->andWhere(['between', 'plan_date', $startDate, $endDate])->andWhere(['!=', 'status', self::STATUS_COMPLETED])]);
-            StudyPlanDays::deleteAll(['study_plan_id' => $plan->id])->andWhere(['between', 'plan_date', $startDate, $endDate])->andWhere(['!=', 'status', self::STATUS_COMPLETED]);
+        $skippedDays = StudyPlanDays::find()
+            ->where(['study_plan_id' => $plan->id, 'status' => self::STATUS_SKIPPED])
+            ->andWhere(['<', 'plan_date', $periodStartDate])
+            ->all();
 
-            $skippedDays = StudyPlanDays::find()
-                ->where(['study_plan_id' => $plan->id, 'status' => self::STATUS_SKIPPED])
-                ->andWhere(['<', 'plan_date', $startDate])
-                ->all();
+        foreach ($skippedDays as $skippedDay) {
+            $spdsEntries = StudyPlanDaySubjects::find()
+                ->where(['study_plan_day_id' => $skippedDay->id])
+                ->andWhere(['is not', 'mcq_ids', new Expression('NULL')])
+                ->column();
 
-            foreach ($skippedDays as $skippedDay) {
-                $accumulatedSkippedMcqs += $skippedDay->new_mcqs;
+            foreach ($spdsEntries as $jsonMcqIdString) {
+                $ids = json_decode($jsonMcqIdString);
+                if (is_array($ids)) {
+                    $accumulatedSkippedMcqs = array_merge($accumulatedSkippedMcqs, $ids);
+                }
             }
         }
+        $accumulatedSkippedMcqs = array_unique($accumulatedSkippedMcqs);
 
-        $currentDate = new \DateTime($startDate);
-        $loopEndDate = new \DateTime($endDate);
+        $currentDate = new \DateTime($periodStartDate);
+        $loopEndDate = new \DateTime($periodEndDate);
 
         while ($currentDate <= $loopEndDate) {
             $dateString = $currentDate->format('Y-m-d');
-            self::ensureDay($plan, $dateString, $user, null, $accumulatedSkippedMcqs);
+            self::ensureDay($plan, $dateString, $user, $today, $accumulatedSkippedMcqs, $periodStartDate, $periodEndDate, $isFullPlanGeneration);
             $currentDate->modify('+1 day');
         }
     }
@@ -182,7 +205,7 @@ class StudyPlanGenerator
             ->count();
     }
 
-    protected static function ensureDay(StudyPlans $plan, string $date, Users $user, string $todayString = null, int $accumulatedSkippedMcqs = 0): StudyPlanDays
+    protected static function ensureDay(StudyPlans $plan, string $date, Users $user, string $todayString = null, array $accumulatedSkippedMcqIds = [], string $generationPeriodStartDate = null, string $generationPeriodEndDate = null, bool $isFullPlanGeneration = false): StudyPlanDays
     {
         if ($todayString === null) {
             $todayString = date('Y-m-d');
@@ -193,53 +216,109 @@ class StudyPlanGenerator
             'plan_date' => $date,
         ]);
 
+        $dayToAllocate = $existing;
+        $shouldReallocateContent = false;
+
         if ($existing) {
-            if ($date === $todayString && ($existing->status === self::STATUS_UPCOMING || $existing->status === self::STATUS_PENDING)) {
+
+            if ($date === $todayString && ($existing->status === self::STATUS_UPCOMING || $existing->status === self::STATUS_PENDING) && !$existing->is_mock_exam) {
                 $existing->status = self::STATUS_PENDING;
                 $existing->updated_at = new Expression('NOW()');
                 $existing->save(false);
             }
-            return $existing;
-        }
 
-        $day = new StudyPlanDays([
-            'study_plan_id' => $plan->id,
-            'day_number' => self::calculateDayNumber($plan->start_date, $date),
-            'plan_date' => $date,
-            'is_mock_exam' => 0,
-            'created_at' => new Expression('NOW()'),
-            'updated_at' => new Expression('NOW()'),
-        ]);
+            if ($existing->status === self::STATUS_COMPLETED || $existing->status === self::STATUS_SKIPPED) {
+                 return $existing; 
+            }
 
-        if ($date === $todayString) {
-            $day->status = self::STATUS_PENDING;
-        } elseif ($date > $todayString) {
-            $day->status = self::STATUS_UPCOMING;
+            $targetDailyMcqs = intval($plan->mcqs_per_day);
+            $skippedMcqsForThisDayCount = 0;
+
+            if ($accumulatedSkippedMcqIds && $generationPeriodStartDate && $generationPeriodEndDate &&
+                (new \DateTime($date) >= new \DateTime($generationPeriodStartDate)) &&
+                (new \DateTime($date) <= new \DateTime($generationPeriodEndDate))) {
+                
+                $daysInRedistributionWindow = (new \DateTime($generationPeriodEndDate))->diff(new \DateTime($generationPeriodStartDate))->days + 1;
+                if ($daysInRedistributionWindow <= 0) $daysInRedistributionWindow = 1;
+                $skippedMcqsForThisDayCount = ceil(count($accumulatedSkippedMcqIds) / $daysInRedistributionWindow);
+                $targetDailyMcqs += $skippedMcqsForThisDayCount;
+            }
+
+            if ($isFullPlanGeneration || $existing->new_mcqs === 0 || $existing->new_mcqs !== $targetDailyMcqs) {
+                $shouldReallocateContent = true;
+            }
+            
         } else {
-            $day->status = self::STATUS_SKIPPED;
+            $dayToAllocate = new StudyPlanDays([
+                'study_plan_id' => $plan->id,
+                'day_number' => self::calculateDayNumber($plan->start_date, $date),
+                'plan_date' => $date,
+                'is_mock_exam' => 0,
+                'new_mcqs' => 0,
+                'redistributed_skipped_mcqs' => 0,
+                'created_at' => new Expression('NOW()'),
+                'updated_at' => new Expression('NOW()'),
+            ]);
+
+            if ($date === $todayString) {
+                $dayToAllocate->status = self::STATUS_PENDING;
+            } elseif ($date > $todayString) {
+                $dayToAllocate->status = self::STATUS_UPCOMING;
+            } else {
+                $dayToAllocate->status = self::STATUS_SKIPPED;
+            }
+
+            if (!$dayToAllocate->save(false)) {
+                Yii::error("Failed to save StudyPlanDay for plan {$plan->id} on {$date} before allocation (new record): " . print_r($dayToAllocate->errors, true));
+                throw new \Exception("Failed to save StudyPlanDay before allocation (new record).");
+            }
+            $shouldReallocateContent = true;
         }
 
-        if (!$day->save(false)) {
-            Yii::error("Failed to save StudyPlanDay for plan {$plan->id} on {$date}: " . print_r($day->errors, true));
-            throw new \Exception("Failed to save StudyPlanDay.");
-        }
+        if ($shouldReallocateContent) {
 
-        $daysToExam = (int) ((strtotime($plan->exam_date) - strtotime($date)) / 86400);
+            StudyPlanDaySubjects::deleteAll(['study_plan_day_id' => $dayToAllocate->id]);
 
-        $dailyTargetWithSkipped = intval($plan->mcqs_per_day);
-        $daysInNextWeek = 7;
-        if ($accumulatedSkippedMcqs > 0) {
-            $skippedPerDay = ceil($accumulatedSkippedMcqs / $daysInNextWeek);
-            $dailyTargetWithSkipped += $skippedPerDay;
-        }
+            $daysToExam = (int) ((strtotime($plan->exam_date) - strtotime($date)) / 86400);
+            $dailyTargetWithSkipped = intval($plan->mcqs_per_day);
+            $mcqIdsToRedistributeToday = [];
 
-        if ($daysToExam < 10 && $daysToExam >= 0) {
-            self::allocateRevisionDay($day, $user, $dailyTargetWithSkipped);
+            if ($accumulatedSkippedMcqIds && $generationPeriodStartDate && $generationPeriodEndDate &&
+                (new \DateTime($date) >= new \DateTime($generationPeriodStartDate)) &&
+                (new \DateTime($date) <= new \DateTime($generationPeriodEndDate))
+            ) {
+                $daysInRedistributionWindow = (new \DateTime($generationPeriodEndDate))->diff(new \DateTime($generationPeriodStartDate))->days + 1;
+                if ($daysInRedistributionWindow <= 0) $daysInRedistributionWindow = 1;
+
+                $skippedPerDay = ceil(count($accumulatedSkippedMcqIds) / $daysInRedistributionWindow);
+                $dayToAllocate->redistributed_skipped_mcqs = $skippedPerDay;
+                $dailyTargetWithSkipped += $skippedPerDay;
+
+
+                $mcqIdsToRedistributeToday = array_slice($accumulatedSkippedMcqIds, 0, $skippedPerDay);
+
+            } else {
+                $dayToAllocate->redistributed_skipped_mcqs = 0;
+            }
+
+            if ($daysToExam < 10 && $daysToExam >= 0) {
+                self::allocateRevisionDay($dayToAllocate, $user, $dailyTargetWithSkipped, $mcqIdsToRedistributeToday);
+            } else {
+                self::allocateSequentialCoverageDay($dayToAllocate, $user, $dailyTargetWithSkipped, $mcqIdsToRedistributeToday);
+            }
+
+            if (!$dayToAllocate->save(false)) {
+                Yii::error("Failed to save StudyPlanDay for plan {$plan->id} on {$date} after allocation: " . print_r($dayToAllocate->errors, true));
+                throw new \Exception("Failed to save StudyPlanDay after allocation.");
+            }
         } else {
-            self::allocateSequentialCoverageDay($day, $user, $dailyTargetWithSkipped);
+            if ($dayToAllocate->redistributed_skipped_mcqs !== 0) {
+                $dayToAllocate->redistributed_skipped_mcqs = 0;
+                $dayToAllocate->save(false);
+            }
         }
-
-        return $day;
+        
+        return $dayToAllocate;
     }
 
     protected static function calculateDayNumber(string $startDate, string $currentDate): int
@@ -247,57 +326,100 @@ class StudyPlanGenerator
         return (int) ((strtotime($currentDate) - strtotime($startDate)) / 86400) + 1;
     }
 
-    protected static function allocateSequentialCoverageDay(StudyPlanDays $day, Users $user, int $dailyTarget)
+    protected static function allocateSequentialCoverageDay(StudyPlanDays $day, Users $user, int $dailyTarget, array $mcqIdsToRedistributeToday = [])
     {
         $totalAllocatedToday = 0;
-        // --- Correction 1: Pass $plan ---
-        // The $plan variable needs to be passed to fillDailyTargetFromChapter.
-        // It's available as an argument to this function, so we just need to pass it down.
-        $plan = $day->studyPlan; // Retrieve the StudyPlans model from the StudyPlanDays model
+        $plan = $day->studyPlan;
 
-        $orderedSubjectIds = self::getOrderedSubjectIdsByDistribution($user->specialty_id);
 
-        foreach ($orderedSubjectIds as $subjectId) {
-            if ($totalAllocatedToday >= $dailyTarget) {
-                break;
+        $skippedMcqsRemainingToAllocate = $mcqIdsToRedistributeToday;
+        $allocatedSkippedCount = 0;
+
+        if (!empty($skippedMcqsRemainingToAllocate)) {
+            $allocatedSkippedCount = min(count($skippedMcqsRemainingToAllocate), $dailyTarget);
+            $mcqsForSpds = array_slice($skippedMcqsRemainingToAllocate, 0, $allocatedSkippedCount);
+
+            $mcqHierarchyDetails = (new Query())
+                ->select(['h.subject_id', 'h.chapter_id', 'h.topic_id', 'mcqs.id'])
+                ->from(Mcqs::tableName())
+                ->innerJoin('hierarchy h', 'h.id = mcqs.hierarchy_id')
+                ->where(['mcqs.id' => $mcqsForSpds])
+                ->all();
+
+            $groupedSkippedMcqs = [];
+            foreach ($mcqHierarchyDetails as $detail) {
+                $groupedSkippedMcqs[$detail['subject_id']][$detail['chapter_id']][$detail['topic_id']][] = $detail['id'];
             }
 
-            $orderedChapterIds = self::getOrderedChapterIdsByDistribution($user->specialty_id, $subjectId);
-
-            foreach ($orderedChapterIds as $chapterId) {
-                if ($totalAllocatedToday >= $dailyTarget) {
-                    break;
-                }
-
-                $needed = $dailyTarget - $totalAllocatedToday;
-
-                list($allocatedFromChapter, $mcqIdsAllocated, $mcqTopicMap) = self::fillDailyTargetFromChapter($day, $plan, $subjectId, $chapterId, $needed);
-
-                if (!empty($mcqIdsAllocated)) {
-                    foreach ($mcqTopicMap as $mapTopicId => $mappedMcqIds) {
-                        if (empty($mappedMcqIds))
-                            continue;
-
+            foreach ($groupedSkippedMcqs as $subjId => $chapters) {
+                foreach ($chapters as $chapId => $topics) {
+                    foreach ($topics as $topId => $ids) {
+                        if (empty($ids)) continue;
                         $sp = new StudyPlanDaySubjects([
                             'study_plan_day_id' => $day->id,
-                            'subject_id' => $subjectId,
-                            'chapter_id' => $chapterId,
-                            'topic_id' => $mapTopicId,
-                            'allocated_mcqs' => count($mappedMcqIds),
-                            'mcq_ids' => json_encode($mappedMcqIds),
+                            'subject_id' => $subjId,
+                            'chapter_id' => $chapId,
+                            'topic_id' => $topId,
+                            'allocated_mcqs' => count($ids),
+                            'mcq_ids' => json_encode($ids),
+
                             'created_at' => new Expression('NOW()'),
                             'updated_at' => new Expression('NOW()'),
                         ]);
                         if (!$sp->save(false)) {
-                            Yii::error("Failed to save StudyPlanDaySubjects for topic {$mapTopicId} on day {$day->id}: " . print_r($sp->errors, true));
+                            Yii::error("Failed to save Redistributed Skipped SPDS for topic {$topId}: " . print_r($sp->errors, true));
                         }
                     }
+                }
+            }
+            $totalAllocatedToday += $allocatedSkippedCount;
+        }
 
-                    $totalAllocatedToday += $allocatedFromChapter;
+
+        $remainingTarget = $dailyTarget - $totalAllocatedToday;
+
+        if ($remainingTarget > 0) {
+            $orderedSubjectIds = self::getOrderedSubjectIdsByDistribution($user->specialty_id);
+
+            foreach ($orderedSubjectIds as $subjectId) {
+                if ($totalAllocatedToday >= $dailyTarget) {
+                    break;
+                }
+
+                $orderedChapterIds = self::getOrderedChapterIdsByDistribution($user->specialty_id, $subjectId);
+
+                foreach ($orderedChapterIds as $chapterId) {
+                    if ($totalAllocatedToday >= $dailyTarget) {
+                        break;
+                    }
+
+                    $needed = $dailyTarget - $totalAllocatedToday;
+                    list($allocatedFromChapter, $mcqIdsAllocatedOverall, $mcqTopicMap) = self::fillDailyTargetFromChapter($day, $plan, $subjectId, $chapterId, $needed, $mcqIdsToRedistributeToday);
+
+                    if (!empty($mcqIdsAllocatedOverall)) {
+                        foreach ($mcqTopicMap as $mapTopicId => $mappedMcqIds) {
+                            if (empty($mappedMcqIds)) continue;
+
+                            $sp = new StudyPlanDaySubjects([
+                                'study_plan_day_id' => $day->id,
+                                'subject_id' => $subjectId,
+                                'chapter_id' => $chapterId,
+                                'topic_id' => $mapTopicId,
+                                'allocated_mcqs' => count($mappedMcqIds),
+                                'mcq_ids' => json_encode($mappedMcqIds),
+
+                                'created_at' => new Expression('NOW()'),
+                                'updated_at' => new Expression('NOW()'),
+                            ]);
+                            if (!$sp->save(false)) {
+                                Yii::error("Failed to save New Content SPDS for topic {$mapTopicId} on day {$day->id}: " . print_r($sp->errors, true));
+                            }
+                        }
+                        $totalAllocatedToday += $allocatedFromChapter;
+                    }
                 }
             }
         }
-
         $day->new_mcqs = $totalAllocatedToday;
         $day->review_mcqs = 0;
         $day->save(false);
@@ -328,7 +450,7 @@ class StudyPlanGenerator
             ->column();
     }
 
-    protected static function fillDailyTargetFromChapter(StudyPlanDays $day, StudyPlans $plan, int $subjectId, int $chapterId, int $targetToFill): array
+    protected static function fillDailyTargetFromChapter(StudyPlanDays $day, StudyPlans $plan, int $subjectId, int $chapterId, int $targetToFill, array $alreadyIncludedMcqIds = []): array
     {
         $allocatedInThisChapter = 0;
         $mcqIdsAllocatedOverall = [];
@@ -354,8 +476,9 @@ class StudyPlanGenerator
             ->orderBy(['t.id' => SORT_ASC, 'h.id' => SORT_ASC])
             ->all();
 
-        $allPlanAllocatedMcqIds = (new Query())
-            ->select('JSON_UNQUOTE(JSON_EXTRACT(mcq_ids, "$[*]")) AS mcq_id_str')
+
+        $jsonMcqIdStrings = (new Query())
+            ->select('s.mcq_ids')
             ->from(StudyPlanDaySubjects::tableName() . ' s')
             ->innerJoin(StudyPlanDays::tableName() . ' d', 'd.id = s.study_plan_day_id')
             ->where(['d.study_plan_id' => $plan->id])
@@ -363,16 +486,13 @@ class StudyPlanGenerator
             ->column();
 
         $alreadyAllocatedMcqIds = [];
-        foreach ($allPlanAllocatedMcqIds as $jsonString) {
-
+        foreach ($jsonMcqIdStrings as $jsonString) {
             $ids = json_decode($jsonString);
             if (is_array($ids)) {
                 $alreadyAllocatedMcqIds = array_merge($alreadyAllocatedMcqIds, $ids);
             }
         }
-
-        $alreadyAllocatedMcqIds = array_unique($alreadyAllocatedMcqIds);
-
+        $alreadyAllocatedMcqIds = array_unique(array_merge($alreadyAllocatedMcqIds, $alreadyIncludedMcqIds));
 
         foreach ($eligibleTopicsAndHierarchyIds as $row) {
             if ($allocatedInThisChapter >= $targetToFill) {
@@ -406,58 +526,142 @@ class StudyPlanGenerator
                 $mcqTopicMap[$topicId] = array_merge($mcqTopicMap[$topicId], $mcqsToTake);
 
                 $alreadyAllocatedMcqIds = array_merge($alreadyAllocatedMcqIds, $mcqsToTake);
+                $alreadyAllocatedMcqIds = array_unique($alreadyAllocatedMcqIds);
             }
         }
 
         return [$allocatedInThisChapter, $mcqIdsAllocatedOverall, $mcqTopicMap];
     }
 
-    protected static function allocateRevisionDay(StudyPlanDays $day, Users $user, int $perDay)
+    protected static function allocateRevisionDay(StudyPlanDays $day, Users $user, int $perDay, array $mcqIdsToRedistributeToday = [])
     {
-        $day->new_mcqs = $perDay;
-        $day->review_mcqs = 0;
-        $day->save(false);
-
-        $topSubjects = SpecialtyDistributions::find()
-            ->where(['specialty_id' => $user->specialty_id])
-            ->orderBy(['subject_percentage' => SORT_DESC])
-            ->limit(4)
-            ->all();
-
-        $count = count($topSubjects) ?: 1;
-        $share = intval(round($perDay / $count));
-
+        $plan = $day->studyPlan;
+        
         $allocatedTotal = 0;
-        foreach ($topSubjects as $subj) {
-            $currentShare = min($share, $perDay - $allocatedTotal);
+        $mcqIdsAllocatedOverall = [];
+        
+        $skippedMcqsRemainingToAllocate = $mcqIdsToRedistributeToday;
+        $allocatedSkippedCount = 0;
 
-            if ($currentShare > 0) {
-                // For revision, we might need to select specific MCQs for review.
-                // For now, it's just a count, but if you store MCQ IDs for review, this needs modification.
-                $spds = new StudyPlanDaySubjects([
-                    'study_plan_day_id' => $day->id,
-                    'subject_id' => $subj->subject_id,
-                    'allocated_mcqs' => $currentShare,
-                    'mcq_ids' => json_encode([]), // Placeholder, needs actual review MCQ IDs if implemented
-                    'created_at' => new Expression('NOW()'),
-                    'updated_at' => new Expression('NOW()'),
-                ]);
-                if ($spds->save(false)) {
-                    $allocatedTotal += $currentShare;
-                } else {
-                    Yii::error("Failed to save StudyPlanDaySubjects for revision day (subject {$subj->subject_id}): " . print_r($spds->errors, true));
+        if (!empty($skippedMcqsRemainingToAllocate)) {
+            $allocatedSkippedCount = min(count($skippedMcqsRemainingToAllocate), $perDay);
+            $mcqsForSpds = array_slice($skippedMcqsRemainingToAllocate, 0, $allocatedSkippedCount);
+
+            $mcqHierarchyDetails = (new Query())
+                ->select(['h.subject_id', 'h.chapter_id', 'h.topic_id', 'mcqs.id'])
+                ->from(Mcqs::tableName())
+                ->innerJoin('hierarchy h', 'h.id = mcqs.hierarchy_id')
+                ->where(['mcqs.id' => $mcqsForSpds])
+                ->all();
+
+            $groupedSkippedMcqs = [];
+            foreach ($mcqHierarchyDetails as $detail) {
+                $groupedSkippedMcqs[$detail['subject_id']][$detail['chapter_id']][$detail['topic_id']][] = $detail['id'];
+            }
+
+            foreach ($groupedSkippedMcqs as $subjId => $chapters) {
+                foreach ($chapters as $chapId => $topics) {
+                    foreach ($topics as $topId => $ids) {
+                        if (empty($ids)) continue;
+                        $sp = new StudyPlanDaySubjects([
+                            'study_plan_day_id' => $day->id,
+                            'subject_id' => $subjId,
+                            'chapter_id' => $chapId,
+                            'topic_id' => $topId,
+                            'allocated_mcqs' => count($ids),
+                            'mcq_ids' => json_encode($ids),
+
+                            'created_at' => new Expression('NOW()'),
+                            'updated_at' => new Expression('NOW()'),
+                        ]);
+                        if (!$sp->save(false)) {
+                            Yii::error("Failed to save Redistributed Skipped SPDS for topic {$topId} in revision day: " . print_r($sp->errors, true));
+                        }
+                    }
+                }
+            }
+            $allocatedTotal += $allocatedSkippedCount;
+        }
+        
+        $remainingTarget = $perDay - $allocatedTotal;
+
+        if ($remainingTarget > 0) {
+            $topSubjects = SpecialtyDistributions::find()
+                ->where(['specialty_id' => $user->specialty_id])
+                ->orderBy(['subject_percentage' => SORT_DESC])
+                ->limit(4)
+                ->column();
+
+            $jsonMcqIdStrings = (new Query())
+                ->select('s.mcq_ids')
+                ->from(StudyPlanDaySubjects::tableName() . ' s')
+                ->innerJoin(StudyPlanDays::tableName() . ' d', 'd.id = s.study_plan_day_id')
+                ->where(['d.study_plan_id' => $plan->id])
+                ->andWhere(['is not', 's.mcq_ids', new Expression('NULL')])
+                ->column();
+
+            $alreadyAllocatedMcqIds = [];
+            foreach ($jsonMcqIdStrings as $jsonString) {
+                $ids = json_decode($jsonString);
+                if (is_array($ids)) {
+                    $alreadyAllocatedMcqIds = array_merge($alreadyAllocatedMcqIds, $ids);
+                }
+            }
+            $alreadyAllocatedMcqIds = array_unique(array_merge($alreadyAllocatedMcqIds, $mcqIdsToRedistributeToday));
+
+            $share = intval(round($remainingTarget / (count($topSubjects) ?: 1)));
+
+            foreach ($topSubjects as $subjectId) {
+                if ($allocatedTotal >= $perDay) break;
+
+                $currentShare = min($share, $perDay - $allocatedTotal);
+                if ($currentShare <= 0) continue;
+
+                $availableReviewMcqs = (new Query())
+                    ->select('mcqs.id')
+                    ->from(Mcqs::tableName())
+                    ->innerJoin(Hierarchy::tableName(), 'mcqs.hierarchy_id = hierarchy.id')
+                    ->where(['hierarchy.subject_id' => $subjectId])
+                    ->andWhere(['IN', 'mcqs.id', $alreadyAllocatedMcqIds])
+                    ->orderBy(new Expression('RAND()'))
+                    ->limit($currentShare)
+                    ->column();
+
+                if (count($availableReviewMcqs) < $currentShare) {
+                    $additionalMcqs = (new Query())
+                        ->select('mcqs.id')
+                        ->from(Mcqs::tableName())
+                        ->innerJoin(Hierarchy::tableName(), 'mcqs.hierarchy_id = hierarchy.id')
+                        ->where(['hierarchy.subject_id' => $subjectId])
+                        ->andWhere(['NOT IN', 'mcqs.id', array_merge($alreadyAllocatedMcqIds, $availableReviewMcqs)])
+                        ->orderBy(new Expression('RAND()'))
+                        ->limit($currentShare - count($availableReviewMcqs))
+                        ->column();
+                    $availableReviewMcqs = array_merge($availableReviewMcqs, $additionalMcqs);
+                }
+
+
+                if (!empty($availableReviewMcqs)) {
+                    $spds = new StudyPlanDaySubjects([
+                        'study_plan_day_id' => $day->id,
+                        'subject_id' => $subjectId,
+                        'allocated_mcqs' => count($availableReviewMcqs),
+                        'mcq_ids' => json_encode($availableReviewMcqs),
+
+                        'created_at' => new Expression('NOW()'),
+                        'updated_at' => new Expression('NOW()'),
+                    ]);
+                    if (!$spds->save(false)) {
+                        Yii::error("Failed to save general review SPDS for subject {$subjectId}: " . print_r($spds->errors, true));
+                    } else {
+                        $allocatedTotal += count($availableReviewMcqs);
+                        $mcqIdsAllocatedOverall = array_merge($mcqIdsAllocatedOverall, $availableReviewMcqs);
+                    }
                 }
             }
         }
-        if ($allocatedTotal < $perDay && !empty($topSubjects)) {
-            $firstSubjectSpds = StudyPlanDaySubjects::findOne([
-                'study_plan_day_id' => $day->id,
-                'subject_id' => $topSubjects[0]->subject_id
-            ]);
-            if ($firstSubjectSpds) {
-                $firstSubjectSpds->allocated_mcqs += ($perDay - $allocatedTotal);
-                $firstSubjectSpds->save(false);
-            }
-        }
+        $day->new_mcqs = $allocatedTotal;
+        $day->review_mcqs = $allocatedTotal;
+        $day->save(false);
     }
 }

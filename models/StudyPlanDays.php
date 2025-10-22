@@ -13,6 +13,7 @@ use Yii;
  * @property string $plan_date
  * @property int|null $review_mcqs
  * @property int|null $new_mcqs
+ * @property int|null $redistributed_skipped_mcqs
  * @property int|null $is_mock_exam
  * @property string|null $status
  * @property string $created_at

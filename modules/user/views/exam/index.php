@@ -1,9 +1,6 @@
 <?php
 use yii\helpers\Html;
 use yii\helpers\Url;
-use common\models\Chapter; // Ensure these are properly used if needed in the view directly
-use common\models\OrganSystem;
-use common\models\Subject;
 
 $this->title = 'Start New Exam';
 $this->registerCssFile('https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css', [
@@ -49,8 +46,14 @@ $this->registerCssFile('https://cdn.jsdelivr.net/npm/choices.js/public/assets/st
                     <label for="subjectSelect" class="form-label fw-semibold">Select Subjects</label>
                     <select id="subjectSelect" name="subject_ids[]" multiple>
                         <?php foreach ($subjects as $subject): ?>
+                            <?php
+                            $counts = $countMapSubjects[$subject->id] ?? ['total' => 0, 'attempted' => 0];
+                            $totalMcqs = $counts['total'];
+                            $attemptedMcqs = $counts['attempted'];
+                            $percentage = ($totalMcqs > 0) ? round(($attemptedMcqs / $totalMcqs) * 100) : 0;
+                            ?>
                             <option value="<?= $subject->id ?>"><?= Html::encode($subject->name) ?>
-                                (<?= $subject->mcq_count ?>)</option>
+                                (<?= $attemptedMcqs ?>/<?= $totalMcqs ?> - <?= $percentage ?>%)</option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -73,8 +76,14 @@ $this->registerCssFile('https://cdn.jsdelivr.net/npm/choices.js/public/assets/st
                     <label for="organSystemSelect" class="form-label fw-semibold">Select Organ Systems</label>
                     <select id="organSystemSelect" name="organ_system_ids[]" multiple>
                         <?php foreach ($organSystems as $organSystem): ?>
+                            <?php
+                            $counts = $countMapSubjects[$organSystem->id] ?? ['total' => 0, 'attempted' => 0];
+                            $totalMcqs = $counts['total'];
+                            $attemptedMcqs = $counts['attempted'];
+                            $percentage = ($totalMcqs > 0) ? round(($attemptedMcqs / $totalMcqs) * 100) : 0;
+                            ?>
                             <option value="<?= $organSystem->id ?>"><?= Html::encode($organSystem->name) ?>
-                                (<?= $organSystem->mcq_count ?>)</option>
+                                (<?= $attemptedMcqs ?>/<?= $totalMcqs ?> - <?= $percentage ?>%)</option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -222,17 +231,15 @@ function updateUIBasedOnExamScope(selectedScope) {
     if (selectedScope === 'subject_chapter_topic') {
         subjectChapterTopicFields.removeClass('d-none');
         organSystemFields.addClass('d-none');
-        // Enable fields for Subject/Chapter/Topic scope
         subjectSelectChoice.enable();
         chapterSelectChoice.enable();
         topicSelectChoice.enable();
-        organSystemSelectChoice.disable(); // Disable Organ System fields
+        organSystemSelectChoice.disable();
     } else if (selectedScope === 'organ_system') {
         subjectChapterTopicFields.addClass('d-none');
         organSystemFields.removeClass('d-none');
-        // Enable fields for Organ System scope
         organSystemSelectChoice.enable();
-        subjectSelectChoice.disable(); // Disable Subject/Chapter/Topic fields
+        subjectSelectChoice.disable();
         chapterSelectChoice.disable();
         topicSelectChoice.disable();
     }
@@ -242,12 +249,10 @@ $('input[name="examtype"]').on('change', function () {
     updateUIBasedOnExamType($(this).val());
 });
 
-// Attach change listener for Exam Scope
 $('input[name="exam_scope"]').on('change', function () {
     updateUIBasedOnExamScope($(this).val());
 });
 
-// Initial UI setup on load
 $(document).ready(function () {
     updateUIBasedOnExamType($('input[name="examtype"]:checked').val());
     updateUIBasedOnExamScope($('input[name="exam_scope"]:checked').val());
@@ -265,32 +270,78 @@ function toggleTimer(checkbox) {
     }
 }
 
+function applyPrettyLayoutToChoices(choiceInstance, dataList) {
+    const choices = dataList.map(item => {
+        const total = item.total_mcq_count || 0;
+        const attempted = item.attempted_mcq_count || 0;
+        const percentage = total > 0 ? Math.round((attempted / total) * 100) : 0;
+
+        const labelHtml = `
+            <div class="chapter-choice">
+                <div class="chapter-name">\${item.name}</div>
+                <div class="chapter-stats text-muted small">
+                    📘 \${attempted} attempted / \${total} total &nbsp;•&nbsp; \${percentage}% complete
+                </div>
+            </div>
+        `;
+
+        return {
+            value: item.id,
+            label: labelHtml,
+            customProperties: { total, attempted, percentage }
+        };
+    });
+
+    choiceInstance.setChoices(choices, 'value', 'label', true);
+}
+
+function simplifySelectedTags(selectId) {
+    const choiceInstance = document.querySelector(selectId);
+    choiceInstance.addEventListener('choice', function () {
+        setTimeout(() => {
+            $(selectId).parent().find('.choices__list--multiple .chapter-choice').each(function () {
+                const text = $(this).find('.chapter-name').text().trim();
+                $(this).replaceWith(`<span class="choices__item--clean">\${text}</span>`);
+            });
+        }, 10);
+    });
+}
+
+simplifySelectedTags('#subjectSelect');
+simplifySelectedTags('#organSystemSelect');
+simplifySelectedTags('#chapterSelect');
+simplifySelectedTags('#topicSelect');
+
 const subjectSelectChoice = new Choices('#subjectSelect', {
     removeItemButton: true,
+    allowHTML: true,
     placeholder: true,
     placeholderValue: 'Select subjects',
     noChoicesText: 'No subjects available'
 });
 
-const chapterSelectChoice = new Choices('#chapterSelect', {
-    removeItemButton: true,
-    placeholder: true,
-    placeholderValue: 'Select chapters',
-    noChoicesText: 'No chapters available'
-});
-
-const topicSelectChoice = new Choices('#topicSelect', {
-    removeItemButton: true,
-    placeholderValue: 'Select topics',
-    noChoicesText: 'Select chapters to see topics'
-});
-
 const organSystemSelectChoice = new Choices('#organSystemSelect', {
     removeItemButton: true,
+    allowHTML: true,
     placeholder: true,
     placeholderValue: 'Select organ systems',
     noChoicesText: 'No organ systems available'
 });
+
+const chapterSelectChoice = new Choices('#chapterSelect', {
+    removeItemButton: true,
+    allowHTML: true,
+    itemSelectText: '',
+    placeholderValue: 'Select chapters (optional)',
+});
+
+const topicSelectChoice = new Choices('#topicSelect', {
+    removeItemButton: true,
+    allowHTML: true,
+    placeholderValue: 'Select topics (optional)',
+    noChoicesText: 'Select chapters to see topics'
+});
+
 
 const difficultyChoices = new Choices('#difficulty-select', {
     removeItemButton: true,
@@ -298,6 +349,27 @@ const difficultyChoices = new Choices('#difficulty-select', {
     searchEnabled: false,
     shouldSort: false,
 });
+
+function getOptionsFromSelect(select) {
+    return select.find('option').map(function () {
+        const text = $(this).text();
+        const match = text.match(/\((\d+)\/(\d+)\s*-\s*(\d+)%\)/);
+        return {
+            id: $(this).val(),
+            name: text.replace(/\(.*\)/, '').trim(),
+            total_mcq_count: match ? parseInt(match[2]) : 0,
+            attempted_mcq_count: match ? parseInt(match[1]) : 0,
+            percentage: match ? parseInt(match[3]) : 0
+        };
+    }).get();
+}
+
+const subjectsData = getOptionsFromSelect($('#subjectSelect'));
+const organSystemsData = getOptionsFromSelect($('#organSystemSelect'));
+
+applyPrettyLayoutToChoices(subjectSelectChoice, subjectsData);
+applyPrettyLayoutToChoices(organSystemSelectChoice, organSystemsData);
+
 
 difficultyChoices.setChoices([
     { value: 'Easy', label: 'Easy' },
@@ -317,10 +389,6 @@ $('#chapterSelect').on('change', function () {
     topicSelectChoice.clearStore();
     topicSelectChoice.setChoices([{ value: '', label: 'Select chapters to see topics', disabled: true }], 'value', 'label', true);
 
-    if (selectedChaptersForTopics.length === 0) {
-        topicSelectChoice.setChoices([{ value: '0', label: 'All topics for selected chapters', selected: true }], 'value', 'label', true);
-        return;
-    }
 
     console.log('Loading topics...');
     topicSelectChoice.setChoices([{ value: '', label: 'Loading topics...', disabled: true }], 'value', 'label', true);
@@ -333,10 +401,30 @@ $('#chapterSelect').on('change', function () {
             subject_ids: selectedSubjects
         },
         success: function (data) {
-            const choices = [{ value: '0', label: 'All topics for selected chapters', selected: true }]
-                .concat(data.map(topic => ({ value: topic.id, label: topic.name + ' (' + topic.mcq_count + ')'})));
-            topicSelectChoice.setChoices(choices, 'value', 'label', true);
-            topicsLoaded = true;
+            const baseChoice = [{ 
+                value: '0', 
+                label: '<div class="chapter-choice"><div class="chapter-name">All topics for selected chapters</div></div>', 
+                selected: true 
+            }];
+        
+            const topicChoices = data.map(topic => {
+                const total = topic.total_mcq_count || 0;
+                const attempted = topic.attempted_mcq_count || 0;
+                const percentage = total > 0 ? Math.round((attempted / total) * 100) : 0;
+            
+                const labelHtml = `
+                    <div class="chapter-choice">
+                        <div class="chapter-name">\${topic.name}</div>
+                        <div class="chapter-stats text-muted small">
+                            📘 \${attempted} attempted / \${total} total &nbsp;•&nbsp; \${percentage}% complete
+                        </div>
+                    </div>
+                `;
+            
+                return { value: topic.id, label: labelHtml };
+            });
+        
+            topicSelectChoice.setChoices(baseChoice.concat(topicChoices), 'value', 'label', true);
             updateDifficultyCounts();
         },
         error: function () {
@@ -348,7 +436,6 @@ $('#chapterSelect').on('change', function () {
 $('#subjectSelect').on('change', function () {
     const selectedSubjects = $(this).val() || [];
 
-    // Reset chapters + topics
     chapterSelectChoice.clearStore();
     topicSelectChoice.clearStore();
 
@@ -367,7 +454,26 @@ $('#subjectSelect').on('change', function () {
         type: 'POST',
         data: { subject_ids: selectedSubjects },
         success: function (data) {
-            const choices = data.map(chap => ({ value: chap.id, label: chap.name + ' (' + chap.mcq_count + ')' }));
+            const choices = data.map(chap => {
+                const total = chap.total_mcq_count || 0;
+                const attempted = chap.attempted_mcq_count || 0;
+                const percentage = total > 0 ? Math.round((attempted / total) * 100) : 0;
+
+                const labelHtml = `
+                    <div class="chapter-choice">
+                        <div class="chapter-name">\${chap.name}</div>
+                        <div class="chapter-stats text-muted small">
+                            📘 \${attempted} attempted / \${total} total &nbsp;•&nbsp; \${percentage}% complete
+                        </div>
+                    </div>
+                `;
+
+                return {
+                    value: chap.id,
+                    label: labelHtml,
+                };
+            });
+
             chapterSelectChoice.setChoices(choices, 'value', 'label', true);
             updateDifficultyCounts();
         },

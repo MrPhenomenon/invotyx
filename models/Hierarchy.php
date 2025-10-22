@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\db\Query;
 
 /**
  * This is the model class for table "hierarchy".
@@ -148,5 +149,53 @@ class Hierarchy extends \yii\db\ActiveRecord
         }
 
         return $query->asArray()->all();
+    }
+
+    public static function getMcqCountsWithAttempts(string $type, ?int $userId = null): array
+    {
+        $groupByColumn = '';
+        $idColumn = '';
+        switch ($type) {
+            case 'subject':
+                $groupByColumn = 'h.subject_id';
+                $idColumn = 'h.subject_id';
+                break;
+            case 'chapter':
+                $groupByColumn = 'h.chapter_id';
+                $idColumn = 'h.chapter_id';
+                break;
+            case 'topic':
+                $groupByColumn = 'h.topic_id';
+                $idColumn = 'h.topic_id';
+                break;
+            case 'organsys':
+                $groupByColumn = 'h.organsys_id';
+                $idColumn = 'h.organsys_id';
+                break;
+            default:
+                throw new \InvalidArgumentException("Invalid type: {$type}. Must be 'subject', 'chapter', 'topic', or 'organsys'.");
+        }
+
+        $query = (new Query())
+            ->select([
+                "{$idColumn} AS id",
+                'COUNT(DISTINCT m.id) AS total_mcq_count',
+            ])
+            ->from(['h' => self::tableName()])
+            ->innerJoin(['m' => Mcqs::tableName()], 'm.hierarchy_id = h.id')
+            ->groupBy($groupByColumn)
+            ->orderBy("{$idColumn} ASC");
+
+        if ($userId !== null) {
+            $query->addSelect([
+                'COUNT(DISTINCT umi.mcq_id) AS attempted_mcq_count'
+            ])
+            ->leftJoin(['umi' => UserMcqInteractions::tableName()], 
+                       'umi.mcq_id = m.id AND umi.user_id = :userId', 
+                       [':userId' => $userId]);
+        }
+
+
+        return $query->all();
     }
 }

@@ -28,14 +28,21 @@ class ApiController extends Controller
         $subjectIds = Yii::$app->request->post('subject_ids', []);
         $chapters = Hierarchy::getChaptersForSubjects($subjectIds);
 
-        $counts = Hierarchy::getMcqCounts('chapter');
-        $countMap = \yii\helpers\ArrayHelper::map($counts, 'id', 'mcq_count');
+        $userId = Yii::$app->user->id;
+        $counts = Hierarchy::getMcqCountsWithAttempts('chapter', $userId);
+        $countMap = \yii\helpers\ArrayHelper::map($counts, 'id', function ($item) {
+            return [
+                'total' => $item['total_mcq_count'],
+                'attempted' => $item['attempted_mcq_count']
+            ];
+        });
 
         return $this->asJson(array_map(function ($c) use ($countMap) {
             return [
                 'id' => $c->id,
                 'name' => $c->name,
-                'mcq_count' => $countMap[$c->id] ?? 0,
+                'total_mcq_count' => $countMap[$c->id]['total'] ?? 0,
+                'attempted_mcq_count' => $countMap[$c->id]['attempted'] ?? 0,
             ];
         }, $chapters));
     }
@@ -47,15 +54,21 @@ class ApiController extends Controller
 
         $topics = Hierarchy::getTopicsForChapters($chapterIds, $subjectIds);
 
-        // Get topic-level counts
-        $counts = Hierarchy::getMcqCounts('topic');
-        $countMap = \yii\helpers\ArrayHelper::map($counts, 'id', 'mcq_count');
+        $userId = Yii::$app->user->id;
+        $counts = Hierarchy::getMcqCountsWithAttempts('topic', $userId);
+        $countMap = \yii\helpers\ArrayHelper::map($counts, 'id', function ($item) {
+            return [
+                'total' => $item['total_mcq_count'],
+                'attempted' => $item['attempted_mcq_count']
+            ];
+        });
 
         return $this->asJson(array_map(function ($t) use ($countMap) {
             return [
                 'id' => $t->id,
                 'name' => $t->name,
-                'mcq_count' => $countMap[$t->id] ?? 0,
+                'total_mcq_count' => $countMap[$t->id]['total'] ?? 0,
+                'attempted_mcq_count' => $countMap[$t->id]['attempted'] ?? 0,
             ];
         }, $topics));
     }

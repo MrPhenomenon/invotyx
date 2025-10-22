@@ -111,7 +111,7 @@ $this->registerCssFile('https://cdn.jsdelivr.net/npm/choices.js/public/assets/st
 
                                         <div class="mb-3 text-center">
                                             <h3><?= htmlspecialchars($plan['name']) ?></h3>
-                                            <h4><sup>$</sup><?= $plan['price'] ?><span> / <?= $plan['duration_days'] ?>
+                                            <h4><sup>RS.</sup><?= $plan['price'] ?><span> / <?= $plan['duration_days'] ?>
                                                     days</span></h4>
                                         </div>
 

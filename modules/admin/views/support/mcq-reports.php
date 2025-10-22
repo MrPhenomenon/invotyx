@@ -6,7 +6,7 @@ use yii\bootstrap\Modal;
 
 $this->title = 'Reported MCQs';
 $this->params['breadcrumbs'][] = $this->title;
-
+$url = Url::to(['support/mark-as-solved']);
 $js = <<<JS
 const confirmMarkSolvedModal = $('#confirmMarkSolvedModal');
 const modalReportIdSpan = $('#modal-report-id');
@@ -29,12 +29,11 @@ modalConfirmButton.on('click', function() {
 
     confirmMarkSolvedModal.modal('hide');
 
-    const url = currentReportButton.attr('href');
+    const url = '$url' + '?id=' + currentReportButton.data('report-id');
 
-    // Perform AJAX request
     $.ajax({
         url: url,
-        type: 'POST',
+        type: 'GET',
         data: {
             _csrf: yii.getCsrfToken()
         },
@@ -132,7 +131,7 @@ $this->registerJs($js);
                             <p class="card-text mb-1">
                                 <strong>Reported By:</strong>
                                 <?php if ($report->user): ?>
-                                    <?= Html::encode($report->user->email) ?> (ID: <?= Html::encode($report->reported_by) ?>)
+                                    <?= Html::encode($report->user->email) ?>
                                 <?php else: ?>
                                     <span class="text-muted">User Not Found (ID: <?= Html::encode($report->reported_by) ?>)</span>
                                 <?php endif; ?>
@@ -151,9 +150,8 @@ $this->registerJs($js);
                                 ['class' => 'btn btn-info btn-sm', 'target' => '_blank', 'title' => 'Go to MCQ to fix it']
                             ) ?>
 
-                            <?= Html::a(
+                            <?= Html::button(
                                 ($report->status === 'solved' ? '<i class="glyphicon glyphicon-ok"></i> Solved' : '<i class="glyphicon glyphicon-check"></i> Mark as Solved'),
-                                Url::to(['mark-as-solved', 'id' => $report->id]),
                                 [
                                     'class' => 'btn btn-sm mark-as-solved-btn ' . ($report->status === 'solved' ? 'btn-secondary' : 'btn-warning'),
                                     'data-report-id' => $report->id,
@@ -171,7 +169,6 @@ $this->registerJs($js);
 
 </div>
 
-<!-- Confirm Mark Solved Modal -->
 <div class="modal fade" id="confirmMarkSolvedModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">

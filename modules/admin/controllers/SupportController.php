@@ -19,7 +19,7 @@ class SupportController extends Controller
 {
     protected function allowedRoles(): array
     {
-        return ['Super Admin'];
+        return ['Super Admin', 'Content Manager'];
     }
     /**
      * Renders the index view for the module

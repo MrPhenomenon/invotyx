@@ -102,7 +102,7 @@ class SiteController extends Controller
             $user = Users::findOne(['email' => $email, 'auth_type' => 'local']);
             if ($user && Yii::$app->getSecurity()->validatePassword($password, $user->password)) {
                 Yii::$app->user->login($user, 3600 * 24 * 30);
-                StudyPlanGenerator::generateFullStudyPlan($user);
+                StudyPlanGenerator::ensurePlan($user);
 
                 Yii::$app->response->data = ['success' => true, 'redirectUrl' => Url::to(['/user'])];
                 return Yii::$app->response;

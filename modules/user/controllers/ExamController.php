@@ -29,12 +29,27 @@ class ExamController extends Controller
      */
     public function actionIndex()
     {
+        $userId = Yii::$app->user->id;
         $organSystems = OrganSystems::find()->all();
         $subjects = Subjects::find()->all();
-        $subjectsWithCounts = Hierarchy::getMcqCounts('subject');
-        $OrganSystemsWithCounts = Hierarchy::getMcqCounts('organsys');
-        $countMapSubjects = \yii\helpers\ArrayHelper::map($subjectsWithCounts, 'id', 'mcq_count');
-        $countMapOrganSystems = \yii\helpers\ArrayHelper::map($OrganSystemsWithCounts, 'id', 'mcq_count');
+        $subjectsWithCounts = Hierarchy::getMcqCountsWithAttempts('subject', $userId);
+        $OrganSystemsWithCounts = Hierarchy::getMcqCountsWithAttempts('organsys', $userId);
+
+        $countMapSubjects = \yii\helpers\ArrayHelper::map($subjectsWithCounts, 'id', function ($item) {
+            return [
+                'total' => (int) $item['total_mcq_count'], 
+                'attempted' => (int) $item['attempted_mcq_count'] 
+            ];
+        });
+        $countMapOrganSystems = \yii\helpers\ArrayHelper::map($OrganSystemsWithCounts, 'id', function ($item) {
+            return [
+                'total' => (int) $item['total_mcq_count'],
+                'attempted' => (int) $item['attempted_mcq_count']
+            ];
+        });
+
+        $subjects = Subjects::find()->orderBy(['name' => SORT_ASC])->all();
+        $organSystems = OrganSystems::find()->orderBy(['name' => SORT_ASC])->all(); 
 
         foreach ($subjects as $subject) {
             $subject->mcq_count = $countMapSubjects[$subject->id] ?? 0;
@@ -45,6 +60,8 @@ class ExamController extends Controller
         return $this->render('index', [
             'organSystems' => $organSystems,
             'subjects' => $subjects,
+            'countMapSubjects' => $countMapSubjects,
+            'countMapOrganSystems' => $countMapOrganSystems,
         ]);
     }
 
@@ -106,7 +123,7 @@ class ExamController extends Controller
                 $query->andWhere(['h.topic_id' => $topicIds]);
             } elseif (!empty($chapterIds) && !in_array('0', $chapterIds)) {
                 $query->andWhere(['h.chapter_id' => $chapterIds]);
-            } elseif (!empty($subjectIds)) {
+            } elseif (!empty($subjectIds && !in_array('0', $subjectIds))) {
                 $query->andWhere(['h.subject_id' => $subjectIds]);
             }
         } elseif ($examScope === 'organ_system') {
@@ -169,7 +186,7 @@ class ExamController extends Controller
 
         $session = new ExamSessions();
         $session->user_id = $userId;
-        $session->name =  ucfirst($examScope) . ' Exam';
+        $session->name = ucfirst($examScope) . ' Exam';
         $session->exam_type = Yii::$app->user->identity->exam_type;
         $session->specialty_id = Yii::$app->user->identity->specialty_id;
 
@@ -291,7 +308,7 @@ class ExamController extends Controller
                 ->innerJoin('hierarchy h', 'h.id = m.hierarchy_id')
                 ->where(['h.subject_id' => $relevantSubjectIds])
                 ->andWhere(['NOT IN', 'm.id', $selectedMcqIds]);
-        
+
             $randomMcqQuery->orderBy(new \yii\db\Expression('RAND()'))
                 ->limit($remainingQuestionsCount);
 
