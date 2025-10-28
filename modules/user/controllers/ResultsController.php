@@ -1,6 +1,7 @@
 <?php
 namespace app\modules\user\controllers;
 
+use app\models\Users;
 use Yii;
 use yii\data\Pagination;
 use yii\web\Controller;
@@ -15,30 +16,12 @@ class ResultsController extends Controller
     {
         $userId = Yii::$app->user->id;
 
+        Users::TerminateSession();
+
         $sessions = ExamSessions::find()
             ->where(['user_id' => $userId])
             ->orderBy(['end_time' => SORT_DESC])
             ->all();
-
-        foreach ($sessions as $session) {
-            if ($session->status === 'InProgress') {
-                $cacheKey = 'exam_' . $userId . '_' . $session->id;
-                $cacheData = Yii::$app->cache->get($cacheKey);
-
-                $isExpired = !$cacheData || (
-                    isset($cacheData['start_time'], $cacheData['time_limit']) &&
-                    (time() - $cacheData['start_time']) > $cacheData['time_limit'] * 60
-                );
-
-                if ($isExpired) {
-                    $session->status = 'Terminated';
-                    $session->end_time = date('Y-m-d H:i:s');
-                    $session->updated_at = date('Y-m-d H:i:s');
-                    $session->save(false);
-                    Yii::$app->cache->delete($cacheKey);
-                }
-            }
-        }
 
         return $this->render('index', [
             'sessions' => $sessions,

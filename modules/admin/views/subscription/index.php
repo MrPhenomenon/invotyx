@@ -90,7 +90,7 @@ $this->registerCss("
                     'tableOptions' => ['class' => 'table table-hover mb-0'],
                     'columns' => [
                         'name:text:Plan Name',
-                        'price:currency',
+                        'price',
                         'duration_days:text:Duration (Days)',
                         [
                             'attribute' => 'features_json',
@@ -147,7 +147,7 @@ $this->registerCss("
                     'tableOptions' => ['class' => 'table table-hover mb-0'],
                     'layout' => "<div class='table-responsive'>{items}</div><div class='card-footer bg-white'>{summary}\n{pager}</div>",
                     'columns' => [
-                        'user.username:text:User',
+                        'user.name:text:User',
                         'subscription.name:text:Plan',
                         'start_date:date',
                         'end_date:date',

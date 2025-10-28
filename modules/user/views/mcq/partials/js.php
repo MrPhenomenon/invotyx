@@ -190,7 +190,7 @@ $(function () {
         var seconds = timeLeft % 60;
 
         display.text(
-            ("0" + minutes).slice(-2) + ":" + ("0" + seconds).slice(-2)
+            (minutes < 100 ? ("0" + minutes).slice(-2) : minutes) + ":" + ("0" + seconds).slice(-2)
         );
 
         timeLeft--;

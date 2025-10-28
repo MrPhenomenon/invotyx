@@ -17,12 +17,12 @@ use yii\helpers\Url;
     <span class="pc-mtext">Analytics</span>
   </a>
 </li>
-<!-- <li class="pc-item">
-  <a href="../page" class="pc-link">
+<li class="pc-item">
+  <a href="<?= Url::to(['study-plan/']) ?>" class="pc-link">
     <span class="pc-micon"><i class="bi bi-journal-check"></i></span>
-    <span class="pc-mtext">Study Plans (NF)</span>
+    <span class="pc-mtext">Study Plan</span>
   </a>
-</li> -->
+</li>
 
 <li class="pc-item pc-caption">
   <label>Exams</label>

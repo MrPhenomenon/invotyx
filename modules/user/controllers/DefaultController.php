@@ -8,6 +8,8 @@ use app\models\Hierarchy;
 use app\models\Mcqs;
 use app\models\OrganSystems;
 use app\models\Reports;
+use app\models\StudyPlanDays;
+use app\models\StudyPlans;
 use app\models\Topics;
 use app\models\UserMcqInteractions;
 use app\models\Users;
@@ -31,19 +33,14 @@ class DefaultController extends Controller
     {
         $userId = Yii::$app->user->id;
         $user = Users::findOne($userId);
+        $today = date('Y-m-d');
+        $studyPlanDayToday = null;
+        $currentExamSession = null;
 
         if (!$user) {
             Yii::$app->session->setFlash('error', 'User not found.');
             return $this->goHome();
         }
-
-        // 1. Subscription Status
-        $subscription = UserSubscriptions::find()
-            ->where(['user_id' => $userId])
-            // ->andWhere(['>', 'end_date', date('Y-m-d H:i:s')])
-            ->orderBy(['end_date' => SORT_DESC]) // Get the latest active
-            ->joinWith('subscription') // Load subscription details
-            ->one();
 
         $accuracyTrend = ExamSessions::find()
             ->select(['end_time', 'accuracy'])
@@ -53,21 +50,33 @@ class DefaultController extends Controller
             ->asArray()
             ->all();
 
-        // 2. Ongoing Exams
+        $studyPlan = StudyPlans::find()->select(['id'])->where(['user_id' => $user->id]);
+        $studyPlanDayToday = StudyPlanDays::find()
+            ->where(['study_plan_id' => $studyPlan, 'plan_date' => $today])
+            ->with(['studyPlanDaySubjects.subject', 'studyPlanDaySubjects.chapter', 'studyPlanDaySubjects.topic'])
+            ->one();
+
+        if ($studyPlanDayToday) {
+            $currentExamSession = ExamSessions::find()
+                ->where([
+                    'study_plan_day_id' => $studyPlanDayToday->id,
+                    'status' => ExamSessions::STATUS_INPROGRESS
+                ])
+                ->one();
+        }
+
         $ongoingExams = ExamSessions::find()
             ->where(['user_id' => $userId, 'status' => 'InProgress'])
             ->orderBy(['updated_at' => SORT_DESC])
             ->limit(5)
             ->all();
 
-        // 3. Recent Completed Exams
         $recentExams = ExamSessions::find()
             ->where(['user_id' => $userId, 'status' => 'Completed'])
             ->orderBy(['end_time' => SORT_DESC])
             ->limit(5)
             ->all();
 
-        // 4. Overall Performance Metrics
         $overallStats = [];
         $totalInteractions = UserMcqInteractions::find()
             ->where(['user_id' => $userId])
@@ -99,11 +108,12 @@ class DefaultController extends Controller
 
         return $this->render('index', [
             'user' => $user,
-            'subscription' => $subscription,
             'ongoingExams' => $ongoingExams,
             'recentExams' => $recentExams,
             'overallStats' => $overallStats,
             'accuracyTrend' => $accuracyTrend,
+            'studyPlanDayToday' => $studyPlanDayToday,
+            'currentExamSession' => $currentExamSession,
         ]);
     }
 

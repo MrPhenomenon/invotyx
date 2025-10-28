@@ -150,7 +150,7 @@ class ManagementTeam extends \yii\db\ActiveRecord implements IdentityInterface
                 'label' => 'Subscriptions',
                 'items' => [
                     [
-                        'label' => 'Subscriptions Management (NF)',
+                        'label' => 'Subscriptions Management',
                         'icon' => 'bi bi-calendar3',
                         'url' => ['subscription/index'],
                         'roles' => ['Super Admin', 'Finance Manager'],

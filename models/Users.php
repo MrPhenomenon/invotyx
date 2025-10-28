@@ -231,4 +231,47 @@ class Users extends \yii\db\ActiveRecord implements IdentityInterface
     {
         return Yii::$app->security->validatePassword($password, $this->password);
     }
+
+    public static function TerminateSession()
+    {
+        $userId = Yii::$app->user->id;
+        $sessions = ExamSessions::find()
+            ->where(['user_id' => $userId, 'status' => ExamSessions::STATUS_INPROGRESS])
+            ->orderBy(['end_time' => SORT_DESC])
+            ->all();
+
+        if (!$sessions) {
+            return;
+        }
+
+        foreach ($sessions as $session) {
+            $isExpired = false;
+            $cacheKey = 'exam_state_' . $userId . '_' . $session->id;
+            $cacheData = Yii::$app->cache->get($cacheKey);
+
+            if (!$cacheData) {
+                $isExpired = true;
+            } else if (isset($cacheData['start_time']) && isset($session->time_limit) && $session->time_limit > 0) {
+                if ((time() - $cacheData['start_time']) > $session->time_limit) {
+                    $isExpired = true;
+                }
+            }
+
+            if ($isExpired &&isset($cacheData['study_plan_day_id'])) {
+                $plan = StudyPlanDays::findOne($cacheData['study_plan_day_id']);
+                $plan->status = StudyPlanDays::STATUS_SKIPPED;
+                $plan->save(false);
+            }
+
+            if ($isExpired) {
+                $session->status = 'Terminated';
+                $session->end_time = date('Y-m-d H:i:s');
+                $session->updated_at = date('Y-m-d H:i:s');
+                $session->save(false);
+                Yii::$app->cache->delete($cacheKey);
+            }
+        }
+
+        return;
+    }
 }

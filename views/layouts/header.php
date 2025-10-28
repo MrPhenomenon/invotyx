@@ -33,7 +33,7 @@ use yii\helpers\Url;
     if (Yii::$app->user->isGuest) {
       echo Html::a('Login', ['/login'], ['class' => 'btn-getstarted btn btn-light']);
     } else {
-       echo '<a class="btn-getstarted btn btn-light" href="' . Url::to(['user//']) . '">Dashboard</a>';
+       echo '<a class="btn-getstarted btn btn-light" href="' . Url::to(['user/default/index']) . '">Dashboard</a>';
     }
     ?>
   </div>

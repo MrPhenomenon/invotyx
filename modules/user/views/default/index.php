@@ -1,5 +1,6 @@
 <?php
 
+use app\models\StudyPlanDays;
 use yii\helpers\Html;
 use yii\helpers\Url;
 
@@ -214,14 +215,14 @@ CSS);
     <div class="row">
         <div class="col-12">
             <div class="dashboard-header text-center text-md-start">
-                <div class="row g-3 align-items-center">
+                <div class="row g-3 align-items-center justify-content-center">
 
                     <div class="col-md-6 text-center">
                         <h1 class="mb-2 text-white">Welcome, <?= Html::encode($user->name) ?>!</h1>
                         <p class="lead text-light mb-0">Your personalized learning journey starts here.</p>
                     </div>
 
-                    <div class="col-md-6 border-start text-center">
+                    <div class="col-md-6 text-center">
                         <?php if ($user->expected_exam_date): ?>
                             <?php
                             $today = new DateTime();
@@ -235,49 +236,12 @@ CSS);
                             </p>
                         <?php else: ?>
                             <h6 class="fw-bold text-white mb-2">Exam Countdown</h6>
-                            <p class="text-muted mb-0">No exam date set</p>
+                            <p class="mb-0 text-light">No exam date set</p>
                         <?php endif; ?>
                     </div>
 
-                </div>
-
-                <div class="row g-3 border-top mt-4 pt-2">
-                    <div class="col-md-6 profile-card-section text-center">
-                        <h6 class="fw-bold text-white mb-2">Exam Details:</h6>
-                        <?php if ($user->speciality): ?>
-                            <p class="card-text mb-1">
-                                <i class="fas fa-stethoscope me-2 text-info"></i>
-                                <?= Html::encode($user->speciality->name) ?>
-                            </p>
-                        <?php endif; ?>
-                        <?php if ($user->expected_exam_date): ?>
-                            <p class="card-text mb-1">
-                                <i class="fas fa-calendar-alt me-2 text-warning"></i>
-                                Target Exam: <?= Yii::$app->formatter->asDate($user->expected_exam_date) ?>
-                            </p>
-                        <?php endif; ?>
-                        <?= Html::a('<i class="fas fa-user-edit me-2"></i>Edit Profile', ['/user/profile'], ['class' => 'btn btn-outline-light btn-sm mt-3']) ?>
-                    </div>
-                    <div class="col-md-6 profile-card-section border-start text-center">
-                        <h6 class="fw-bold text-white mb-2">Subscription:</h6>
-                        <div class="profile-card-subscription-status">
-                            <?php if ($subscription && $subscription->subscription): ?>
-                                <p class="mb-0 status-text text-success">
-                                    <?= Html::encode($subscription->subscription->name) ?>
-                                </p>
-                                <p class="card-text small text-white">Expires:
-                                    <?= Yii::$app->formatter->asDate($subscription->end_date) ?>
-                                </p>
-                            <?php else: ?>
-                                <p class="mb-0 status-text text-danger">No Active Subscription</p>
-                                <p class="card-text small text-muted">Upgrade for more features!</p>
-                            <?php endif; ?>
-                        </div>
-                        <?= Html::a('<i class="fas fa-credit-card me-2"></i>Manage', ['/payments/subscriptions'], ['class' => 'btn btn-outline-light btn-sm mt-3']) ?>
-                    </div>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
@@ -294,18 +258,85 @@ CSS);
             </div>
         </div>
 
-
         <div class="col-md-6 col-lg-6">
-            <div class="card dashboard-card card-quick-actions h-100 shadow-lg">
-                <div class="card-body d-flex flex-column justify-content-center align-items-center">
-                    <h3 class="card-title mb-4">What would you like to do?</h3>
-                    <div class="d-grid gap-3 w-75">
-                        <?= Html::a('<i class="fas fa-play-circle me-2"></i>Start New Exam', ['exam/'], ['class' => 'btn btn-start-exam btn-action-lg']) ?>
-                        <?= Html::a('<i class="fas fa-list-alt me-2"></i>Review Past Exams', ['results/'], ['class' => 'btn btn-review-exams btn-action-lg']) ?>
+            <div class="card h-100 shadow-sm dashboard-card">
+                <div class="card-body d-flex flex-column py-4 px-4">
+
+                    <h4 class="fw-semibold text-primary mb-4">
+                        <i class="fas fa-bolt me-2 text-warning"></i>
+                        Quick Actions
+                    </h4>
+
+                    <?php if ($studyPlanDayToday && !in_array($studyPlanDayToday->status, [StudyPlanDays::STATUS_COMPLETED, StudyPlanDays::STATUS_SKIPPED])): ?>
+                        <div class="p-3 mb-4 bg-light border rounded-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="mb-0">
+                                    Today’s Study Plan
+                                    <small class="text-muted">(Day
+                                        <?= Html::encode($studyPlanDayToday->day_number) ?>)</small>
+                                </h6>
+                                <?php if ($studyPlanDayToday->is_mock_exam): ?>
+                                    <span class="badge bg-info text-white">Mock Exam</span>
+                                <?php endif; ?>
+                            </div>
+
+                            <p class="mb-2">
+                                <strong>Total MCQs:</strong>
+                                <span class="badge bg-warning text-dark">
+                                    <?= $studyPlanDayToday->new_mcqs + $studyPlanDayToday->review_mcqs + $studyPlanDayToday->redistributed_skipped_mcqs ?>
+                                </span>
+                            </p>
+
+                            <?php if (!empty($groupedSubjects)): ?>
+                                <div class="border-top pt-2">
+                                    <h6 class="fw-semibold text-secondary mb-2">Content Breakdown</h6>
+                                    <ul class="list-unstyled small mb-0">
+                                        <?php foreach ($groupedSubjects as $subjectName => $subjectData): ?>
+                                            <li class="mb-1">
+                                                <span class="fw-semibold"><?= Html::encode($subjectName) ?></span>
+                                                <span class="badge bg-primary ms-2"><?= $subjectData['total_mcqs'] ?> MCQs</span>
+                                                <ul class="list-unstyled ms-3 text-muted small">
+                                                    <?php foreach ($subjectData['chapters'] as $chapterName => $chapterMcqs): ?>
+                                                        <li><?= Html::encode($chapterName) ?>
+                                                            <span class="badge bg-light text-dark"><?= $chapterMcqs ?></span>
+                                                        </li>
+                                                    <?php endforeach; ?>
+                                                </ul>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            <?php endif; ?>
+
+                            <div class="d-grid mt-3">
+                                <?php if ($currentExamSession): ?>
+                                    <?= Html::a(
+                                        '<i class="fas fa-play me-2"></i>Resume Today\'s Exam',
+                                        ['mcq/start', 'session_id' => $currentExamSession->id],
+                                        ['class' => 'btn btn-primary btn-lg fw-semibold']
+                                    )
+                                        ?>
+                                <?php else: ?>
+                                    <?= Html::a(
+                                        '<i class="fas fa-play me-2"></i>Start Today\'s Exam',
+                                        ['exam/start-study-plan-exam'],
+                                        ['class' => 'btn btn-success btn-lg fw-semibold']
+                                    )
+                                        ?>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
+                    <div class="mt-auto d-grid gap-2">
+                        <?= Html::a('<i class="fas fa-plus-circle me-2"></i>Start New Exam', ['exam/'], ['class' => 'btn btn-outline-primary btn-lg']) ?>
+                        <?= Html::a('<i class="fas fa-list-alt me-2"></i>Review Past Exams', ['results/'], ['class' => 'btn btn-outline-secondary btn-lg']) ?>
                     </div>
+
                 </div>
             </div>
         </div>
+
     </div>
 
     <h2 class="section-title text-dark mb-4 mt-5">Your Performance at a Glance</h2>
@@ -360,7 +391,7 @@ CSS);
                             <div>
                                 <h6 class="mb-1 fw-bold text-dark">
                                     <i class="fas fa-history text-warning me-2"></i>
-                                  <?= $exam->getName() ?>
+                                    <?= $exam->getName() ?>
                                 </h6>
                                 <p class="mb-0 small text-muted">
                                     Started: <?= Yii::$app->formatter->asRelativeTime($exam->start_time) ?>
@@ -392,7 +423,6 @@ CSS);
             <?php endif; ?>
         </div>
 
-        <!-- Recent Completed Exams -->
         <div class="col-lg-6">
             <h3 class="section-title text-dark mb-4">Recent Completed Exams</h3>
             <?php if (!empty($recentExams)): ?>
@@ -402,7 +432,7 @@ CSS);
                             <div>
                                 <h6 class="mb-1 fw-bold text-dark">
                                     <i class="fas fa-medal text-success me-2"></i>
-                                   <?= $exam->getName() ?>
+                                    <?= $exam->getName() ?>
                                 </h6>
                                 <p class="mb-0 small text-muted">
                                     Completed: <?= Yii::$app->formatter->asRelativeTime($exam->end_time) ?> | Accuracy: <span

@@ -10,6 +10,7 @@ use app\models\Subscriptions;
 use app\models\Users;
 use app\models\UserSubscriptions;
 use app\services\StudyPlanGenerator;
+use DateTime;
 use yii\authclient\ClientInterface;
 use Yii;
 use yii\helpers\Url;
@@ -101,10 +102,26 @@ class SiteController extends Controller
 
             $user = Users::findOne(['email' => $email, 'auth_type' => 'local']);
             if ($user && Yii::$app->getSecurity()->validatePassword($password, $user->password)) {
-                Yii::$app->user->login($user, 3600 * 24 * 30);
-                StudyPlanGenerator::ensurePlan($user);
+                Yii::$app->user->login($user, 3600 * 12);
 
-                Yii::$app->response->data = ['success' => true, 'redirectUrl' => Url::to(['/user'])];
+                $user = Yii::$app->user->identity;
+
+                $subscription = UserSubscriptions::find()
+                    ->where(['user_id' => $user->id, 'is_active' => 1])
+                    ->andWhere(['>', 'end_date', (new DateTime())->format('Y-m-d')])
+                    ->orderBy(['start_date' => SORT_DESC])
+                    ->one();
+
+                if ($subscription) {
+                    Yii::$app->session->set('user.subscription_name', $subscription->subscription->name);
+                    Yii::$app->session->set('user.subscription_end_date', $subscription->end_date);
+                    Yii::$app->session->set('user.has_active_subscription', true);
+                } else {
+                    Yii::$app->session->set('user.has_active_subscription', false);
+                }   
+                StudyPlanGenerator::ensureWeeklyPlan($user);
+
+                Yii::$app->response->data = ['success' => true, 'redirectUrl' => Url::to(['/user/default/index'])];
                 return Yii::$app->response;
             } else {
                 Yii::$app->response->data = ['success' => false, 'message' => 'Invalid username or password.'];
@@ -191,9 +208,9 @@ class SiteController extends Controller
             return [
                 'success' => false,
                 'err' => array_merge(
-                    $user->getErrors(),
-                    $userSub->getErrors()
-                )
+                        $user->getErrors(),
+                        $userSub->getErrors()
+                    )
             ];
         }
     }

@@ -198,29 +198,12 @@ $this->registerCss("
             $todayTimestamp = strtotime($today);
             $daysToExam = (new DateTime($day->studyPlan->exam_date))->diff(new DateTime($day->plan_date))->days;
 
-            if ($planDate < $todayTimestamp) {
-                if (rand(0, 4) === 0) {
-                    $dayStatus = 'skipped';
-                    $borderClass = 'status-skipped';
-                } else {
-                    $dayStatus = 'completed';
-                    $borderClass = 'status-completed';
-                }
-            } elseif ($planDate === $todayTimestamp) {
+            if ($planDate === $todayTimestamp) {
                 $dayStatus = 'current';
                 $borderClass = 'status-current';
             }
-
-            if ($daysToExam < 10 && $daysToExam >= 0 && $dayStatus !== 'current') {
-                $dayStatus = 'revision';
-                $borderClass = 'status-revision';
-            }
-            if ($day->is_mock_exam) {
-                $dayStatus .= ' mock';
-                $borderClass = 'status-mock';
-            }
         ?>
-          <div class="day-entry <?= Html::encode($borderClass) ?> <?= ($dayStatus === 'current' ? 'active-today' : '') ?>"
+          <div class="day-entry status-<?= Html::encode($day->status) ?> <?= ($dayStatus === 'current' ? 'active-today' : '') ?>"
             <?= ($dayStatus === 'current' ? 'id="today-entry"' : '') ?>>
                 <div class="day-header <?= ($dayStatus === 'current' ? 'bg-status-current-tint' : '') ?>">
                     <div>
@@ -242,16 +225,14 @@ $this->registerCss("
                             if ($dayStatus === 'current') {
                                 $statusBadgeText = 'Today';
                                 $statusBadgeClass .= ' bg-primary';
-                            } elseif ($dayStatus === 'completed') {
+                            } elseif ($day->status === 'completed') {
                                 $statusBadgeText = 'Completed';
                                 $statusBadgeClass .= ' bg-success';
-                            } elseif ($dayStatus === 'skipped') {
+                            } elseif ($day->status === 'skipped') {
                                 $statusBadgeText = 'Skipped';
                                 $statusBadgeClass .= ' bg-danger';
-                            } elseif (strpos($dayStatus, 'revision') !== false && strpos($dayStatus, 'mock') === false) {
-                                $statusBadgeText = 'Revision';
-                                $statusBadgeClass .= ' bg-warning';
-                            } elseif (strpos($dayStatus, 'upcoming') !== false) {
+                            }
+                             elseif ($day->status === 'upcoming') {
                                 $statusBadgeText = 'Upcoming';
                                 $statusBadgeClass .= ' bg-secondary';
                             }

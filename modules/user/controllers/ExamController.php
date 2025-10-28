@@ -8,10 +8,13 @@ use app\models\Hierarchy;
 use app\models\Mcqs;
 use app\models\OrganSystems;
 use app\models\SpecialtyDistributions;
+use app\models\StudyPlanDays;
+use app\models\StudyPlans;
 use app\models\Subjects;
 use app\models\Topics;
 use app\models\UserBookmarkedMcqs;
 use app\models\UserMcqInteractions;
+use DateTime;
 use Yii;
 use yii\db\Query;
 use yii\web\Controller;
@@ -37,8 +40,8 @@ class ExamController extends Controller
 
         $countMapSubjects = \yii\helpers\ArrayHelper::map($subjectsWithCounts, 'id', function ($item) {
             return [
-                'total' => (int) $item['total_mcq_count'], 
-                'attempted' => (int) $item['attempted_mcq_count'] 
+                'total' => (int) $item['total_mcq_count'],
+                'attempted' => (int) $item['attempted_mcq_count']
             ];
         });
         $countMapOrganSystems = \yii\helpers\ArrayHelper::map($OrganSystemsWithCounts, 'id', function ($item) {
@@ -49,7 +52,7 @@ class ExamController extends Controller
         });
 
         $subjects = Subjects::find()->orderBy(['name' => SORT_ASC])->all();
-        $organSystems = OrganSystems::find()->orderBy(['name' => SORT_ASC])->all(); 
+        $organSystems = OrganSystems::find()->orderBy(['name' => SORT_ASC])->all();
 
         foreach ($subjects as $subject) {
             $subject->mcq_count = $countMapSubjects[$subject->id] ?? 0;
@@ -98,6 +101,15 @@ class ExamController extends Controller
 
         $organSystemIds = $post['organ_system_ids'] ?? [];
 
+        if(empty($difficulty) || in_array('0', $difficulty, true)){
+            $difficulty = NULL;
+        }
+
+        if (empty($subjectIds) && empty($organSystemIds)) {
+            Yii::$app->session->setFlash('danger', 'Please select at least one subject or organ system.');
+            return $this->redirect(['exam/']);
+        }
+
         if (!in_array($examType, ['practice', 'test'])) {
             Yii::$app->session->setFlash('danger', 'Invalid exam type selected.');
             return $this->redirect(['exam/']);
@@ -110,21 +122,19 @@ class ExamController extends Controller
             Yii::$app->session->setFlash('danger', 'Number of questions must be between 10 and 200.');
             return $this->redirect(['exam/']);
         }
-        if ($difficulty !== null && !in_array($difficulty, ['Easy', 'Moderate', 'Hard'])) {
-            Yii::$app->session->setFlash('danger', 'Invalid difficulty level selected.');
-            return $this->redirect(['exam/']);
-        }
 
         $query = Mcqs::find()->alias('m')
             ->innerJoin('hierarchy h', 'h.id = m.hierarchy_id');
 
         if ($examScope === 'subject_chapter_topic') {
+            if (!empty($subjectIds && !in_array('0', $subjectIds))) {
+                $query->andWhere(['h.subject_id' => $subjectIds]);
+            }
+            if (!empty($chapterIds) && !in_array('0', $chapterIds)) {
+                $query->andWhere(['h.chapter_id' => $chapterIds]);
+            }
             if (!empty($topicIds) && !in_array('0', $topicIds)) {
                 $query->andWhere(['h.topic_id' => $topicIds]);
-            } elseif (!empty($chapterIds) && !in_array('0', $chapterIds)) {
-                $query->andWhere(['h.chapter_id' => $chapterIds]);
-            } elseif (!empty($subjectIds && !in_array('0', $subjectIds))) {
-                $query->andWhere(['h.subject_id' => $subjectIds]);
             }
         } elseif ($examScope === 'organ_system') {
             if (!empty($organSystemIds)) {
@@ -132,7 +142,7 @@ class ExamController extends Controller
             }
         }
 
-        if ($difficulty !== null) {
+        if ($difficulty != NULL) {
             $query->andWhere(['m.difficulty_level' => $difficulty]);
         }
 
@@ -186,7 +196,7 @@ class ExamController extends Controller
 
         $session = new ExamSessions();
         $session->user_id = $userId;
-        $session->name = ucfirst($examScope) . ' Exam';
+        $session->name = ucfirst($examType) . ' Exam';
         $session->exam_type = Yii::$app->user->identity->exam_type;
         $session->specialty_id = Yii::$app->user->identity->specialty_id;
 
@@ -230,7 +240,7 @@ class ExamController extends Controller
         }
 
         $cacheKey = 'exam_state_' . $userId . '_' . $session->id;
-        $cacheDuration = ($timeLimit !== null) ? ($timeLimit * 60 + 3600) : (24 * 3600);
+        $cacheDuration = 12 * 3600;
 
         Yii::$app->cache->set($cacheKey, [
             'mcq_ids' => $mcqIds,
@@ -344,7 +354,7 @@ class ExamController extends Controller
         }
 
         $cacheKey = 'exam_state_' . $userId . '_' . $session->id;
-        $cacheDuration = ($session->time_limit_minutes !== null) ? ($session->time_limit_minutes * 60 + 3600) : (24 * 3600);
+        $cacheDuration = 5 * 3600;
 
         Yii::$app->cache->set($cacheKey, [
             'mcq_ids' => $selectedMcqIds,
@@ -358,6 +368,131 @@ class ExamController extends Controller
             'session_id' => $session->id,
             'difficulty' => null,
             'randomize' => 1,
+        ], $cacheDuration);
+
+        return $this->redirect(['/user/mcq/start', 'session_id' => $session->id]);
+    }
+
+    public function actionStartStudyPlanExam()
+    {
+        $userId = Yii::$app->user->id;
+        $user = Yii::$app->user->identity;
+        $today = date('Y-m-d');
+
+        $studyPlan = StudyPlans::findOne(['user_id' => $userId]);
+        $studyPlanDay = StudyPlanDays::find()
+            ->where(['study_plan_id' => $studyPlan->id, 'plan_date' => $today])
+            ->andWhere(['IN', 'status', ['pending', 'in_progress']])
+            ->one();
+
+        if (!$studyPlanDay) {
+            Yii::$app->session->setFlash('danger', 'No active study plan found for today, or it has already been completed/skipped. Please check your study plan.');
+            return $this->redirect(['/user/']);
+        }
+
+        $allStudyPlanMcqIds = [];
+        $totalAllocatedMcqs = 0;
+        $uniqueTopicIdsUsed = [];
+
+        $daySubjects = $studyPlanDay->getStudyPlanDaySubjects()->all();
+
+        foreach ($daySubjects as $daySubject) {
+            $allocatedMcqIdsFromJson = json_decode($daySubject->mcq_ids, true);
+
+            Yii::debug($allocatedMcqIdsFromJson);
+
+            if (!empty($allocatedMcqIdsFromJson) && is_array($allocatedMcqIdsFromJson)) {
+                $allStudyPlanMcqIds = array_merge($allStudyPlanMcqIds, $allocatedMcqIdsFromJson);
+                $totalAllocatedMcqs += count($allocatedMcqIdsFromJson);
+
+                if ($daySubject->topic_id) {
+                    $uniqueTopicIdsUsed[$daySubject->topic_id] = true;
+                }
+            }
+        }
+
+        $allStudyPlanMcqIds = array_unique($allStudyPlanMcqIds);
+        Yii::debug($allStudyPlanMcqIds);
+        shuffle($allStudyPlanMcqIds);
+        $mcqIds = $allStudyPlanMcqIds;
+
+
+        if (empty($mcqIds)) {
+            Yii::$app->session->setFlash('danger', 'No questions could be assembled for today\'s study plan. Please contact support if this persists.');
+            return $this->redirect(['/user/']);
+        }
+        if (count($mcqIds) < $totalAllocatedMcqs) {
+            Yii::$app->session->setFlash('warning', 'Only ' . count($mcqIds) . ' questions were found for today\'s study plan. Expected ' . $totalAllocatedMcqs . ' unique questions. This might indicate duplicate allocations or issues in plan generation.');
+        }
+
+        $now = new DateTime();
+        $endOfDay = (new DateTime())->setTime(23, 59, 59);
+
+        if ($now > $endOfDay) {
+            Yii::$app->session->setFlash('danger', "No time left for today's study plan. Please check your study plan.");
+            return $this->redirect(['/user/']);
+        } else {
+            $interval = $now->diff($endOfDay);
+            $timeLimitSeconds = $interval->days * 86400 + $interval->h * 3600 + $interval->i * 60 + $interval->s;
+            $timeLimitMinutes = ceil($timeLimitSeconds / 60);
+
+            if ($timeLimitMinutes <= 0 || ($timeLimitMinutes <= 0 && $timeLimitSeconds > 0)) {
+                Yii::$app->session->setFlash('danger', "No time left for today's study plan. Please check your study plan.");
+                return $this->redirect(['/user/']);
+            }
+        }
+
+        $session = new ExamSessions();
+        $session->user_id = $userId;
+        $session->name = 'Study Plan Test - Day ' . $studyPlanDay->day_number;
+        $session->exam_type = $user->exam_type;
+        $session->specialty_id = $user->specialty_id;
+
+        $session->mode = ExamSessions::MODE_TEST;
+        $session->mcq_ids = json_encode($mcqIds);
+        $session->start_time = date('Y-m-d H:i:s');
+        $session->status = 'InProgress';
+        $session->total_questions = count($mcqIds);
+
+        $session->difficulty_level = null;
+        $session->time_limit_minutes = $timeLimitMinutes;
+        $session->randomize_questions = 1;
+        $session->include_bookmarked = 0;
+        $session->tags_used = json_encode([]);
+
+        $session->topics_used = implode(',', array_keys($uniqueTopicIdsUsed));
+
+        $session->part_number = null;
+        $session->mock_group_id = null;
+        $session->study_plan_day_id = $studyPlanDay->id;
+
+        if (!$session->save()) {
+            Yii::$app->session->setFlash('danger', 'Could not start study plan exam session: ' . implode(', ', $session->getErrorSummary(true)));
+            Yii::error('Failed to save study plan exam session for user ' . $userId . ': ' . print_r($session->errors, true), 'study-plan-session-error');
+            return $this->redirect(['/user/']);
+        }
+
+        $studyPlanDay->status = 'in_progress';
+        if (!$studyPlanDay->save()) {
+            Yii::error('Failed to update study plan day status to in_progress for day ' . $studyPlanDay->id . ': ' . print_r($studyPlanDay->errors, true), 'study-plan-status-update-error');
+        }
+
+        $cacheKey = 'exam_state_' . $userId . '_' . $session->id;
+        $cacheDuration = 24 * 3600;
+
+        Yii::$app->cache->set($cacheKey, [
+            'mcq_ids' => $mcqIds,
+            'current_index' => 0,
+            'responses' => [],
+            'skipped_mcq_ids' => [],
+            'is_revisiting_skipped' => false,
+            'start_time' => time(),
+            'time_limit' => (string)$session->time_limit_minutes,
+            'mode' => $session->mode,
+            'session_id' => $session->id,
+            'difficulty' => null,
+            'randomize' => 1,
+            'study_plan_day_id' => $studyPlanDay->id,
         ], $cacheDuration);
 
         return $this->redirect(['/user/mcq/start', 'session_id' => $session->id]);

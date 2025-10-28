@@ -78,4 +78,9 @@ class UserSubscriptions extends \yii\db\ActiveRecord
         return $this->hasOne(Users::class, ['id' => 'user_id']);
     }
 
+    public function getSubscriptionName()
+    {
+        return $this->subscription->name;
+    }
+
 }

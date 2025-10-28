@@ -6,6 +6,7 @@ use app\models\Chapters;
 use app\models\ExamSessions;
 use app\models\Mcqs;
 use app\models\SpecialtyDistributions;
+use app\models\StudyPlanDays;
 use app\models\UserBookmarkedMcqs;
 use app\models\UserMcqInteractions;
 use Yii;
@@ -105,133 +106,6 @@ class McqController extends Controller
             'total_initial_questions' => $totalInitialQuestions,
         ];
     }
-
-    public function actionStartEvaluationExam()
-    {
-        $userId = Yii::$app->user->id;
-        $user = Yii::$app->user->identity;
-
-        $totalExamQuestions = 100;
-        $mcqsPerChapter = 2;
-        $examType = 'test';
-
-        $relevantSubjectIds = (new Query())
-            ->select('subject_id')
-            ->from(SpecialtyDistributions::tableName())
-            ->where(['specialty_id' => $user->specialty_id])
-            ->column();
-
-        if (empty($relevantSubjectIds)) {
-            Yii::$app->session->setFlash('danger', 'No relevant subjects found for your specialty to create an evaluation exam.');
-            return $this->redirect(['exam/']);
-        }
-
-        $allChapters = Chapters::find()
-            ->innerJoin('hierarchy h', 'h.chapter_id = chapters.id')
-            ->where(['h.subject_id' => $relevantSubjectIds])
-            ->distinct()
-            ->orderBy(['chapters.id' => SORT_ASC])
-            ->all();
-
-        if (empty($allChapters)) {
-            Yii::$app->session->setFlash('danger', 'No chapters found to create an evaluation exam for your specialty.');
-            return $this->redirect(['exam/']);
-        }
-
-        $selectedMcqIds = [];
-        $chaptersProcessed = [];
-
-        foreach ($allChapters as $chapter) {
-            if (count($selectedMcqIds) >= $totalExamQuestions) {
-                break;
-            }
-
-            $mcqQuery = Mcqs::find()->alias('m')
-                ->innerJoin('hierarchy h', 'h.id = m.hierarchy_id')
-                ->where(['h.chapter_id' => $chapter->id])
-                ->andWhere(['NOT IN', 'm.id', $selectedMcqIds])
-                ->orderBy(new \yii\db\Expression('RAND()'))
-                ->limit($mcqsPerChapter);
-
-            $chapterMcqIds = $mcqQuery->column();
-            $selectedMcqIds = array_merge($selectedMcqIds, $chapterMcqIds);
-            $chaptersProcessed[] = $chapter->id;
-        }
-
-        $remainingQuestionsCount = $totalExamQuestions - count($selectedMcqIds);
-
-        if ($remainingQuestionsCount > 0) {
-            $randomMcqQuery = Mcqs::find()->alias('m')
-                ->innerJoin('hierarchy h', 'h.id = m.hierarchy_id')
-                ->where(['h.subject_id' => $relevantSubjectIds])
-                ->andWhere(['NOT IN', 'm.id', $selectedMcqIds]);
-        
-            $randomMcqQuery->orderBy(new \yii\db\Expression('RAND()'))
-                ->limit($remainingQuestionsCount);
-
-            $randomMcqIds = $randomMcqQuery->column();
-            $selectedMcqIds = array_merge($selectedMcqIds, $randomMcqIds);
-        }
-
-        $selectedMcqIds = array_slice($selectedMcqIds, 0, $totalExamQuestions);
-
-        if (empty($selectedMcqIds)) {
-            Yii::$app->session->setFlash('danger', 'Could not find enough questions to create the evaluation exam.');
-            return $this->redirect(['exam/']);
-        }
-        if (count($selectedMcqIds) < $totalExamQuestions) {
-            Yii::$app->session->setFlash('warning', 'Only ' . count($selectedMcqIds) . ' questions were found for the evaluation exam due to content limitations.');
-        }
-
-        // 4. Create ExamSession
-        $session = new ExamSessions();
-        $session->user_id = $userId;
-        $session->name = 'Evaluation Exam';
-        $session->exam_type = $user->exam_type;
-        $session->specialty_id = $user->specialty_id;
-        $session->mode = ExamSessions::MODE_TEST;
-        $session->mcq_ids = json_encode($selectedMcqIds);
-        $session->start_time = date('Y-m-d H:i:s');
-        $session->status = 'InProgress';
-        $session->total_questions = count($selectedMcqIds);
-        $session->difficulty_level = 0;
-        $session->time_limit_minutes = null;
-        $session->randomize_questions = 1;
-        $session->include_bookmarked = 0;
-        $session->tags_used = json_encode([]);
-        $session->topics_used = null;
-        $session->organ_systems_used = null;
-        $session->part_number = null;
-        $session->mock_group_id = null;
-
-        if (!$session->save()) {
-            Yii::$app->session->setFlash('danger', 'Could not start evaluation exam session: ' . implode(', ', $session->getErrorSummary(true)));
-            Yii::error('Failed to save evaluation exam session for user ' . $userId . ': ' . print_r($session->errors, true), 'exam-session-error');
-            return $this->redirect(['/user/']); // Redirect to a generic user dashboard page
-        }
-
-        // 5. Cache Exam State
-        $cacheKey = 'exam_state_' . $userId . '_' . $session->id;
-        $cacheDuration = ($session->time_limit_minutes !== null) ? ($session->time_limit_minutes * 60 + 3600) : (24 * 3600); // 24 hours for untimed exams
-
-        Yii::$app->cache->set($cacheKey, [
-            'mcq_ids' => $selectedMcqIds,
-            'current_index' => 0,
-            'responses' => [],
-            'skipped_mcq_ids' => [],
-            'is_revisiting_skipped' => false,
-            'start_time' => time(),
-            'time_limit' => $session->time_limit_minutes,
-            'mode' => $examType,
-            'session_id' => $session->id,
-            'difficulty' => null,
-            'randomize' => 1,
-        ], $cacheDuration);
-
-        // 6. Redirect to start taking the exam
-        return $this->redirect(['/user/mcq/start', 'session_id' => $session->id]);
-    }
-
 
     public function actionStart($session_id)
     {
@@ -608,6 +482,12 @@ class McqController extends Controller
         $session->save(false);
 
         $cacheKey = 'exam_state_' . $userId . '_' . $sessionId;
+        $cache = Yii::$app->cache->get($cacheKey);
+        if(isset($cache['study_plan_day_id'])){
+            $plan = StudyPlanDays::findOne($cache['study_plan_day_id']);
+            $plan->status = StudyPlanDays::STATUS_COMPLETED;
+            $plan->save(false);
+        }
         Yii::$app->cache->delete($cacheKey);
     }
 

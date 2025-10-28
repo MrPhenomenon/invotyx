@@ -1,6 +1,6 @@
 <?php
 use yii\helpers\Url;
-
+$this->title = 'Exam Inprogress - Part 1';
 $this->registerCssFile('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
 if ($isRevisitingSkipped) {

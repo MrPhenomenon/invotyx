@@ -97,7 +97,9 @@ $config = [
 
                 'user/results/<id:\d+>' => 'user/results/view',
                 'user/profile' => 'user/default/profile',
-
+                'user/dashboard' => 'user/default/index',
+                'user/update-profile' => 'user/default/update-profile',
+                'user/analytics' => 'user/default/analytics',
                 //Orthopedic Exam
                 'user/orthopedic-exam/start-exam/<id:\w+>' => 'user/orthopedic-exam/start-exam',
                 'user/orthopedic-exam/take-exam/<attempt:\d+>/<passkey:[a-zA-Z0-9_-]+>' => 'user/orthopedic-exam/take-exam',
