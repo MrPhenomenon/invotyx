@@ -70,7 +70,7 @@ section {
   box-shadow: 0 8px 6px -10px rgba(0, 0, 0, 0.5);
 }
 
-header {
+header.pc-header{
   position: relative;
   padding: 100px 0;
   display: flex;
@@ -78,14 +78,14 @@ header {
   min-height: 100vh;
   background: #0e273c;
 }
-header:not(.collapsed) {
+header.pc-header:not(.collapsed) {
   position: fixed;
   left: 260px;
   right: 0;
   z-index: 1026;
 }
 
-header .container {
+header.pc-header .container {
   position: relative;
   z-index: 5;
 }
@@ -96,7 +96,7 @@ header .container {
   }
 }
 @media (max-width: 767.98px) {
-  header {
+  header.pc-header {
     text-align: center;
     padding: 100px 0 50px;
   }

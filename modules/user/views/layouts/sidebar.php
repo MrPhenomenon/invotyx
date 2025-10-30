@@ -7,7 +7,7 @@
       </a>
     </div>
     <div class="navbar-content">
-      <ul class="pc-navbar">
+      <ul id="sidebar" class="pc-navbar">
         <?php include('menu-list.php') ?>
       </ul>
     </div>

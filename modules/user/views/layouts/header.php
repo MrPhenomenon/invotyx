@@ -17,7 +17,7 @@ $subscriptionEndDate = Yii::$app->session->get('user.subscription_end_date');
 
 
   <div class="d-flex align-items-center">
-    <form action="<?= Url::to(['mcq/search']) ?>" method="get" class="me-5">
+    <form id="search-mcq" action="<?= Url::to(['mcq/search']) ?>" method="get" class="me-5">
       <div class="input-group">
         <input type="text" name="q" class="form-control" placeholder="Search MCQs..."
           value="<?= Yii::$app->request->get('q') ?>">

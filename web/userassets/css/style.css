@@ -7,7 +7,6 @@ Support: https://codedthemes.authordesk.app
 File: style.css
 =========================================================================
 =================================================================================== */
-@import url("../fonts/phosphor/duotone/style.css");
 
 :root {
   --bs-body-bg: #fff;

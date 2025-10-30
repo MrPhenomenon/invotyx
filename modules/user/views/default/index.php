@@ -249,7 +249,7 @@ CSS);
 
     <div class="row g-4 mb-5">
 
-        <div class="col-md-6 col-lg-6">
+        <div id="accuracy-chart" class="col-md-6 col-lg-6">
             <div class="card dashboard-card h-100 shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title mb-3 fw-bold text-dark">Accuracy Trend</h5>
@@ -259,7 +259,7 @@ CSS);
         </div>
 
         <div class="col-md-6 col-lg-6">
-            <div class="card h-100 shadow-sm dashboard-card">
+            <div id="quick-actions" class="card h-100 shadow-sm dashboard-card">
                 <div class="card-body d-flex flex-column py-4 px-4">
 
                     <h4 class="fw-semibold text-primary mb-4">
@@ -338,120 +338,123 @@ CSS);
         </div>
 
     </div>
-
-    <h2 class="section-title text-dark mb-4 mt-5">Your Performance at a Glance</h2>
-    <div class="row g-4 mb-5 text-center">
-        <div class="col-sm-6 col-md-3">
-            <div class="card dashboard-card h-100 shadow-sm bg-light">
-                <div class="card-body d-flex flex-column justify-content-center">
-                    <i class="fas fa-lightbulb stat-icon text-info"></i>
-                    <h4 class="stat-value"><?= $overallStats['totalAttempted'] ?? 0 ?></h4>
-                    <p class="stat-label">Questions Attempted</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-md-3">
-            <div class="card dashboard-card h-100 shadow-sm bg-light">
-                <div class="card-body d-flex flex-column justify-content-center">
-                    <i class="fas fa-check-circle stat-icon text-success"></i>
-                    <h4 class="stat-value"><?= $overallStats['correctlyAnswered'] ?? 0 ?></h4>
-                    <p class="stat-label">Correct Answers</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-md-3">
-            <div class="card dashboard-card h-100 shadow-sm bg-light">
-                <div class="card-body d-flex flex-column justify-content-center">
-                    <i class="fas fa-times-circle stat-icon text-danger"></i>
-                    <h4 class="stat-value"><?= $overallStats['incorrectlyAnswered'] ?? 0 ?></h4>
-                    <p class="stat-label">Incorrect Answers</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-md-3">
-            <div class="card dashboard-card h-100 shadow-sm bg-light">
-                <div class="card-body d-flex flex-column justify-content-center">
-                    <div class="progress-circle">
-                        <span class="progress-circle-text"><?= $overallStats['overallAccuracy'] ?? 0 ?>%</span>
+    <div id="performance">
+        <h2 class="section-title text-dark mb-4 mt-5">Your Performance at a Glance</h2>
+        <div class="row g-4 mb-5 text-center">
+            <div class="col-sm-6 col-md-3">
+                <div class="card dashboard-card h-100 shadow-sm bg-light">
+                    <div class="card-body d-flex flex-column justify-content-center">
+                        <i class="fas fa-lightbulb stat-icon text-info"></i>
+                        <h4 class="stat-value"><?= $overallStats['totalAttempted'] ?? 0 ?></h4>
+                        <p class="stat-label">Questions Attempted</p>
                     </div>
-                    <h5 class="mt-3 mb-0 fw-bold text-dark">Overall Accuracy</h5>
-                    <p class="stat-label"><?= $overallStats['examsCompleted'] ?? 0 ?> Exams Completed</p>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="card dashboard-card h-100 shadow-sm bg-light">
+                    <div class="card-body d-flex flex-column justify-content-center">
+                        <i class="fas fa-check-circle stat-icon text-success"></i>
+                        <h4 class="stat-value"><?= $overallStats['correctlyAnswered'] ?? 0 ?></h4>
+                        <p class="stat-label">Correct Answers</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="card dashboard-card h-100 shadow-sm bg-light">
+                    <div class="card-body d-flex flex-column justify-content-center">
+                        <i class="fas fa-times-circle stat-icon text-danger"></i>
+                        <h4 class="stat-value"><?= $overallStats['incorrectlyAnswered'] ?? 0 ?></h4>
+                        <p class="stat-label">Incorrect Answers</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="card dashboard-card h-100 shadow-sm bg-light">
+                    <div class="card-body d-flex flex-column justify-content-center">
+                        <div class="progress-circle">
+                            <span class="progress-circle-text"><?= $overallStats['overallAccuracy'] ?? 0 ?>%</span>
+                        </div>
+                        <h5 class="mt-3 mb-0 fw-bold text-dark">Overall Accuracy</h5>
+                        <p class="stat-label"><?= $overallStats['examsCompleted'] ?? 0 ?> Exams Completed</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row g-4">
-        <div class="col-lg-6">
-            <h3 class="section-title text-dark mb-4">Your Active Exams</h3>
-            <?php if (!empty($ongoingExams)): ?>
-                <div class="list-group">
-                    <?php foreach ($ongoingExams as $exam): ?>
-                        <div class="list-group-item exam-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-1 fw-bold text-dark">
-                                    <i class="fas fa-history text-warning me-2"></i>
-                                    <?= $exam->getName() ?>
-                                </h6>
-                                <p class="mb-0 small text-muted">
-                                    Started: <?= Yii::$app->formatter->asRelativeTime($exam->start_time) ?>
-                                </p>
-                                <?php
-                                $totalQs = count(json_decode($exam->mcq_ids, true));
-                                $cacheKey = 'exam_state_' . Yii::$app->user->id . '_' . $exam->id;
-                                $examData = Yii::$app->cache->get($cacheKey);
-                                $answeredCount = count($examData['responses'] ?? []);
-                                $skippedCount = count($examData['skipped_mcq_ids'] ?? []);
-                                $currentProgress = ($totalQs > 0) ? round((($answeredCount + $skippedCount) / $totalQs) * 100) : 0;
-                                ?>
-                                <div class="progress mt-2" style="height: 6px;">
-                                    <div class="progress-bar bg-info" role="progressbar"
-                                        style="width: <?= $currentProgress ?>%;" aria-valuenow="<?= $currentProgress ?>"
-                                        aria-valuemin="0" aria-valuemax="100"></div>
+    <div id="exam-overview">
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <h3 class="section-title text-dark mb-4">Your Active Exams</h3>
+                <?php if (!empty($ongoingExams)): ?>
+                    <div class="list-group">
+                        <?php foreach ($ongoingExams as $exam): ?>
+                            <div class="list-group-item exam-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1 fw-bold text-dark">
+                                        <i class="fas fa-history text-warning me-2"></i>
+                                        <?= $exam->getName() ?>
+                                    </h6>
+                                    <p class="mb-0 small text-muted">
+                                        Started: <?= Yii::$app->formatter->asRelativeTime($exam->start_time) ?>
+                                    </p>
+                                    <?php
+                                    $totalQs = count(json_decode($exam->mcq_ids, true));
+                                    $cacheKey = 'exam_state_' . Yii::$app->user->id . '_' . $exam->id;
+                                    $examData = Yii::$app->cache->get($cacheKey);
+                                    $answeredCount = count($examData['responses'] ?? []);
+                                    $skippedCount = count($examData['skipped_mcq_ids'] ?? []);
+                                    $currentProgress = ($totalQs > 0) ? round((($answeredCount + $skippedCount) / $totalQs) * 100) : 0;
+                                    ?>
+                                    <div class="progress mt-2" style="height: 6px;">
+                                        <div class="progress-bar bg-info" role="progressbar"
+                                            style="width: <?= $currentProgress ?>%;" aria-valuenow="<?= $currentProgress ?>"
+                                            aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <span class="small text-muted">Progress: <?= $currentProgress ?>% done</span>
                                 </div>
-                                <span class="small text-muted">Progress: <?= $currentProgress ?>% done</span>
+                                <?= Html::a('<i class="fas fa-play me-1"></i> Resume', ['/exam/start', 'session_id' => $exam->id], ['class' => 'btn btn-sm btn-warning']) ?>
                             </div>
-                            <?= Html::a('<i class="fas fa-play me-1"></i> Resume', ['/exam/start', 'session_id' => $exam->id], ['class' => 'btn btn-sm btn-warning']) ?>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php else: ?>
-                <div class="alert alert-info text-center py-4 rounded-3 shadow-sm">
-                    Looks like you don't have any active exams. <br>
-                    <?= Html::a('Start a New Exam now!', ['exam/'], ['class' => 'alert-link mt-2 d-inline-block']) ?>
-                </div>
-            <?php endif; ?>
-        </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <div class="alert alert-info text-center py-4 rounded-3 shadow-sm">
+                        Looks like you don't have any active exams. <br>
+                        <?= Html::a('Start a New Exam now!', ['exam/'], ['class' => 'alert-link mt-2 d-inline-block']) ?>
+                    </div>
+                <?php endif; ?>
+            </div>
 
-        <div class="col-lg-6">
-            <h3 class="section-title text-dark mb-4">Recent Completed Exams</h3>
-            <?php if (!empty($recentExams)): ?>
-                <div class="list-group">
-                    <?php foreach ($recentExams as $exam): ?>
-                        <div class="list-group-item exam-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-1 fw-bold text-dark">
-                                    <i class="fas fa-medal text-success me-2"></i>
-                                    <?= $exam->getName() ?>
-                                </h6>
-                                <p class="mb-0 small text-muted">
-                                    Completed: <?= Yii::$app->formatter->asRelativeTime($exam->end_time) ?> | Accuracy: <span
-                                        class="fw-bold text-<?= $exam->accuracy >= 70 ? 'success' : ($exam->accuracy >= 50 ? 'warning' : 'danger') ?>"><?= round($exam->accuracy, 1) ?>%</span>
-                                </p>
+            <div class="col-lg-6">
+                <h3 class="section-title text-dark mb-4">Recent Completed Exams</h3>
+                <?php if (!empty($recentExams)): ?>
+                    <div class="list-group">
+                        <?php foreach ($recentExams as $exam): ?>
+                            <div class="list-group-item exam-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1 fw-bold text-dark">
+                                        <i class="fas fa-medal text-success me-2"></i>
+                                        <?= $exam->getName() ?>
+                                    </h6>
+                                    <p class="mb-0 small text-muted">
+                                        Completed: <?= Yii::$app->formatter->asRelativeTime($exam->end_time) ?> | Accuracy:
+                                        <span
+                                            class="fw-bold text-<?= $exam->accuracy >= 70 ? 'success' : ($exam->accuracy >= 50 ? 'warning' : 'danger') ?>"><?= round($exam->accuracy, 1) ?>%</span>
+                                    </p>
+                                </div>
+                                <?= Html::a('<i class="fas fa-eye me-1"></i> View Results', ['results/view', 'id' => $exam->id], ['class' => 'btn btn-sm btn-outline-primary']) ?>
                             </div>
-                            <?= Html::a('<i class="fas fa-eye me-1"></i> View Results', ['results/view', 'id' => $exam->id], ['class' => 'btn btn-sm btn-outline-primary']) ?>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php else: ?>
-                <div class="alert alert-info text-center py-4 rounded-3 shadow-sm">
-                    No completed exams found yet. <br>
-                    <?= Html::a('View your achievements here!', ['/results/index'], ['class' => 'alert-link mt-2 d-inline-block']) ?>
-                </div>
-            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <div class="alert alert-info text-center py-4 rounded-3 shadow-sm">
+                        No completed exams found yet. <br>
+                        <?= Html::a('View your achievements here!', ['/results/index'], ['class' => 'alert-link mt-2 d-inline-block']) ?>
+                    </div>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
-
 </div>
 
 <?php
