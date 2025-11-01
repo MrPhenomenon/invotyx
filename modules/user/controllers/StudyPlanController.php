@@ -29,35 +29,24 @@ class StudyPlanController extends Controller
         $user = Yii::$app->user->identity;
         $today = date('Y-m-d');
 
-        // try {
-        //     StudyPlanGenerator::generateFullStudyPlan($user); // Or ensurePlan()
-        // } catch (\Exception $e) {
-        //     Yii::$app->session->setFlash('error', 'Error generating study plan: ' . $e->getMessage());
-        // }
-
         $query = StudyPlanDays::find()
             ->joinWith(['studyPlan'])
             ->where(['study_plans.user_id' => $user->id])
             ->orderBy(['plan_date' => SORT_ASC]);
 
         $studyPlan = StudyPlans::findOne(['user_id' => $user->id]);
-        $planStartDate = $studyPlan ? $studyPlan->start_date : $today; // Fallback if no plan yet
+        $planStartDate = $studyPlan ? $studyPlan->start_date : $today;
 
-        $pageSize = 7; // Number of items per page
+        $pageSize = 7;
 
-        // Calculate today's day number in the plan
         $currentDayNumber = (int) ((strtotime($today) - strtotime($planStartDate)) / 86400) + 1;
 
-        // Calculate which page 'today' falls on (0-indexed)
         $calculatedTodayPage = max(0, ceil($currentDayNumber / $pageSize) - 1);
 
-        // ActiveDataProvider will default to page 0 if no 'page' parameter in URL.
-        // If a 'page' parameter exists, it will honor it.
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
             'pagination' => [
                 'pageSize' => $pageSize,
-                // Removed: 'page' => $requestedPage,
             ],
         ]);
 
@@ -66,7 +55,7 @@ class StudyPlanController extends Controller
             'today' => $today,
             'planStartDate' => $planStartDate,
             'currentDayNumber' => $currentDayNumber,
-            'calculatedTodayPage' => $calculatedTodayPage, // For the "Go to Today" button
+            'calculatedTodayPage' => $calculatedTodayPage,
         ]);
     }
 

@@ -11,13 +11,16 @@ $this->params['breadcrumbs'][] = $this->title;
 
 $this->registerCssFile('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
-$overallAccuracyPercentage = $overallStats['overallAccuracy'] ?? 0;
+$correct = $overallStats['correctlyAnswered'] ?? 0;
+$incorrect = $overallStats['incorrectlyAnswered'] ?? 0;
+$total = $correct + $incorrect;
+$accuracyPercent = $total > 0 ? round(($correct / $total) * 100, 1) : 0;
 
 $this->registerCss(<<<CSS
     :root {
         --primary-site-color: #0e273c;
         --primary-light-color: #1a416a;
-        --percentage: {$overallAccuracyPercentage}%;
+        --percentage: {$accuracyPercent}%;
     }
     body {
         background-color: #f0f2f5; 
@@ -354,7 +357,7 @@ CSS);
                 <div class="card dashboard-card h-100 shadow-sm bg-light">
                     <div class="card-body d-flex flex-column justify-content-center">
                         <i class="fas fa-check-circle stat-icon text-success"></i>
-                        <h4 class="stat-value"><?= $overallStats['correctlyAnswered'] ?? 0 ?></h4>
+                        <h4 class="stat-value"><?= $correct ?></h4>
                         <p class="stat-label">Correct Answers</p>
                     </div>
                 </div>
@@ -363,7 +366,7 @@ CSS);
                 <div class="card dashboard-card h-100 shadow-sm bg-light">
                     <div class="card-body d-flex flex-column justify-content-center">
                         <i class="fas fa-times-circle stat-icon text-danger"></i>
-                        <h4 class="stat-value"><?= $overallStats['incorrectlyAnswered'] ?? 0 ?></h4>
+                        <h4 class="stat-value"><?= $incorrect ?? 0 ?></h4>
                         <p class="stat-label">Incorrect Answers</p>
                     </div>
                 </div>
@@ -371,11 +374,10 @@ CSS);
             <div class="col-sm-6 col-md-3">
                 <div class="card dashboard-card h-100 shadow-sm bg-light">
                     <div class="card-body d-flex flex-column justify-content-center">
-                        <div class="progress-circle">
-                            <span class="progress-circle-text"><?= $overallStats['overallAccuracy'] ?? 0 ?>%</span>
+                        <div class="progress-circle mb-2">
+                            <span class="progress-circle-text"><?= $accuracyPercent ?>%</span>
                         </div>
-                        <h5 class="mt-3 mb-0 fw-bold text-dark">Overall Accuracy</h5>
-                        <p class="stat-label"><?= $overallStats['examsCompleted'] ?? 0 ?> Exams Completed</p>
+                        <p class="stat-label">Accuracy</p>
                     </div>
                 </div>
             </div>
@@ -456,6 +458,12 @@ CSS);
         </div>
     </div>
 </div>
+
+<?php if (Yii::$app->session->hasFlash('ask_tutorial')){
+$this->registerJs('showAskTutorialModal();');
+}
+?>
+
 
 <?php
 $trendLabels = json_encode(array_map(fn($row) => date('M d', strtotime($row['end_time'])), $accuracyTrend));

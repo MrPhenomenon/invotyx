@@ -42,6 +42,12 @@ class DefaultController extends Controller
             return $this->goHome();
         }
 
+        if ($user->seen_dashboard_tutorial == 0) {
+            Yii::$app->session->setFlash('ask_tutorial', true);
+            $user->seen_dashboard_tutorial = 1;
+            $user->save(false);
+        }
+
         $accuracyTrend = ExamSessions::find()
             ->select(['end_time', 'accuracy'])
             ->where(['user_id' => $userId, 'status' => 'Completed'])
@@ -91,20 +97,11 @@ class DefaultController extends Controller
             ->andWhere(['is not', 'selected_option', null])
             ->count();
 
-        $completedExamsCount = ExamSessions::find()
-            ->where(['user_id' => $userId, 'status' => 'Completed'])
-            ->count();
-
-        $totalAccuracySum = ExamSessions::find()
-            ->where(['user_id' => $userId, 'status' => 'Completed'])
-            ->average('accuracy');
-
         $overallStats['totalAttempted'] = $totalInteractions;
         $overallStats['correctlyAnswered'] = $correctInteractions;
         $overallStats['incorrectlyAnswered'] = $answeredInteractions - $correctInteractions;
         $overallStats['skippedUnanswered'] = $totalInteractions - $answeredInteractions;
-        $overallStats['examsCompleted'] = $completedExamsCount;
-        $overallStats['overallAccuracy'] = $totalAccuracySum !== null ? round($totalAccuracySum, 2) : 0;
+
 
         return $this->render('index', [
             'user' => $user,
@@ -186,7 +183,6 @@ class DefaultController extends Controller
     {
         $userId = Yii::$app->user->id;
 
-        // Basic stats
         $totalExams = ExamSessions::find()->where(['user_id' => $userId])->count();
         $completedExams = ExamSessions::find()->where(['user_id' => $userId, 'status' => 'complete'])->count();
         $totalQuestions = UserMcqInteractions::find()->where(['user_id' => $userId])->count();

@@ -39,7 +39,7 @@ $config = [
             'dateFormat' => 'dd.MM.yyyy',
             'decimalSeparator' => ',',
             'thousandSeparator' => ' ',
-            'currencyCode' => 'USD', // <--- ADD THIS LINE (or your preferred currency code like 'EUR', 'GBP', etc.)
+            'currencyCode' => 'USD',
         ],
         'request' => [
             'cookieValidationKey' => 'hjcmbQv20kzanekS7an6c7MTaYPK_wHB',
@@ -50,6 +50,7 @@ $config = [
         'user' => [
             'identityClass' => 'app\models\Users',
             'enableAutoLogin' => true,
+            'identityCookie' => ['name' => '_identity', 'httpOnly' => true],
             'loginUrl' => ['site/login'],
         ],
         'admin' => [ //for admin

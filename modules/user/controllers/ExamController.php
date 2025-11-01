@@ -368,6 +368,7 @@ class ExamController extends Controller
             'session_id' => $session->id,
             'difficulty' => null,
             'randomize' => 1,
+            'is_evaluation' => true
         ], $cacheDuration);
 
         return $this->redirect(['/user/mcq/start', 'session_id' => $session->id]);

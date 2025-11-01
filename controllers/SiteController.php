@@ -199,7 +199,7 @@ class SiteController extends Controller
 
             $transaction->commit();
             Yii::$app->user->login($user);
-            $data['evaluation'] == 1 ? $redirect = Url::to(['/user/mcq/start-evaluation-exam']) : Url::to(['user//']);
+            $data['evaluation'] == 1 ? $redirect = Url::to(['/user/exam/start-evaluation-exam']) : Url::to(['user//']);
             return ['success' => true, 'redirect' => $redirect];
 
         } catch (\Exception $e) {

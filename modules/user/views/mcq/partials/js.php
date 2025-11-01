@@ -141,6 +141,11 @@ $(document).on('click', '.btn-submit-answer-and-next', function () {
     let selectedOption = $('.answer-options input[type="radio"]:checked').val(); 
     let questionId = $('#question-id').val();
 
+    if (!selectedOption) {
+        showToast('Please select an answer or skip to proceed.', 'warning');
+        return;
+    }
+
     $.post('$answerUrl', {
         question_id: questionId,
         answer: selectedOption,
@@ -159,7 +164,7 @@ $(document).on('click', '.btn-skip-question', function () {
         session_id: sessionId,
         _csrf: yii.getCsrfToken()
     }, updateExamUI).fail(function(jqXHR, textStatus, errorThrown) {
-        showToast('AJAX Error: ' + textStatus + ' - ' + errorThrown, 'danger');
+        showToast('Error: ' + textStatus + ' - ' + errorThrown, 'danger');
     });
 });
 

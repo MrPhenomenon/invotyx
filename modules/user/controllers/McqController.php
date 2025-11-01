@@ -163,7 +163,6 @@ class McqController extends Controller
                 } else {
                     $this->finalizeExamSession($session_id, $userId, $responses);
                     Yii::$app->session->setFlash('success', 'All questions answered. Exam Complete.');
-                    Yii::$app->cache->delete($cacheKey);
                     return $this->redirect(['results/view', 'id' => $session_id]);
                 }
             }
@@ -174,7 +173,7 @@ class McqController extends Controller
 
             Yii::$app->session->setFlash('danger', 'No more questions available or an unexpected state.');
             $this->finalizeExamSession($session_id, $userId, $responses);
-            Yii::$app->cache->delete($cacheKey); // Clean up cache
+            Yii::$app->cache->delete($cacheKey);
             return $this->redirect(['results/view', 'id' => $session_id]);
         }
 
@@ -265,7 +264,6 @@ class McqController extends Controller
             if ($elapsed >= $timeLimitSeconds) {
 
                 $this->finalizeExamSession($sessionId, $userId, $data['responses']);
-                Yii::$app->cache->delete($cacheKey);
                 Yii::$app->session->setFlash('success', 'Exam time has ended and was auto-submitted.');
                 return ['success' => true, 'redirectUrl' => Url::to(['results/view', 'id' => $sessionId])];
             }
@@ -279,7 +277,6 @@ class McqController extends Controller
 
         if ($progressionResult['should_finalize']) {
             $this->finalizeExamSession($sessionId, $userId, $data['responses']);
-            Yii::$app->cache->delete($cacheKey);
             Yii::$app->session->setFlash('success', 'Exam Complete.');
             return ['success' => true, 'redirectUrl' => Url::to(['results/view', 'id' => $sessionId])];
         } elseif ($progressionResult['should_redirect_to_take_action']) {
@@ -362,9 +359,8 @@ class McqController extends Controller
             $elapsed = time() - $data['start_time'];
             $timeLimitSeconds = (int) $data['time_limit'] * 60;
             if ($elapsed >= $timeLimitSeconds) {
-                // If time's up, finalize and redirect, overriding normal progression
+
                 $this->finalizeExamSession($sessionId, $userId, $data['responses']);
-                Yii::$app->cache->delete($cacheKey);
                 Yii::$app->session->setFlash('success', 'Exam time has ended and was auto-submitted.');
                 return ['success' => true, 'redirectUrl' => \yii\helpers\Url::to(['results/view', 'id' => $sessionId])];
             }
@@ -378,11 +374,11 @@ class McqController extends Controller
 
         if ($progressionResult['should_finalize']) {
             $this->finalizeExamSession($sessionId, $userId, $data['responses']);
-            Yii::$app->cache->delete($cacheKey);
+
             Yii::$app->session->setFlash('success', 'Exam Complete.');
             return ['success' => true, 'redirectUrl' => Url::to(['results/view', 'id' => $sessionId])];
         } elseif ($progressionResult['should_redirect_to_take_action']) {
-            // Transition to revisiting skipped, reload actionStart to pick up new mode
+
             Yii::$app->session->setFlash('info', 'All initial questions answered. Now revisiting skipped questions.');
             return ['success' => true, 'redirectUrl' => Url::to(['mcq/start', 'session_id' => $sessionId])];
         } else {
@@ -487,6 +483,9 @@ class McqController extends Controller
             $plan = StudyPlanDays::findOne($cache['study_plan_day_id']);
             $plan->status = StudyPlanDays::STATUS_COMPLETED;
             $plan->save(false);
+        }
+        if(isset($cache['is_evaluation'])  && $cache['is_evaluation']){
+            return $this->redirect(['default/analytics']);
         }
         Yii::$app->cache->delete($cacheKey);
     }

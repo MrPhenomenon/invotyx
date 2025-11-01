@@ -6,6 +6,11 @@ use yii\web\View;
 $this->title = 'My Analytics';
 
 $this->registerCss("
+#accuracyChart .apexcharts-bar-series path,
+.legend-item {
+    transition: opacity 0.3s ease-in-out;
+}
+
     body {
         background-color: #f4f6f9;
         font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -262,8 +267,10 @@ $this->registerCss("
         <div class="col-md-12 mb-4">
             <div class="card card-body chart-card">
                 <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Accuracy per Topic Overview</h5>
-                <div style="max-height: 600px; overflow-y: auto;">
-                    <div id="accuracyChart"></div>
+                <div style="max-height: 800px; overflow-y: auto;">
+                    <div id="accuracyChart" class="mt-3"></div>
+
+                    <div id="customLegend" style="margin-top:8px;text-align:left;"></div>
                 </div>
             </div>
         </div>
@@ -275,13 +282,11 @@ $topicsUrl = Url::to(['default/topics-by-chapter']);
 $js = <<<JS
 
 if (typeof ApexCharts !== 'undefined') {
-    var options = {
+    var chartOptions = {
         chart: {
-            toolbar: {
-                 show: false,
-             },
             type: 'bar',
-            height: 400,
+            height: 300,
+            toolbar: { show: false },
             animations: { enabled: true, easing: 'easeout', speed: 800 },
             fontFamily: 'Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif'
         },
@@ -289,63 +294,110 @@ if (typeof ApexCharts !== 'undefined') {
             name: 'Accuracy %',
             data: []
         }],
-        xaxis: {
-            categories: []
-        },
+        xaxis: { categories: [] },
         yaxis: {
             max: 100,
             min: 0,
-            title: {
-                text: 'Accuracy (%)',
-                style: { color: '#6c757d', fontSize: '12px', fontWeight: 600 }
+            labels: {
+                style: { fontSize: '12px', fontWeight: '600' }
             }
         },
         plotOptions: {
             bar: {
                 horizontal: true,
-                barHeight: '50%',
+                barHeight: '80%',
                 distributed: true
             }
         },
+        legend: { show: false },
         noData: {
             text: 'Select a chapter to see topic breakdown.',
             align: 'center',
             verticalAlign: 'middle',
-            style: {
-                color: '#6c757d',
-                fontSize: '14px'
-            }
+            style: { color: '#6c757d', fontSize: '14px' }
+        },
+        scales: {
+    x: {
+      min: 0,
+      suggestedMin: 0,
+      suggestedMax: 100
+    }
+  },
+tooltip: {
+    y: {
+        formatter: function(value) {
+            return value === 0.5 ? '0% (All incorrect)' : value + '%';
         }
+    }
+},
     };
 
-    var chart = new ApexCharts(document.querySelector("#accuracyChart"), options);
+    var chart = new ApexCharts(document.querySelector("#accuracyChart"), chartOptions);
     chart.render();
-}
- else {
-    console.error('ApexCharts library not loaded. Please ensure apexcharts.js is included.');
-}
 
-$(document).on('click', '.chapter-row', function () {
-    var chapterId = $(this).data('chapter-id');
+    function renderCustomLegend(labels, colors) {
+        const legendContainer = $('#customLegend');
+        legendContainer.empty();
+        labels.forEach((label, index) => {
+            const item = $(`
+                <div class="legend-item" data-index="\${index}" style="display:inline-flex;align-items:center;margin:3px 8px;cursor:pointer;">
+                    <div style="width:14px;height:14px;background:\${colors[index]};border-radius:3px;margin-right:6px;"></div>
+                    <span style="font-size:13px;white-space:nowrap;">\${label}</span>
+                </div>
+            `);
+            legendContainer.append(item);
+        });
+    }
 
-    $.get('$topicsUrl', {chapterId: chapterId}, function (data) {
-        if (data.labels.length === 0) {
+    $(document).on('click', '.chapter-row', function () {
+        const chapterId = $(this).data('chapter-id');
+        $.get('$topicsUrl', { chapterId }, function (data) {
+            if (!data.labels.length) {
+                chart.updateOptions({
+                    series: [{ data: [] }],
+                    xaxis: { categories: [] },
+                    noData: { text: 'No data for this chapter.' }
+                });
+                $('#customLegend').empty();
+                return;
+            }
+
+            const newHeight = Math.max(data.labels.length * 30, 300);
             chart.updateOptions({
-                series: [{ data: [] }],
-                xaxis: { categories: [] },
-                noData: { text: 'No data for this chapter.' }
+                series: [{ name: 'Accuracy %', data: data.accuracy.map(a => Math.max(a, 0.5)), }],
+                xaxis: { categories: data.labels },
+                colors: data.colors,
+                chart: { height: newHeight }
             });
-            return;
-        }
-
-        chart.updateOptions({
-            series: [{ name: 'Accuracy %', data: data.accuracy }],
-            xaxis: { categories: data.labels },
-            colors: data.colors,
-            plotOptions: { bar: { distributed: true } }
+            renderCustomLegend(data.labels, data.colors);
         });
     });
-});
+
+    $(document).on('mouseenter', '.legend-item', function () {
+        const index = $(this).data('index');
+        const bars = $('#accuracyChart .apexcharts-bar-series path');
+        bars.css('opacity', '0.25');
+        bars.eq(index).css('opacity', '1');
+    }).on('mouseleave', '.legend-item', function () {
+        const active = $('.legend-item.active');
+        const bars = $('#accuracyChart .apexcharts-bar-series path');
+    
+        if (active.length) {
+            const index = active.data('index');
+            bars.css('opacity', '0.25');
+            bars.eq(index).css('opacity', '1');
+        } else {
+            bars.css('opacity', '1');
+        }
+    });
+
+    
+
+
+} else {
+    console.error('ApexCharts not loaded');
+}
+
 
 JS;
 $this->registerJs($js, View::POS_END);
