@@ -252,12 +252,13 @@ class Users extends \yii\db\ActiveRecord implements IdentityInterface
             if (!$cacheData) {
                 $isExpired = true;
             } else if (isset($cacheData['start_time']) && isset($session->time_limit) && $session->time_limit > 0) {
-                if ((time() - $cacheData['start_time']) > $session->time_limit) {
+                $limitInSeconds = $session->time_limit * 60;
+                if ((time() - $cacheData['start_time']) > $limitInSeconds) {
                     $isExpired = true;
                 }
             }
 
-            if ($isExpired &&isset($cacheData['study_plan_day_id'])) {
+            if ($isExpired && isset($cacheData['study_plan_day_id'])) {
                 $plan = StudyPlanDays::findOne($cacheData['study_plan_day_id']);
                 $plan->status = StudyPlanDays::STATUS_SKIPPED;
                 $plan->save(false);

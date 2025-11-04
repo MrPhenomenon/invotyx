@@ -61,13 +61,13 @@ $this->registerCss(<<<CSS
     }
 CSS);
 
-// For the AJAX call to toggle bookmark
-$toggleBookmarkUrl = Url::to(['exam/toggle-bookmark']); // If actionToggleBookmark is in ExamController
-// $toggleBookmarkUrl = Url::to(['bookmarked/toggle-bookmark']); // If you move it to BookmarkedController
+
+$toggleBookmarkUrl = Url::to(['exam/toggle-bookmark']);
+
 
 $js = <<<JS
 $(document).on('click', '.btn-unbookmark', function(e) {
-    e.preventDefault(); // Prevent default button action
+    e.preventDefault();
     const button = $(this);
     const mcqId = button.data('mcq-id');
     const csrfToken = yii.getCsrfToken();

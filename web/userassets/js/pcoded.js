@@ -737,7 +737,7 @@ $(document).on({
     if (!settings._excludeFromGlobalLoader) {
       hideloader();
     }
-  }
+  },
 });
 
 function showloader() {
@@ -751,7 +751,12 @@ function hideloader() {
 $(document).on("click", "a", function (e) {
   let href = $(this).attr("href");
 
-  if (href && href !== "#" && !href.startsWith("javascript:") && !href.startsWith("#")) {
+  if (
+    href &&
+    href !== "#" &&
+    !href.startsWith("javascript:") &&
+    !href.startsWith("#")
+  ) {
     showloader();
   }
 });
@@ -764,14 +769,15 @@ $(window).on("load", function () {
   hideloader();
 });
 
-function showToast(message, type = 'success') {
-  const $toast = $('#global-toast');
-  const $body = $('#global-toast-body');
+function showToast(message, type = "success") {
+  const $toast = $("#global-toast");
+  const $body = $("#global-toast-body");
 
   $body.text(message);
 
-  $toast.removeClass('bg-success bg-danger bg-warning bg-info')
-        .addClass(`bg-${type}`);
+  $toast
+    .removeClass("bg-success bg-danger bg-warning bg-info")
+    .addClass(`bg-${type}`);
 
   const toast = new bootstrap.Toast($toast[0]);
   toast.show();
@@ -780,45 +786,73 @@ function showToast(message, type = 'success') {
 let deleteTargetId = null;
 let deleteEndpoint = null;
 
+$(document).on("click", ".btn-delete", function () {
+  const modalbody = $("#deleteConfirmModal .modal-body");
+  deleteTargetId = $(this).data("id");
+  deleteEndpoint = $(this).data("url");
+  const itemLabel = $(this).data("item") || "this item";
 
-$(document).on('click', '.btn-delete', function () {
- const modalbody = $('#deleteConfirmModal .modal-body');
-  deleteTargetId = $(this).data('id');
-  deleteEndpoint = $(this).data('url');
-  const itemLabel = $(this).data('item') || 'this item';
-
-  modalbody.html(` <strong> You're deleting ${itemLabel}</strong>. Are you sure you want to continue?`);
-  const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+  modalbody.html(
+    ` <strong> You're deleting ${itemLabel}</strong>. Are you sure you want to continue?`
+  );
+  const modal = new bootstrap.Modal(
+    document.getElementById("deleteConfirmModal")
+  );
   modal.show();
 });
 
-$('#confirm-delete-btn').on('click', function () {
+$("#confirm-delete-btn").on("click", function () {
   if (!deleteTargetId || !deleteEndpoint) return;
 
   $.ajax({
-    type: 'POST',
+    type: "POST",
     url: deleteEndpoint,
     data: { id: deleteTargetId },
     success: function (res) {
       if (res.success) {
-        showToast(res.message || 'Deleted successfully.', 'success');
-        $(`[data-id="${deleteTargetId}"]`).closest('tr').remove();
+        showToast(res.message || "Deleted successfully.", "success");
+        $(`[data-id="${deleteTargetId}"]`).closest("tr").remove();
       } else {
-        showToast(res.message || 'Delete failed.', 'danger');
+        showToast(res.message || "Delete failed.", "danger");
       }
     },
     error: function () {
-      showToast('Server error during delete.', 'danger');
+      showToast("Server error during delete.", "danger");
     },
     complete: function () {
-      const modalEl = document.getElementById('deleteConfirmModal');
+      const modalEl = document.getElementById("deleteConfirmModal");
       const modal = bootstrap.Modal.getInstance(modalEl);
       modal.hide();
-    }
+    },
   });
 });
 
-$('#sidebarToggle').on('click', function () {
-  $('nav.pc-sidebar').toggleClass('pc-sidebar-hide');
-  $('header').toggleClass('collapsed');
+function updateSidebarState() {
+  const sidebar = document.querySelector(".pc-sidebar");
+  const header = document.querySelector(".pc-header");
+
+  if (window.innerWidth <= 1024) {
+    sidebar.classList.add("pc-sidebar-hide");
+    sidebar.classList.remove("sidebar-open");
+    header.classList.add("collapsed");
+  } else {
+    sidebar.classList.remove("sidebar-open");
+    header.classList.remove("collapsed");
+    // Optional: keep sidebar visible by default
+    sidebar.classList.remove("pc-sidebar-hide");
+  }
+}
+updateSidebarState();
+
+$("#sidebarToggle").on("click", function () {
+  const $sidebar = $("nav.pc-sidebar");
+  const $header = $("header");
+
+  if (window.innerWidth < 992) {
+    $sidebar.toggleClass("pc-sidebar-show");
+    $header.toggleClass("collapsed");
+  } else {
+    $sidebar.toggleClass("pc-sidebar-hide");
+    $header.toggleClass("collapsed");
+  }
 });

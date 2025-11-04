@@ -1,5 +1,7 @@
 <?php
 
+use yii\web\View;
+
 /** @var yii\web\View $this */
 
 $this->title = 'Part 1 AI - Smart Study Partner';
@@ -69,32 +71,53 @@ $this->title = 'Part 1 AI - Smart Study Partner';
   </div>
 </section>
 
-<!-- App Screenshots Section -->
 <section id="app-screenshots" class="app-screenshots-section">
   <div class="container">
     <div class="text-center" data-aos="fade-up">
       <h2 class="section-heading-new">A Glimpse Inside Your Study Partner</h2>
-      <p class="section-subheading">Discover the intuitive interface and powerful features designed to simplify your exam preparation.</p>
+      <p class="section-subheading">
+        Discover the intuitive interface and powerful features designed to simplify your exam preparation.
+      </p>
     </div>
 
     <div class="row gy-4 mt-5 justify-content-center">
       <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
         <div class="screenshot-card text-center h-100">
-          <img src="<?= Yii::getAlias('@web') ?>/siteassets/img/app-screenshot-1.jpg" class="img-fluid rounded shadow" alt="App Dashboard Overview">
+          <a href="<?= Yii::getAlias('@web') ?>/siteassets/img/app-screenshot-1.jpg"
+             class="glightbox"
+             data-gallery="app-screens">
+            <img src="<?= Yii::getAlias('@web') ?>/siteassets/img/app-screenshot-1.jpg"
+                 class="img-fluid rounded shadow"
+                 alt="App Dashboard Overview">
+          </a>
           <h5 class="mt-3">Dashboard Overview</h5>
           <p>Your personalized hub to track progress and access study modules.</p>
         </div>
       </div>
+
       <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
         <div class="screenshot-card text-center h-100">
-          <img src="<?= Yii::getAlias('@web') ?>/siteassets/img/app-screenshot-2.jpg" class="img-fluid rounded shadow" alt="Adaptive MCQ Practice Interface">
+          <a href="<?= Yii::getAlias('@web') ?>/siteassets/img/app-screenshot-2.jpg"
+             class="glightbox"
+             data-gallery="app-screens">
+            <img src="<?= Yii::getAlias('@web') ?>/siteassets/img/app-screenshot-2.jpg"
+                 class="img-fluid rounded shadow"
+                 alt="Adaptive MCQ Practice Interface">
+          </a>
           <h5 class="mt-3">Adaptive Questions</h5>
           <p>Engage with AI-powered questions tailored to your learning needs.</p>
         </div>
       </div>
+
       <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
         <div class="screenshot-card text-center h-100">
-          <img src="<?= Yii::getAlias('@web') ?>/siteassets/img/app-screenshot-3.jpg" class="img-fluid rounded shadow" alt="Performance Analytics Charts">
+          <a href="<?= Yii::getAlias('@web') ?>/siteassets/img/app-screenshot-3.jpg"
+             class="glightbox"
+             data-gallery="app-screens">
+            <img src="<?= Yii::getAlias('@web') ?>/siteassets/img/app-screenshot-3.jpg"
+                 class="img-fluid rounded shadow"
+                 alt="Performance Analytics Charts">
+          </a>
           <h5 class="mt-3">Performance Analytics</h5>
           <p>Visualize your strengths and weaknesses with detailed reports.</p>
         </div>
@@ -102,7 +125,6 @@ $this->title = 'Part 1 AI - Smart Study Partner';
     </div>
   </div>
 </section>
-<!-- END App Screenshots Section -->
 
 
 <section id="features" class="features-grid-section py-5">
@@ -274,3 +296,14 @@ $this->title = 'Part 1 AI - Smart Study Partner';
     <a href="register" class="btn-cta">Enroll and Start Learning</a>
   </div>
 </section>
+
+<?php $this->registerJS("document.addEventListener('DOMContentLoaded', function () {
+    GLightbox({
+      selector: '.glightbox',
+      touchNavigation: true,
+      loop: true,
+      zoomable: true,
+      openEffect: 'zoom',
+      closeEffect: 'fade'
+    });
+  });", View::POS_END) ?>

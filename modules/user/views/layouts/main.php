@@ -38,7 +38,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
   <?php include 'header.php'; ?>
   <div class="pc-container">
 
-    <main class="pc-content py-5" role="main">
+    <main class="pc-content py-lg-5" role="main">
       <?= $content ?>
     </main>
   </div>

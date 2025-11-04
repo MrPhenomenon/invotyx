@@ -40,9 +40,6 @@ $examTypeName = $examTypes[$user->exam_type] ?? 'Not set';
     <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0 fw-bold">Profile Details</h5>
-            <button id="edit-profile-btn" class="btn btn-sm btn-outline-primary">
-                <i class="fas fa-pencil-alt me-1"></i> Edit Profile
-            </button>
         </div>
         <div class="card-body">
 
@@ -74,44 +71,6 @@ $examTypeName = $examTypes[$user->exam_type] ?? 'Not set';
                         <?= $user->expected_exam_date ? Yii::$app->formatter->asDate($user->expected_exam_date, 'long') : 'Not set' ?>
                     </div>
                 </div>
-            </div>
-
-            <!-- EDIT SECTION (Initially hidden) -->
-            <div id="profile-edit-section" style="display: none;">
-                <?php $form = ActiveForm::begin([
-                    'id' => 'update-profile-form',
-                    'action' => ['default/update-profile'],
-                    'method' => 'post',
-                ]); ?>
-                <div class="row">
-                    <div class="col-md-6">
-                        <?= $form->field($user, 'name')->textInput(['maxlength' => true]) ?>
-                    </div>
-                    <div class="col-md-6">
-                        <?= $form->field($user, 'email')->textInput(['readonly' => true, 'class' => 'form-control-plaintext']) ?>
-                    </div>
-                    <div class="col-md-4">
-                        <?= $form->field($user, 'exam_type')->dropDownList($examTypes, [
-                            'prompt' => 'Select Exam Type',
-                            'onchange' => '
-                                $.get("' . \yii\helpers\Url::to(['default/specialties']) . '?exam_type=" + $(this).val(), function(data) {
-                                    $("#users-specialty_id").html(data).prop("disabled", false);
-                                });
-                            '
-                        ]) ?>
-                    </div>
-                    <div class="col-md-4">
-                        <?= $form->field($user, 'specialty_id')->dropDownList($specialties, ['prompt' => 'Select Specialty']) ?>
-                    </div>
-                    <div class="col-md-4">
-                        <?= $form->field($user, 'expected_exam_date')->input('date') ?>
-                    </div>
-                </div>
-                <div class="mt-3">
-                    <?= Html::submitButton('Save Changes', ['class' => 'btn btn-primary']) ?>
-                    <button type="button" id="cancel-edit-btn" class="btn btn-secondary">Cancel</button>
-                </div>
-                <?php ActiveForm::end(); ?>
             </div>
         </div>
     </div>
@@ -184,7 +143,7 @@ $examTypeName = $examTypes[$user->exam_type] ?? 'Not set';
                 </div>
                 <hr>
                 <div class="row">
-                    <div class="col-sm-3 text-muted">Renews/Expires On</div>
+                    <div class="col-sm-3 text-muted">Expires On</div>
                     <div class="col-sm-9"><?= Yii::$app->formatter->asDate($activeSubscription->end_date, 'long') ?></div>
                 </div>
             </div>
@@ -195,52 +154,8 @@ $examTypeName = $examTypes[$user->exam_type] ?? 'Not set';
 <?php
 
 $js = <<<JS
-$(document).ready(function() {
-    const viewSection = $('#profile-view-section');
-    const editSection = $('#profile-edit-section');
-    const editButton = $('#edit-profile-btn');
-    const cancelButton = $('#cancel-edit-btn');
 
-    editButton.on('click', function() {
-        viewSection.hide();
-        editSection.show();
-        $(this).hide();
-    });
 
-    cancelButton.on('click', function() {
-        editSection.hide();
-        viewSection.show();
-        editButton.show();
-    });
-});
-
-// Profile form AJAX
-$('#update-profile-form').on('submit', function(e) {
-    e.preventDefault();
-
-    const form = $(this);
-    $.ajax({
-        url: form.attr('action'),
-        method: 'POST',
-        data: form.serialize(),
-        success: function(response) {
-            if (response.success) {
-                showToast(response.message);
-                $('#profile-edit-section').hide();
-                $('#profile-view-section').show();
-                $('#edit-profile-btn').show();
-                setTimeout(() => location.reload(), 1000);
-            } else {
-                showToast(response.message || 'Could not update profile.', 'warning');
-            }
-        },
-        error: function() {
-            showToast('Server error occurred.', 'danger');
-        }
-    });
-});
-
-// Password form AJAX
 $('#change-password-form').on('submit', function(e) {
     e.preventDefault();
 

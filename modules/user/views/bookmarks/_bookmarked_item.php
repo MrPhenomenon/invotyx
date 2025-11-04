@@ -2,15 +2,6 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 
-/* @var $this yii\web\View */
-/* @var $model app\models\Mcqs */ // This is the full MCQ model
-/* @var $key mixed */
-/* @var $index int */
-/* @var $widget yii\widgets\ListView */
-/* @var $userDefaultExamType string */ // From parent view
-/* @var $userDefaultSpecialty string */ // From parent view
-
-// Determine bookmark creation date for display
 $bookmarkCreatedAt = 'N/A';
 if (isset($model->userBookmarks) && !empty($model->userBookmarks)) {
     $bookmarkRecords = array_filter($model->userBookmarks, fn($ubm) => $ubm->user_id == Yii::$app->user->id);
@@ -21,16 +12,20 @@ if (isset($model->userBookmarks) && !empty($model->userBookmarks)) {
     }
 }
 
-// Option letters for display consistency
+
 $optionLetters = ['A', 'B', 'C', 'D', 'E'];
 ?>
 
 <div class="card mb-4 bookmarked-item-card">
-    <!-- Card Header (always visible) -->
+
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap py-3 px-4">
-        <div class="d-flex justify-content-between w-100 align-items-center mt-2 mt-sm-0 border-bottom pb-3 mb-2">
-            <h5 class="fw-bold text-primary">Question <?= $index + 1 ?>:</h5>
-            <div class="d-flex align-items-center gap-2 flex-wrap">
+        <div
+            class="d-flex flex-wrap justify-content-between align-items-start gap-2 w-100 mt-2 mt-sm-0 border-bottom pb-3 mb-2">
+            <h5 class="fw-bold text-primary mb-0 flex-shrink-0">
+                Question <?= $index + 1 ?>:
+            </h5>
+
+            <div class="d-flex flex-wrap align-items-center justify-content-end gap-2">
                 <span class="badge bg-light text-dark border fw-normal px-3 py-2 rounded-pill shadow-sm"
                     style="font-size:12px">
                     <i class="fas fa-calendar-alt me-1 text-muted"></i>
@@ -44,19 +39,19 @@ $optionLetters = ['A', 'B', 'C', 'D', 'E'];
                     <span>Remove Bookmark</span>
                 </button>
 
-                <button class="btn btn-outline-success btn-sm  px-3 rounded-pill d-flex align-items-center shadow-sm" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#collapse-<?= $index ?>" aria-expanded="false"
-                    aria-controls="collapse-<?= $index ?>">
+                <button class="btn btn-outline-success btn-sm px-3 rounded-pill d-flex align-items-center shadow-sm"
+                    type="button" data-bs-toggle="collapse" data-bs-target="#collapse-<?= $index ?>"
+                    aria-expanded="false" aria-controls="collapse-<?= $index ?>">
                     <i class="fas fa-chevron-down me-1"></i> Full MCQ
                 </button>
             </div>
         </div>
+
         <h5 class="me-auto lh-base">
             <span style="font-size: 15px;"><?= nl2br(Html::encode($model->question_text)) ?></span>
         </h5>
     </div>
 
-    <!-- Collapsible Section -->
     <div id="collapse-<?= $index ?>" class="collapse">
         <div class="card-body">
             <?php if ($model->image_path): ?>
@@ -69,7 +64,6 @@ $optionLetters = ['A', 'B', 'C', 'D', 'E'];
                 </div>
             <?php endif; ?>
 
-            <!-- Options List -->
             <ol type="A" class="list-group">
                 <?php
                 $options = array_filter([
@@ -94,7 +88,6 @@ $optionLetters = ['A', 'B', 'C', 'D', 'E'];
             </ol>
         </div>
 
-        <!-- Explanation & Reference -->
         <?php if (!empty($model->explanation) || !empty($model->reference)): ?>
             <div class="card-footer bg-light-subtle">
                 <?php if (!empty($model->explanation)): ?>

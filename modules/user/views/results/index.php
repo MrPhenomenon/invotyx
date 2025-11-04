@@ -21,32 +21,32 @@ $badgeClasses = [
         <?php foreach ($sessions as $session): ?>
             <div class="col-md-6 col-12">
                 <div class="card mb-3">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="card-title mb-0">
-                                <i class="bi bi-file-text-fill me-2"></i> <!-- Icon for context -->
+                    <div class="card-header d-flex flex-wrap justify-content-between align-items-center text-truncate gap-2">
+                        <div class="flex-grow-1 min-w-0">
+                            <h5 class="card-title mb-0 text-truncate">
+                                <i class="bi bi-file-text-fill me-2"></i>
                                 <?= $session->getName() ?>
                                 <span class="ms-2 badge rounded-pill <?= $badgeClasses[$session->status] ?? 'bg-secondary' ?>">
-                                <?= Html::encode($session->status) ?>
-                            </span>
+                                    <?= Html::encode($session->status) ?>
+                                </span>
                             </h5>
-                            
                         </div>
-                        <?php if ($session->status === 'Completed'): ?>
-                            <a href="<?= Url::to(['view', 'id' => $session->id]) ?>" class="btn btn-sm btn-primary rounded-4">
-                                View Result <i class="bi bi-arrow-right-circle ms-1"></i>
-                            </a>
-                        <?php elseif ($session->status === 'InProgress'): ?>
-                            <a href="<?= Url::to(['/user/mcq/start', 'session_id' => $session->id]) ?>"
-                                class="btn btn-sm btn-warning rounded-4 ">
-                                Resume <i class="bi bi-play-circle ms-1"></i>
-                            </a>
-                        <?php else: ?>
-                            <button class="btn btn-sm btn-secondary rounded-4 " disabled>
-                                Expired <i class="bi bi-x-circle ms-1"></i>
-                            </button>
-                        <?php endif; ?>
+
+                        <div class="flex-shrink-0">
+                            <?php if ($session->status === 'Completed'): ?>
+                                <a href="<?= Url::to(['view', 'id' => $session->id]) ?>"
+                                    class="btn btn-sm btn-primary rounded-3 w-100 w-md-auto">
+                                    View Result <i class="bi bi-arrow-right-circle ms-1"></i>
+                                </a>
+                            <?php elseif ($session->status === 'InProgress'): ?>
+                                <a href="<?= Url::to(['/user/mcq/start', 'session_id' => $session->id]) ?>"
+                                    class="btn btn-sm btn-warning rounded-3 w-100 w-md-auto">
+                                    Resume <i class="bi bi-play-circle ms-1"></i>
+                                </a>
+                            <?php endif; ?>
+                        </div>
                     </div>
+
                     <div class="card-body  py-2">
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item d-flex justify-content-between align-items-center px-0">

@@ -20,7 +20,7 @@ class ResultsController extends Controller
 
         $sessions = ExamSessions::find()
             ->where(['user_id' => $userId])
-            ->orderBy(['end_time' => SORT_DESC])
+            ->orderBy(['id' => SORT_DESC])
             ->all();
 
         return $this->render('index', [

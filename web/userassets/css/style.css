@@ -5489,7 +5489,7 @@ fieldset:disabled .btn {
   height: 36px;
   font-size: 0.875rem;
   background-color: #fff;
-  border: var(--bs-pagination-border-width) solid var(--bs-pagination-border-color) ;
+  border: var(--bs-pagination-border-width) solid var(--bs-pagination-border-color);
 }
 
 .page-item:not(:first-child) .page-link {
@@ -9516,18 +9516,6 @@ fieldset:disabled .btn {
 
 .fs-3 {
   font-size: calc(1.275rem + 0.3vw) !important;
-}
-
-.fs-4 {
-  font-size: 1.25rem !important;
-}
-
-.fs-5 {
-  font-size: 1rem !important;
-}
-
-.fs-6 {
-  font-size: 0.875rem !important;
 }
 
 .fst-italic {
@@ -18355,6 +18343,44 @@ pre[class*=language-]>code {
 /**  =====================
     2. Custom css end
 ==========================  **/
+
+@media (max-width: 991px) {
+  .pc-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 260px;
+    height: 100vh;
+    background: #1a1a1a;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1050;
+  }
+
+  .pc-sidebar.pc-sidebar-hide {
+    transform: translateX(0);
+  }
+
+  .pc-sidebar {
+    left: -250px;
+  }
+
+  .pc-sidebar.pc-sidebar-show {
+    left: 0;
+  }
+}
+
+@media (max-width: 576px) {
+  header.pc-header:not(.collapsed) {
+    position: fixed;
+    left: 260px;
+    right: 0;
+    z-index: 1026;
+    overflow-x: hidden;
+    min-width: 428px;
+  }
+}
+
 .pc-sidebar {
   background: var(--pc-sidebar-background);
   width: 260px;
@@ -19299,9 +19325,13 @@ pre[class*=language-]>code {
   }
 }
 
-.pc-header .dropdown-user-profile {
-  min-width: 290px;
-  max-width: 100%;
+
+
+@media (min-width: 800px) {
+  .pc-header .dropdown-user-profile {
+    min-width: 290px;
+    max-width: 100%;
+  }
 }
 
 .pc-header .dropdown-user-profile .drp-tabs {
@@ -19616,12 +19646,20 @@ pre[class*=language-]>code {
   .pc-footer {
     margin-left: 0;
   }
+
+  .pc-container {
+    position: relative;
+    top: 0px;
+    margin-left: 260px;
+    min-height: calc(100vh - 121px);
+  }
 }
 
 @media (max-width: 575.98px) {
   .pc-footer {
     margin-top: 50px;
   }
+
 }
 
 .pc-container {

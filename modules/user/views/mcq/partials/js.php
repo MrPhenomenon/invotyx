@@ -59,7 +59,7 @@ function updateExamUI(res) {
         const skippedCountElement = $('#skipped-count');
         if (res.progress.skipped > 0) {
             if (skippedCountElement.length === 0) {
-                $('.fw-bold.text-nowrap').append('<br><small class="text-warning"><i class="fas fa-forward me-1"></i> <span id="skipped-count">' + res.progress.skipped + '</span> Skipped</small>');
+                $('#skipped-count').text(res.progress.skipped + ' Skipped');
             } else {
                 skippedCountElement.text(res.progress.skipped);
             }

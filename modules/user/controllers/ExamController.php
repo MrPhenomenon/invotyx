@@ -380,6 +380,7 @@ class ExamController extends Controller
         $user = Yii::$app->user->identity;
         $today = date('Y-m-d');
 
+        $mode = Yii::$app->request->get('mode', 'test');
         $studyPlan = StudyPlans::findOne(['user_id' => $userId]);
         $studyPlanDay = StudyPlanDays::find()
             ->where(['study_plan_id' => $studyPlan->id, 'plan_date' => $today])
@@ -449,7 +450,7 @@ class ExamController extends Controller
         $session->exam_type = $user->exam_type;
         $session->specialty_id = $user->specialty_id;
 
-        $session->mode = ExamSessions::MODE_TEST;
+        $session->mode = $mode;
         $session->mcq_ids = json_encode($mcqIds);
         $session->start_time = date('Y-m-d H:i:s');
         $session->status = 'InProgress';
@@ -488,7 +489,7 @@ class ExamController extends Controller
             'skipped_mcq_ids' => [],
             'is_revisiting_skipped' => false,
             'start_time' => time(),
-            'time_limit' => (string)$session->time_limit_minutes,
+            'time_limit' => NULL,
             'mode' => $session->mode,
             'session_id' => $session->id,
             'difficulty' => null,

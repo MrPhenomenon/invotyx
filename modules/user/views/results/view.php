@@ -10,7 +10,7 @@ use app\models\ExamSessions;
  * @var ExamSessions $session
  */
 
-$this->title =  $session->getName();
+$this->title = $session->getName();
 $this->params['breadcrumbs'][] = ['label' => 'My Sessions', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
@@ -44,10 +44,12 @@ $this->params['breadcrumbs'][] = $this->title;
     }
 </style>
 <div class="exam-review-view">
-    <div class="d-flex justify-content-between">
-        <h3><?= Html::encode($this->title) ?></h3>
-        <input type="text" id="mcqSearch" class="form-control w-25" placeholder="Search questions...">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2 mb-md-0">
+        <h3 class="mb-0"><?= Html::encode($this->title) ?></h3>
+        <input type="text" id="mcqSearch" class="form-control" placeholder="Search from this page"
+            style="max-width: 300px; flex: 1 1 200px;">
     </div>
+
     <p class="">A detailed review of your exam session completed on
         <?= Yii::$app->formatter->asDatetime($session->end_time) ?>.
     </p>
@@ -89,15 +91,25 @@ $this->params['breadcrumbs'][] = $this->title;
             $isCorrect = $interaction->is_correct;
             ?>
             <div class="card mb-4 mcq-card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 lh-base">Question <?= $index + 1 ?>: <span
-                            class="fw-bold"><?= nl2br(Html::encode($mcq->question_text)) ?></span> </h5>
-                    <?php if ($isCorrect): ?>
-                        <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i> Correct</span>
-                    <?php else: ?>
-                        <span class="badge bg-danger"><i class="bi bi-x-circle-fill me-1"></i> Incorrect</span>
-                    <?php endif; ?>
+                <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <h5 class="mb-0 lh-base flex-grow-1">
+                        <span class="fw-bold fw-md-normal">Question <?= $index + 1 ?>:
+                            <?php if ($isCorrect): ?>
+                                <span class="badge bg-success flex-shrink-0">
+                                    <i class="bi bi-check-circle-fill me-1"></i> Correct
+                                </span>
+                            <?php else: ?>
+                                <span class="badge bg-danger flex-shrink-0">
+                                    <i class="bi bi-x-circle-fill me-1"></i> Incorrect
+                                </span>
+                            <?php endif; ?>
+                        </span>
+                        <span class="fw-md-bold d-inline-block text-break">
+                            <?= nl2br(Html::encode($mcq->question_text)) ?>
+                        </span>
+                    </h5>
                 </div>
+
 
                 <div class="card-body">
 

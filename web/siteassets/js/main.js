@@ -150,14 +150,6 @@ function showToast(message, type = 'success') {
   toast.show();
 }
 
-$(document).on("click", "a", function (e) {
-  let href = $(this).attr("href");
-
-  if (href && href !== "#" && !href.startsWith("javascript:") && !href.startsWith("#")) {
-    showloader();
-  }
-});
-
 $(document).on("submit", "form", function () {
   showloader();
 });

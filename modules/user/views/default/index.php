@@ -311,21 +311,33 @@ CSS);
                                 </div>
                             <?php endif; ?>
 
-                            <div class="d-grid mt-3">
+                            <div class="row pt-2">
                                 <?php if ($currentExamSession): ?>
-                                    <?= Html::a(
-                                        '<i class="fas fa-play me-2"></i>Resume Today\'s Exam',
-                                        ['mcq/start', 'session_id' => $currentExamSession->id],
-                                        ['class' => 'btn btn-primary btn-lg fw-semibold']
-                                    )
-                                        ?>
+                                    <div class="col-12">
+                                        <?= Html::a(
+                                            '<i class="fas fa-play me-2"></i>Resume Today\'s Exam',
+                                            ['mcq/start', 'session_id' => $currentExamSession->id],
+                                            ['class' => 'btn btn-success w-100', 'title' => 'Resume Today\'s Exam']
+                                        )
+                                            ?>
+                                    </div>
                                 <?php else: ?>
-                                    <?= Html::a(
-                                        '<i class="fas fa-play me-2"></i>Start Today\'s Exam',
-                                        ['exam/start-study-plan-exam'],
-                                        ['class' => 'btn btn-success btn-lg fw-semibold']
-                                    )
-                                        ?>
+                                    <div class="col-12 col-lg-6">
+                                        <?= Html::a(
+                                            '<i class="fas fa-play me-2"></i>Start in Practice Mode',
+                                            ['exam/start-study-plan-exam', 'mode' => 'practice'],
+                                            ['class' => 'btn btn-outline-primary w-100', 'title' => 'Immediate feedback on each question']
+                                        )
+                                            ?>
+                                    </div>
+                                    <div class="col-12 col-lg-6">
+                                        <?= Html::a(
+                                            '<i class="fas fa-play me-2"></i>Start in Test Mode',
+                                            ['exam/start-study-plan-exam', 'mode' => 'test'],
+                                            ['class' => 'btn btn-outline-primary w-100', 'title' => 'Feedback at the end of the exam']
+                                        )
+                                            ?>
+                                    </div>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -415,7 +427,7 @@ CSS);
                                     </div>
                                     <span class="small text-muted">Progress: <?= $currentProgress ?>% done</span>
                                 </div>
-                                <?= Html::a('<i class="fas fa-play me-1"></i> Resume', ['/exam/start', 'session_id' => $exam->id], ['class' => 'btn btn-sm btn-warning']) ?>
+                                <?= Html::a('<i class="fas fa-play me-1"></i> Resume', ['mcq/start', 'session_id' => $exam->id], ['class' => 'btn btn-sm btn-warning']) ?>
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -444,7 +456,7 @@ CSS);
                                             class="fw-bold text-<?= $exam->accuracy >= 70 ? 'success' : ($exam->accuracy >= 50 ? 'warning' : 'danger') ?>"><?= round($exam->accuracy, 1) ?>%</span>
                                     </p>
                                 </div>
-                                <?= Html::a('<i class="fas fa-eye me-1"></i> View Results', ['results/view', 'id' => $exam->id], ['class' => 'btn btn-sm btn-outline-primary']) ?>
+                                <?= Html::a('<i class="fas fa-eye me-1"></i>Result', ['results/view', 'id' => $exam->id], ['class' => 'btn btn-sm btn-outline-primary']) ?>
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -459,22 +471,30 @@ CSS);
     </div>
 </div>
 
-<?php if (Yii::$app->session->hasFlash('ask_tutorial')){
-$this->registerJs('showAskTutorialModal();');
+<?php if (Yii::$app->session->hasFlash('ask_tutorial')) {
+    $this->registerJs('showAskTutorialModal();');
 }
 ?>
 
 
 <?php
 $trendLabels = json_encode(array_map(fn($row) => date('M d', strtotime($row['end_time'])), $accuracyTrend));
-$trendData = json_encode(array_map(fn($row) => (float) $row['accuracy'], $accuracyTrend));
+$trendData = json_encode(array_map(fn($row) => round((float)$row['accuracy']), $accuracyTrend));
 
 $js = <<<JS
 var options = {
     chart: {
         type: 'line',
         height: 300,
-        toolbar: { show: false }
+        toolbar: {
+    show: true,
+    tools: { zoom: true, pan: true, reset: true, download: false},
+    zoom: {
+        enabled: true,
+        type: 'x',
+        autoScaleYaxis: true
+    }
+  },
     },
     series: [{
         name: 'Accuracy %',
@@ -482,7 +502,8 @@ var options = {
     }],
     xaxis: {
         categories: $trendLabels,
-        title: { text: 'Exam Date' }
+        title: { text: 'Date' },
+         tickAmount: 10,
     },
     yaxis: {
         min: 0,

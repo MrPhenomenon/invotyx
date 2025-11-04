@@ -118,8 +118,7 @@ class SiteController extends Controller
                     Yii::$app->session->set('user.has_active_subscription', true);
                 } else {
                     Yii::$app->session->set('user.has_active_subscription', false);
-                }   
-                StudyPlanGenerator::ensureWeeklyPlan($user);
+                }
 
                 Yii::$app->response->data = ['success' => true, 'redirectUrl' => Url::to(['/user/default/index'])];
                 return Yii::$app->response;
@@ -128,9 +127,10 @@ class SiteController extends Controller
                 return Yii::$app->response;
             }
         } else {
-            return $this->render('login', [
-                'error' => $error,
-            ]);
+            if (!Yii::$app->user->isGuest) {
+                $this->redirect(Url::to(['/user/default/index']));
+            }
+            return $this->render('login');
         }
     }
     public function actionRegistration()
@@ -199,6 +199,7 @@ class SiteController extends Controller
 
             $transaction->commit();
             Yii::$app->user->login($user);
+            StudyPlanGenerator::ensureWeeklyPlan($user);
             $data['evaluation'] == 1 ? $redirect = Url::to(['/user/exam/start-evaluation-exam']) : Url::to(['user//']);
             return ['success' => true, 'redirect' => $redirect];
 
@@ -208,9 +209,9 @@ class SiteController extends Controller
             return [
                 'success' => false,
                 'err' => array_merge(
-                        $user->getErrors(),
-                        $userSub->getErrors()
-                    )
+                    $user->getErrors(),
+                    $userSub->getErrors()
+                )
             ];
         }
     }

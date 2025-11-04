@@ -54,18 +54,17 @@ $this->title = 'Login';
                             </div>
                         </form>
 
-                        <div class="row">
+                        <!-- TODO: Fix Url -->
+                        <!-- <div class="row">
                             <div class="col-12">
-                                <!-- A cleaner separator for the social login option -->
                                 <hr class="my-4">
                                 <div class="d-grid">
-                                    <!-- Using Url::to for the Google auth link -->
-                                    <a href="<?= Url::to(['site/auth', 'authclient' => 'google']) ?>" title="Google" class="btn btn-outline-primary btn-lg">
+                                    <a href=" //Url::to(['site/auth', 'authclient' => 'google'])" title="Google" class="btn btn-outline-primary btn-lg">
                                         <i class="bi bi-google me-2"></i>Login with Google
                                     </a>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
 
                     </div>
                 </div>

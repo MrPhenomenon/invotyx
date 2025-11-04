@@ -218,46 +218,49 @@ $this->registerCss("
                     <thead class="table-light" style="position: sticky; top: 0; z-index: 2;">
                         <tr>
                             <th><i class="fas fa-cube me-1"></i>Chapter</th>
-                            <th class="text-center"><span><i class="fas fa-calculator me-1"></i>Attempts</span></th>
-                            <th class="text-center"><span><i class="fas fa-check-double me-1"></i>Correct</span></th>
-                            <th class="text-center"><span><i class="fas fa-percent me-1"></i>Accuracy</span></th>
-                            <th class="text-center"><span><i class="fas fa-award me-1"></i>Strength</span></th>
+                            <th class="text-center"><i class="fas fa-calculator me-1"></i>Attempts</th>
+                            <th class="text-center"><i class="fas fa-check-double me-1"></i>Correct</th>
+                            <th class="text-center"><i class="fas fa-percent me-1"></i>Accuracy</th>
+                            <th class="text-center"><i class="fas fa-award me-1"></i>Strength</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (empty($chapterStats)): ?>
-                            <tr>
-                                <td colspan="7" class="text-center text-muted py-4">No chapter performance data available
-                                    yet.</td>
-                            </tr>
-                        <?php else: ?>
-                            <?php foreach ($chapterStats as $stat): ?>
-                                <tr>
-                                    <td class="chapter-row" style="cursor: pointer"
-                                        data-chapter-id="<?= $stat['chapter_id'] ?>"><?= Html::encode($stat['chapter_name']) ?>
-                                    </td>
-                                    <td class="text-center"><?= Html::encode($stat['total_attempts']) ?></td>
-                                    <td class="text-center"><?= Html::encode($stat['correct_count']) ?></td>
-                                    <td class="text-center">
-                                        <span
-                                            class="font-weight-bold <?= $stat['accuracy'] >= 75 ? 'text-success' : ($stat['accuracy'] >= 50 ? 'text-warning' : 'text-danger') ?>">
-                                            <?= Html::encode($stat['accuracy']) ?>%
-                                        </span>
-                                    </td>
-                                    <td class="text-center">
-                                        <?php if ($stat['strength'] === 'Good'): ?>
-                                            <span class="badge bg-success">Good</span>
-                                        <?php elseif ($stat['strength'] === 'Need Preparation'): ?>
-                                            <span class="badge bg-warning">Prep Needed</span>
-                                        <?php else: ?>
-                                            <span class="badge bg-danger">Weak</span>
-                                        <?php endif; ?>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
+                        <tr>
+                            <td class="chapter-row" style="cursor: pointer" data-chapter-id="1">CVS Pathology</td>
+                            <td class="text-center">85</td>
+                            <td class="text-center">68</td>
+                            <td class="text-center">
+                                <span class="font-weight-bold text-success">80%</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-success">Good</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="chapter-row" style="cursor: pointer" data-chapter-id="2">Respiratory Pathology
+                            </td>
+                            <td class="text-center">72</td>
+                            <td class="text-center">47</td>
+                            <td class="text-center">
+                                <span class="font-weight-bold text-warning">65%</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-warning">Prep Needed</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="chapter-row" style="cursor: pointer" data-chapter-id="3">General Anatomy</td>
+                            <td class="text-center">90</td>
+                            <td class="text-center">42</td>
+                            <td class="text-center">
+                                <span class="font-weight-bold text-danger">47%</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-danger">Weak</span>
+                            </td>
+                        </tr>
                     </tbody>
-                </table>
+</table>
             </div>
         </div>
     </div>
@@ -267,8 +270,8 @@ $this->registerCss("
         <div class="col-md-12 mb-4">
             <div class="card card-body chart-card">
                 <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Accuracy per Topic Overview</h5>
-                <div style="max-height: 800px; overflow-y: auto; overflow-x: auto">
-                    <div id="accuracyChart" class="mt-3" style="min-width:600px;"></div>
+                <div style="max-height: 800px; overflow-y: auto;">
+                    <div id="accuracyChart" class="mt-3"></div>
 
                     <div id="customLegend" style="margin-top:8px;text-align:left;"></div>
                 </div>
@@ -278,135 +281,80 @@ $this->registerCss("
 </div>
 
 <?php
+
+
+$topics = json_encode([
+    'chemical carcinogenesis',
+    'oncogenes and proto-oncogenes',
+    'local invasion and metastasis',
+    'benign vs malignant tumors',
+    'molecular basis of cancer',
+    'grading and staging of tumors',
+    'laboratory diagnosis of cancer',
+    'cancer epidemiology and risk factors',
+    'nomenclature of tumors',
+    'radiation carcinogenesis',
+]);
+
+
+
+$values = json_encode([
+    82.5,
+    76.4,
+    91.2,
+    68.9,
+    59.3,
+    72.7,
+    88.4,
+    64.1,
+    79.6,
+    84.2,
+]);
+
+
 $topicsUrl = Url::to(['default/topics-by-chapter']);
 $js = <<<JS
+const topics = $topics;
+const values = $values;
 
-if (typeof ApexCharts !== "undefined") {
-  var chartOptions = {
-    chart: {
-      type: "bar",
-      height: 300,
-      width: "100%",
-      toolbar: { show: false },
-      animations: { enabled: true, easing: "easeout", speed: 800 },
-      fontFamily: "Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif",
-    },
-    series: [
-      {
-        name: "Accuracy %",
-        data: [],
-      },
-    ],
-    xaxis: { categories: [] },
-    yaxis: {
-      max: 100,
-      min: 0,
-      labels: {
-        style: { fontSize: "12px", fontWeight: "600" },
-      },
-    },
-    plotOptions: {
-      bar: {
-        horizontal: true,
-        barHeight: "80%",
-        distributed: true,
-      },
-    },
-    legend: { show: false },
-    noData: {
-      text: "Select a chapter to see topic breakdown.",
-      align: "center",
-      verticalAlign: "middle",
-      style: { color: "#6c757d", fontSize: "14px" },
-    },
-    scales: {
-      x: {
-        min: 0,
-        suggestedMin: 0,
-        suggestedMax: 100,
-      },
-    },
-    tooltip: {
-      y: {
-        formatter: function (value) {
-          return value === 0.5 ? "0% (All incorrect)" : value + "%";
-        },
-      },
-    },
-  };
 
-  var chart = new ApexCharts(
-    document.querySelector("#accuracyChart"),
-    chartOptions
-  );
-  chart.render();
+const dataPoints = values.map((v, i) => ({
+  x: topics[i],
+  y: v,
+  color: v >= 75 ? '#28a745' : v >= 60 ? '#fd7e14' : '#dc3545'
+}));
 
-  function renderCustomLegend(labels, colors) {
-    const legendContainer = $("#customLegend");
-    legendContainer.empty();
-    labels.forEach((label, index) => {
-      const item = $(`
-                <div class="legend-item" data-index="\${index}" style="display:inline-flex;align-items:center;margin:3px 8px;cursor:pointer;">
-                    <div style="width:14px;height:14px;background:\${colors[index]};border-radius:3px;margin-right:6px;"></div>
-                    <span style="font-size:13px;white-space:nowrap;">\${label}</span>
-                </div>
-            `);
-      legendContainer.append(item);
-    });
+const colors = values.map(v =>
+  v >= 75 ? '#28a745' : v >= 60 ? '#fd7e14' : '#dc3545'
+);
+
+const options = {
+  chart: { type: 'bar', height: 300 },
+  plotOptions: {
+    bar: {
+      horizontal: true,
+      barHeight: '70%',
+      distributed: true // 🔥 THIS makes per-bar colors work
+    }
+  },
+  colors: colors, // use array of same length as data
+  dataLabels: {
+    enabled: true,
+    formatter: val => val.toFixed(2) + '%'
+  },
+  xaxis: { categories: topics },
+  series: [{
+    name: 'Accuracy (%)',
+    data: values
+  }],
+  tooltip: {
+    y: { formatter: val => val.toFixed(2) + '%' }
   }
+};
 
-  $(document).on("click", ".chapter-row", function () {
-    const chapterId = $(this).data("chapter-id");
-    $.get("$topicsUrl", { chapterId }, function (data) {
-      if (!data.labels.length) {
-        chart.updateOptions({
-          series: [{ data: [] }],
-          xaxis: { categories: [] },
-          noData: { text: "No data for this chapter." },
-        });
-        $("#customLegend").empty();
-        return;
-      }
 
-      const newHeight = Math.max(data.labels.length * 30, 300);
-      chart.updateOptions({
-        series: [
-          {
-            name: "Accuracy %",
-            data: data.accuracy.map((a) => Math.max(a, 0.5)),
-          },
-        ],
-        xaxis: { categories: data.labels },
-        colors: data.colors,
-        chart: { height: newHeight },
-      });
-      renderCustomLegend(data.labels, data.colors);
-    });
-  });
-
-  $(document)
-    .on("mouseenter", ".legend-item", function () {
-      const index = $(this).data("index");
-      const bars = $("#accuracyChart .apexcharts-bar-series path");
-      bars.css("opacity", "0.25");
-      bars.eq(index).css("opacity", "1");
-    })
-    .on("mouseleave", ".legend-item", function () {
-      const active = $(".legend-item.active");
-      const bars = $("#accuracyChart .apexcharts-bar-series path");
-
-      if (active.length) {
-        const index = active.data("index");
-        bars.css("opacity", "0.25");
-        bars.eq(index).css("opacity", "1");
-      } else {
-        bars.css("opacity", "1");
-      }
-    });
-} else {
-  console.error("ApexCharts not loaded");
-}
-
+const chart = new ApexCharts(document.querySelector("#accuracyChart"), options);
+chart.render();
 
 JS;
 $this->registerJs($js, View::POS_END);
