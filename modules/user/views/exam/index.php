@@ -3,9 +3,7 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 
 $this->title = 'Start New Exam';
-$this->registerCssFile('https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css', [
-    'depends' => [\yii\bootstrap5\BootstrapAsset::class],
-]);
+$this->registerCssFile('https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css');
 ?>
 
 <div class="container py-4">
@@ -44,7 +42,8 @@ $this->registerCssFile('https://cdn.jsdelivr.net/npm/choices.js/public/assets/st
             <div id="scopeSubjectChapterTopicFields" class="mt-3">
                 <div class="mb-3">
                     <label for="subjectSelect" class="form-label fw-semibold">Select Subjects</label>
-                    <select id="subjectSelect" name="subject_ids[]" multiple>
+                    <select class="choices-select" style="visibility:hidden;" id="subjectSelect" name="subject_ids[]"
+                        multiple>
                         <?php foreach ($subjects as $subject): ?>
                             <?php
                             $counts = $countMapSubjects[$subject->id] ?? ['total' => 0, 'attempted' => 0];
@@ -59,13 +58,15 @@ $this->registerCssFile('https://cdn.jsdelivr.net/npm/choices.js/public/assets/st
                 </div>
                 <div class="mb-3">
                     <label for="chapterSelect" class="form-label fw-semibold">Select Chapters</label>
-                    <select id="chapterSelect" name="chapter_ids[]" multiple>
+                    <select class="choices-select" style="visibility:hidden;" id="chapterSelect" name="chapter_ids[]"
+                        multiple>
                         <option value="0" selected>All Chapters</option>
                     </select>
                 </div>
                 <div class="mb-3">
                     <label for="topicSelect" class="form-label fw-semibold">Select Topics</label>
-                    <select id="topicSelect" name="topic_ids[]" multiple data-url="<?= Url::to(['/api/get-topics']) ?>">
+                    <select class="choices-select" style="visibility:hidden;" id="topicSelect" name="topic_ids[]"
+                        multiple data-url="<?= Url::to(['/api/get-topics']) ?>">
                         <option value="0" selected>All topics</option>
                     </select>
                 </div>
@@ -208,7 +209,11 @@ $('#startExamBtn').on('click', function () {
 $('.confirm-start').on('click', function () {
     $('#startExamForm').submit();
 });
-
+function revealChoicesContainers() {
+  document.querySelectorAll('.choicesContainer').forEach(el => {
+    el.style.visibility = 'visible';
+  });
+}
 function updateUIBasedOnExamType(selectedType) {
     const messageBox = $('#examModeMessage');
     const startBtn = $('#startExamBtn');
@@ -254,6 +259,7 @@ $('input[name="exam_scope"]').on('change', function () {
 });
 
 $(document).ready(function () {
+    revealChoicesContainers();
     updateUIBasedOnExamType($('input[name="examtype"]:checked').val());
     updateUIBasedOnExamScope($('input[name="exam_scope"]:checked').val());
 });

@@ -7,21 +7,11 @@ $this->title = 'Exam Break';
 
 ?>
 <style>
-    body, html {
-        height: 100%;
-        background-color: #f5f7fa;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    }
-
     .break-screen-container {
         display: flex;
-        flex-direction: column;
         justify-content: center;
-        align-items: center;
-        min-height: 100vh;
         text-align: center;
         padding: 20px;
-        background: linear-gradient(135deg, #e0efff, #f5f7fa);
     }
 
     .break-card {
@@ -39,7 +29,7 @@ $this->title = 'Exam Break';
 
     .break-card h2 {
         font-size: 2.8rem;
-        color: #1a73e8;
+        color: var(--bs-primary);
         margin-bottom: 20px;
         font-weight: 700;
         letter-spacing: -0.5px;
@@ -100,13 +90,13 @@ $this->title = 'Exam Break';
         font-weight: bold;
         border-radius: 50px;
         margin-top: 35px;
-        background-color: #1a73e8;
-        border-color: #1a73e8;
+        background-color: var(--bs-primary);
+        border-color: var(--bs-primary);
         transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
     }
     .btn-start-part2:hover:not(:disabled) {
-        background-color: #0c63e4;
-        border-color: #0c63e4;
+        background-color: var(--bs-primary);
+        border-color: var(--bs-primary);
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(26, 115, 232, 0.3);
     }
@@ -153,7 +143,7 @@ $this->title = 'Exam Break';
         </div>
 
         <?php $form = ActiveForm::begin([
-            'action' => Url::to(['break-screen', 'attempt' => $attempt, 'passkey' => $passkey]),
+            'action' => Url::to(['break-screen', 'session' => $attempt]),
             'method' => 'post',
         ]); ?>
             <?= Html::hiddenInput('action', 'continue_part2') ?>
@@ -167,26 +157,12 @@ $this->title = 'Exam Break';
         <p class="note-text">
             <i class="fa-solid fa-lightbulb fa-icon"></i>
             The "Start Part 2" button will activate automatically when the break period concludes.
-            Part 2 will begin with its own dedicated 2.5-hour timer.
+            Part 2 will begin with its own dedicated 2-hour timer.
         </p>
     </div>
 </div>
 
 <?php
-
-$this->registerLinkTag([
-    'rel' => 'preconnect',
-    'href' => 'https://fonts.googleapis.com'
-]);
-$this->registerLinkTag([
-    'rel' => 'preconnect',
-    'href' => 'https://fonts.gstatic.com',
-    'crossorigin' => true
-]);
-$this->registerLinkTag([
-    'href' => 'https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800&display=swap',
-    'rel' => 'stylesheet'
-]);
 
 $jsTimeLeft = $timeLeftInBreak;
 

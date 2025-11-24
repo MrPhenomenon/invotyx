@@ -42,6 +42,10 @@ class DefaultController extends Controller
             return $this->goHome();
         }
 
+        if ($user->seen_dashboard_tutorial == 0 && Yii::$app->session->get('user.subscription_name') === 'Basic (Free Early Access)') {
+            Yii::$app->session->setFlash('show_notice', true);
+        }
+
         if ($user->seen_dashboard_tutorial == 0) {
             Yii::$app->session->setFlash('ask_tutorial', true);
             $user->seen_dashboard_tutorial = 1;
@@ -183,48 +187,55 @@ class DefaultController extends Controller
     {
         $userId = Yii::$app->user->id;
 
-        $totalExams = ExamSessions::find()->where(['user_id' => $userId])->count();
-        $completedExams = ExamSessions::find()->where(['user_id' => $userId, 'status' => 'complete'])->count();
-        $totalQuestions = UserMcqInteractions::find()->where(['user_id' => $userId])->count();
-        $totalTimeSpent = ExamSessions::find()->where(['user_id' => $userId])->sum('time_spent_seconds');
-        $correctCount = UserMcqInteractions::find()
-            ->where(['user_id' => $userId, 'is_correct' => 1])
-            ->count();
-        $accuracy = $totalQuestions > 0 ? round(($correctCount / $totalQuestions) * 100, 2) : null;
-        $avgTimePerMcq = $totalTimeSpent / $totalQuestions;
+        $totalExams = (int) ExamSessions::find()->where(['user_id' => $userId])->count();
+        $completedExams = (int) ExamSessions::find()->where(['user_id' => $userId, 'status' => 'complete'])->count();
+        $totalQuestions = (int) UserMcqInteractions::find()->where(['user_id' => $userId])->count();
+        $totalTimeSpent = (int) ExamSessions::find()->where(['user_id' => $userId])->sum('time_spent_seconds');
 
-        $seconds = (int) round($avgTimePerMcq);
-        $minutes = floor($seconds / 60);
-        $remainingSeconds = $seconds % 60;
-        $formattedTime = "{$minutes}m {$remainingSeconds}s";
+        if ($totalQuestions > 0) {
+            $correctCount = (int) UserMcqInteractions::find()
+                ->where(['user_id' => $userId, 'is_correct' => 1])
+                ->count();
+            $accuracy = round(($correctCount / $totalQuestions) * 100, 2);
+            $avgTimePerMcq = $totalTimeSpent > 0 ? $totalTimeSpent / $totalQuestions : 0;
 
+            $seconds = (int) round($avgTimePerMcq);
+            $minutes = floor($seconds / 60);
+            $remainingSeconds = $seconds % 60;
+            $formattedTime = "{$minutes}m {$remainingSeconds}s";
+        } else {
+            $accuracy = null;
+            $formattedTime = "-";
+        }
 
-        $chapterStats = (new \yii\db\Query())
-            ->select([
-                'c.id as chapter_id',
-                'c.name as chapter_name',
-                'COUNT(umi.id) as total_attempts',
-                'SUM(umi.is_correct) as correct_count',
-                'ROUND(SUM(umi.is_correct)/COUNT(umi.id)*100, 2) as accuracy',
-                'AVG(umi.time_spent_seconds) as avg_time',
-            ])
-            ->from('user_mcq_interactions umi')
-            ->innerJoin('mcqs m', 'm.id = umi.mcq_id')
-            ->innerJoin('hierarchy h', 'h.id = m.hierarchy_id')
-            ->innerJoin('chapters c', 'c.id = h.chapter_id')
-            ->where(['umi.user_id' => $userId])
-            ->groupBy(['c.id'])
-            ->all();
+        $chapterStats = [];
+        if ($totalQuestions > 0) {
+            $chapterStats = (new \yii\db\Query())
+                ->select([
+                    'c.id as chapter_id',
+                    'c.name as chapter_name',
+                    'COUNT(umi.id) as total_attempts',
+                    'SUM(umi.is_correct) as correct_count',
+                    'ROUND(SUM(umi.is_correct)/COUNT(umi.id)*100, 2) as accuracy',
+                    'AVG(umi.time_spent_seconds) as avg_time',
+                ])
+                ->from('user_mcq_interactions umi')
+                ->innerJoin('mcqs m', 'm.id = umi.mcq_id')
+                ->innerJoin('hierarchy h', 'h.id = m.hierarchy_id')
+                ->innerJoin('chapters c', 'c.id = h.chapter_id')
+                ->where(['umi.user_id' => $userId])
+                ->groupBy(['c.id'])
+                ->all();
 
-
-        foreach ($chapterStats as &$stat) {
-            $acc = $stat['accuracy'];
-            if ($acc >= 75) {
-                $stat['strength'] = 'Good';
-            } elseif ($acc >= 60) {
-                $stat['strength'] = 'Need Preparation';
-            } else {
-                $stat['strength'] = 'Weak';
+            foreach ($chapterStats as &$stat) {
+                $acc = (float) $stat['accuracy'];
+                if ($acc >= 75) {
+                    $stat['strength'] = 'Good';
+                } elseif ($acc >= 60) {
+                    $stat['strength'] = 'Need Preparation';
+                } else {
+                    $stat['strength'] = 'Weak';
+                }
             }
         }
 
@@ -237,6 +248,7 @@ class DefaultController extends Controller
             'chapterStats' => $chapterStats,
         ]);
     }
+
 
     public function actionTopicsByChapter($chapterId)
     {

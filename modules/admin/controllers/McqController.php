@@ -278,10 +278,20 @@ class McqController extends AdminBaseController
                 $hierarchyId = $hierarchyIndex[$key] ?? null;
 
                 if (!$hierarchyId) {
-                    $failed++;
-                    $reason = "Hierarchy not found. OS: {$osName} ({$osId}), Sub: {$subName} ({$subId}), Ch: {$chName} ({$chId}), Top: {$topName} ({$topId})";
+                    $heirarchy = new Hierarchy();
+                    $heirarchy->organsys_id = $osId;
+                    $heirarchy->subject_id = $subId;
+                    $heirarchy->chapter_id = $chId;
+                    $heirarchy->topic_id = $topId;
+                    if (!$heirarchy->save()) {
+                        $failed++;
+                        $reason = "Failed to save new hierarchy. OS: {$osName} ({$osId}), Sub: {$subName} ({$subId}), Ch: {$chName} ({$chId}), Top: {$topName} ({$topId})";
+                        Yii::info("Row " . ($rowIndex + 2) . " (QID: {$questionId}): FAILED - {$reason}", $importCategory);
+                        continue;
+                    }
+                    $reason = "New hierarchy added. OS: {$osName} ({$osId}), Sub: {$subName} ({$subId}), Ch: {$chName} ({$chId}), Top: {$topName} ({$topId})";
                     Yii::info("Row " . ($rowIndex + 2) . " (QID: {$questionId}): FAILED - {$reason}", $importCategory);
-                    continue;
+                    $hierarchyId = $heirarchy->id;
                 }
 
                 if (empty($questionText) || empty($correctOption) || !in_array($correctOption, ['A', 'B', 'C', 'D', 'E'])) {

@@ -6,6 +6,9 @@ use yii\helpers\Url;
 $this->registerCssFile('https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css', [
     'depends' => [\yii\bootstrap5\BootstrapAsset::class],
 ]);
+
+$isGoogle = Yii::$app->session->has('google_user');
+$googleData = Yii::$app->session->get('google_user');
 ?>
 
 <style>
@@ -45,7 +48,7 @@ $this->registerCssFile('https://cdn.jsdelivr.net/npm/choices.js/public/assets/st
     <div id="registration-step">
         <form id="register" data-url="<?= Url::to(['site/register-user']) ?>">
             <!-- Step 1: Sign Up -->
-            <div class="step active" data-step="1">
+            <div class="step <?= $isGoogle ? '' : 'active' ?>" data-step="1">
                 <section class="p-2 mb-5">
                     <div class="container card card-body p-5 shadow border-0 w-50">
                         <h3>Create Account</h3>
@@ -98,7 +101,7 @@ $this->registerCssFile('https://cdn.jsdelivr.net/npm/choices.js/public/assets/st
             </div>
 
             <!-- Step 2: Subscription -->
-            <div class="step" data-step="2">
+            <div class="step <?= $isGoogle ? '' : 'active' ?>" data-step="2">
                 <section id="pricing" class="pricing section pt-5">
                     <div class="container">
                         <div class="row gy-4 justify-content-center">
@@ -115,7 +118,7 @@ $this->registerCssFile('https://cdn.jsdelivr.net/npm/choices.js/public/assets/st
                                                     days</span></h4>
                                         </div>
 
-                                        <ul class="list-unstyled flex-grow-1">
+                                        <ul class="list-unstyled flex-grow-1 text-start">
                                             <?php
                                             $decoded = json_decode($plan['features_json'], true);
                                             if (is_string($decoded)) {

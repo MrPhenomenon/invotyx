@@ -82,7 +82,7 @@ class SiteController extends Controller
 
     public function actionPricing()
     {
-        $plans = Subscriptions::find()->where(['active' => 1])->asArray()->all();
+        $plans = Subscriptions::find()->asArray()->all();
         return $this->render('pricing', [
             'plans' => $plans,
         ]);
@@ -102,36 +102,22 @@ class SiteController extends Controller
 
             $user = Users::findOne(['email' => $email, 'auth_type' => 'local']);
             if ($user && Yii::$app->getSecurity()->validatePassword($password, $user->password)) {
-                Yii::$app->user->login($user, 3600 * 12);
-
-                $user = Yii::$app->user->identity;
-
-                $subscription = UserSubscriptions::find()
-                    ->where(['user_id' => $user->id, 'is_active' => 1])
-                    ->andWhere(['>', 'end_date', (new DateTime())->format('Y-m-d')])
-                    ->orderBy(['start_date' => SORT_DESC])
-                    ->one();
-
-                if ($subscription) {
-                    Yii::$app->session->set('user.subscription_name', $subscription->subscription->name);
-                    Yii::$app->session->set('user.subscription_end_date', $subscription->end_date);
-                    Yii::$app->session->set('user.has_active_subscription', true);
+                if ($user && Yii::$app->getSecurity()->validatePassword($password, $user->password)) {
+                    $redirect = \app\components\UserService::loginUser($user);
+                    Yii::$app->response->data = ['success' => true, 'redirectUrl' => $redirect];
+                    return Yii::$app->response;
                 } else {
-                    Yii::$app->session->set('user.has_active_subscription', false);
+                    $error = 'Invalid email or password';
+                    Yii::$app->response->data = ['success' => false, 'error' => $error];
+                    return Yii::$app->response;
                 }
-
-                Yii::$app->response->data = ['success' => true, 'redirectUrl' => Url::to(['/user/default/index'])];
-                return Yii::$app->response;
-            } else {
-                Yii::$app->response->data = ['success' => false, 'message' => 'Invalid username or password.'];
-                return Yii::$app->response;
             }
         } else {
             if (!Yii::$app->user->isGuest) {
                 $this->redirect(Url::to(['/user/default/index']));
             }
-            return $this->render('login');
         }
+        return $this->render('login');
     }
     public function actionRegistration()
     {
@@ -162,18 +148,29 @@ class SiteController extends Controller
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
         $data = Yii::$app->request->post();
-
+        $isGoogle = Yii::$app->session->has('google_user');
         $transaction = Yii::$app->db->beginTransaction();
 
         $user = new Users();
         $userSub = new UserSubscriptions();
 
         try {
-            $user->load($data, '');
-            if (!empty($data['password'])) {
+            if ($isGoogle) {
+                $googleData = Yii::$app->session->get('google_user');
+                $user->email = $googleData['email'];
+                $user->name = $googleData['name'];
+                $user->auth_type = 'google';
+                $user->password = null;
+                $user->exam_type = $data['exam_type'];
+                $user->specialty_id = $data['specialty_id'];
+                $user->expected_exam_date = $data['expected_exam_date'];
+
+            } else {
+                $user->load($data, '');
+                $user->auth_type = 'local';
                 $user->password = Yii::$app->getSecurity()->generatePasswordHash($data['password']);
             }
-            $user->auth_type = 'local';
+           
             $user->mcqs_per_day = $data['mcqs_per_day'];
             if (!empty($data['weak_subjects'])) {
                 $user->weak_subjects = json_encode($data['weak_subjects']);
@@ -198,9 +195,9 @@ class SiteController extends Controller
             }
 
             $transaction->commit();
-            Yii::$app->user->login($user);
             StudyPlanGenerator::ensureWeeklyPlan($user);
-            $data['evaluation'] == 1 ? $redirect = Url::to(['/user/exam/start-evaluation-exam']) : Url::to(['user//']);
+            $redirect = \app\components\UserService::loginUser($user);
+            $data['evaluation'] == 1 ? $redirect = Url::to(['/user/exam/start-evaluation-exam']) : $redirect;
             return ['success' => true, 'redirect' => $redirect];
 
         } catch (\Exception $e) {
@@ -215,31 +212,25 @@ class SiteController extends Controller
             ];
         }
     }
-    public function onAuthSuccess(ClientInterface $client)
+    public function onAuthSuccess($client)
     {
         $attributes = $client->getUserAttributes();
-        Yii::debug($attributes);
-        $googleId = $attributes['id'];
         $email = $attributes['email'];
-        $name = $attributes['name'];
-        $picture = $attributes['picture'] ?? null;
+        $name = $attributes['name'] ?? explode('@', $email)[0];
 
-        $user = Users::find()->where(['email' => $email])->one();
-
-        if (!$user) {
-            $user = new Users([
-                'google_id' => $googleId,
-                'email' => $email,
-                'name' => $name,
-                'profile_picture' => $picture,
-                'auth_type' => 'google',
-            ]);
-            $user->save(false);
-            return $this->redirect('/register');
+        $user = Users::findOne(['email' => $email]);
+        if ($user) {
+            $redirect = \app\components\UserService::loginUser($user);
+            return Yii::$app->response->redirect($redirect);
         }
-        Yii::$app->user->login($user);
-        Yii::$app->getResponse()->redirect(['user//'])->send();
-        Yii::$app->end();
+
+        Yii::$app->session->set('google_user', [
+            'email' => $email,
+            'name' => $name,
+            'auth_type' => 'google',
+        ]);
+
+        return Yii::$app->response->redirect(['/site/registration', 'step' => 2]);
     }
 
     /**
@@ -278,6 +269,25 @@ class SiteController extends Controller
         return $this->render('about');
     }
 
+    public function actionPrivacyPolicy()
+    {
+        return $this->render('privacy-policy');
+    }
+
+    public function actionRefundPolicy()
+    {
+        return $this->render('refund-policy');
+    }
+
+    public function actionServicePolicy()
+    {
+        return $this->render('service-policy');
+    }
+
+    public function actionTermsAndConditions()
+    {
+        return $this->render('terms-and-conditions');
+    }
     public function actionAdminLogin()
     {
         if (Yii::$app->request->isAjax) {

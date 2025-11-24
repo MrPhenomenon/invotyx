@@ -20,6 +20,7 @@ use Yii;
  * @property string|null $profile_picture
  * @property string $created_at
  * @property string $updated_at
+ * @property string $session_token
  * @property string|null $weak_subjects
  * @property int|null $mcqs_per_day
  *

@@ -157,31 +157,3 @@ $(function () {
     driver.drive();
   }
 });
-
-function showAskTutorialModal() {
-  const modalHtml = `
-  <div class="modal fade" id="tutorialModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content p-3 text-center">
-        <h5 class="mb-3">Take a quick tour?</h5>
-        <p class="text-muted">Would you like to see a quick walkthrough of your dashboard features?</p>
-        <div class="d-flex justify-content-center gap-2 mt-3">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">No, maybe later</button>
-          <button type="button" class="btn btn-primary" id="startTutorial">Yes</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  `;
-
-  $("body").append(modalHtml);
-  const tutorialModal = new bootstrap.Modal(document.getElementById('tutorialModal'));
-  tutorialModal.show();
-
-  $("#startTutorial").on("click", function () {
-    tutorialModal.hide();
-    const url = new URL(window.location.href);
-    url.searchParams.set("tutorial", "1");
-    window.location.href = url.toString();
-  });
-};

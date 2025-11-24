@@ -12,6 +12,28 @@ use yii\helpers\Html;
                 <div class="modal-body">
                     <input type="hidden" name="mcq_id" id="mcq-id">
                     <div class="row g-3">
+                        <div class="col-md-12"><label class="form-label">Complete MCQ</label>
+                        <textarea class="form-control full-mcq-input" rows="6" placeholder="
+Question ID: 
+Question:
+Organ System:
+Subject:
+Chapter:
+Topic
+A.
+B.
+C.
+D.
+E.
+Answer: C
+Explanation:
+Reference:
+Difficulty Level:
+Tags: "></textarea>
+                        <div class="mt-2 text-end">
+                        <button type="button" class="btn btn-sm btn-outline-primary btn-parse-mcq">Parse full MCQ</button>
+                        </div>
+                        </div>
                         <div class="col-md-12"><label class="form-label">Question ID</label>
                         <input type="text" name="mcq_question_id" class="form-control" required>
                         </div>

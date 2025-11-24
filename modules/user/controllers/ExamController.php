@@ -16,6 +16,7 @@ use app\models\UserBookmarkedMcqs;
 use app\models\UserMcqInteractions;
 use DateTime;
 use Yii;
+use yii\db\Expression;
 use yii\db\Query;
 use yii\web\Controller;
 use yii\web\Response;
@@ -101,7 +102,7 @@ class ExamController extends Controller
 
         $organSystemIds = $post['organ_system_ids'] ?? [];
 
-        if(empty($difficulty) || in_array('0', $difficulty, true)){
+        if (empty($difficulty) || in_array('0', $difficulty, true)) {
             $difficulty = NULL;
         }
 
@@ -498,6 +499,166 @@ class ExamController extends Controller
         ], $cacheDuration);
 
         return $this->redirect(['/user/mcq/start', 'session_id' => $session->id]);
+    }
+
+    public function actionStartMock()
+    {
+        $this->layout = 'mcq';
+        $userId = Yii::$app->user->id;
+        $user = Yii::$app->user->identity;
+
+        $todayPlan = StudyPlanDays::find()
+            ->alias('spd')
+            ->joinWith(['studyPlan sp'])
+            ->where(['sp.user_id' => $userId])
+            ->andWhere(['spd.plan_date' => date('Y-m-d')])
+            ->andWhere(['spd.is_mock_exam' => 1])
+            ->andWhere( ['spd.status' => StudyPlanDays::STATUS_PENDING])
+            ->one();
+
+            Yii::debug($todayPlan);
+        if (!$todayPlan || $todayPlan->is_mock_exam != 1) {
+            Yii::$app->session->setFlash('danger', "No mock exam available for today. Please check your study plan.");
+            return $this->redirect(['/user/default/index']);
+        }
+
+        $totalTarget = 200;
+        $specialtyId = $user->specialty_id;
+
+        $distributions = SpecialtyDistributions::find()
+            ->where(['specialty_id' => $specialtyId])
+            ->with('specialtyDistributionChapters')
+            ->all();
+
+        $selectedMcqIds = [];
+        $allocated = 0;
+        $roundingBuffer = [];
+
+        foreach ($distributions as $dist) {
+            $subjectTarget = $totalTarget * ($dist->subject_percentage / 100);
+            $subjectAllocated = 0;
+            foreach ($dist->specialtyDistributionChapters as $ch) {
+                $chapterTarget = $subjectTarget * ($ch->chapter_percentage / 100);
+                $intTarget = floor($chapterTarget);
+                $allocated += $intTarget;
+                $subjectAllocated += $intTarget;
+                $roundingBuffer[] = [
+                    'chapter_id' => $ch->chapter_id,
+                    'fraction' => $chapterTarget - $intTarget,
+                ];
+
+                if ($intTarget > 0) {
+                    $ids = Mcqs::find()
+                        ->joinWith('hierarchy h')
+                        ->where(['h.chapter_id' => $ch->chapter_id])
+                        ->select('mcqs.id')
+                        ->orderBy(new Expression('RAND()'))
+                        ->limit($intTarget)
+                        ->column();
+                    $selectedMcqIds = array_merge($selectedMcqIds, $ids);
+                }
+            }
+        }
+
+        $remaining = $totalTarget - $allocated;
+
+        if ($remaining > 0 && !empty($roundingBuffer)) {
+
+            usort($roundingBuffer, fn($a, $b) => $b['fraction'] <=> $a['fraction']);
+            foreach (array_slice($roundingBuffer, 0, $remaining) as $extra) {
+                $extraId = Mcqs::find()
+                    ->joinWith('hierarchy h')
+                    ->where(['h.chapter_id' => $extra['chapter_id']])
+                    ->select('mcqs.id')
+                    ->orderBy(new Expression('RAND()'))
+                    ->limit(1)
+                    ->scalar();
+                if ($extraId) {
+                    $selectedMcqIds[] = $extraId;
+                }
+            }
+        }
+
+        if (count($selectedMcqIds) < $totalTarget) {
+            $extra = Mcqs::find()
+                ->select('id')
+                ->orderBy(new Expression('RAND()'))
+                ->limit($totalTarget - count($selectedMcqIds))
+                ->column();
+            $selectedMcqIds = array_merge($selectedMcqIds, $extra);
+        }
+
+        $selectedMcqIds = array_unique($selectedMcqIds);
+        $selectedMcqIds = array_slice($selectedMcqIds, 0, $totalTarget);
+
+
+        shuffle($selectedMcqIds);
+
+        $totalMcqs = count($selectedMcqIds);
+        $part1Count = min(100, $totalMcqs);
+        $part2Count = max(0, $totalMcqs - $part1Count);
+        $part1 = array_slice($selectedMcqIds, 0, $part1Count);
+        $part2 = array_slice($selectedMcqIds, $part1Count, $part2Count);
+
+
+        $session = new ExamSessions();
+        $session->user_id = $userId;
+        $session->name = 'Mock Exam';
+        $session->exam_type = $user->exam_type ?? null;
+        $session->specialty_id = $user->specialty_id ?? null;
+        $session->mode = $session::MODE_MOCK;
+        $session->mcq_ids = json_encode($selectedMcqIds);
+        $session->start_time = date('Y-m-d H:i:s');
+        $session->status = 'InProgress';
+        $session->total_questions = $totalMcqs;
+
+        $session->time_limit_minutes = $exam->time_limit_minutes ?? null;
+        $session->randomize_questions = 1;
+        $session->include_bookmarked = 0;
+        $session->tags_used = json_encode([]);
+        $session->part_number = null;
+        $session->study_plan_day_id = $todayPlan->id;
+
+        if (!$session->save(false)) {
+            Yii::$app->session->setFlash('danger', 'Could not create mock exam session: ' . implode(', ', $session->getErrorSummary(true)));
+            Yii::error('Failed to save mock exam session for user ' . $userId . ': ' . print_r($session->errors, true), 'mock-session-error');
+            return $this->redirect(['/user/']);
+        }
+
+        $todayPlan->status = StudyPlanDays::STATUS_IN_PROGRESS;
+        $todayPlan->save(false);
+
+        $cacheKey = 'exam_state_' . $userId . '_' . $session->id;
+        $cacheDuration = 24 * 3600;
+
+        $sessionCache = [
+            'part' => 1,
+            'part1' => [
+                'mcqs' => $part1,
+                'start_time' => time(),
+                'index' => 0,
+                'responses' => [],
+                'skipped' => [],
+                'revisiting_skipped' => false,
+            ],
+            'part2' => [
+                'mcqs' => $part2,
+                'start_time' => null,
+                'index' => 0,
+                'responses' => [],
+                'skipped' => [],
+                'revisiting_skipped' => false,
+            ],
+            'paused_at' => null,
+            'attempt_id' => $session->id,
+            'last_active_at' => time(),
+            'plan_day_id' => $todayPlan->id,
+        ];
+
+        Yii::$app->cache->set($cacheKey, $sessionCache, $cacheDuration);
+
+        Yii::$app->session->setFlash('success', 'Mock exam session created. Good luck!');
+        return $this->redirect(['/user/mock-exam/take', 'session' => $session->id]);
     }
 
     public function actionToggleBookmark()

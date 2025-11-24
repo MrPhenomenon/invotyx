@@ -28,9 +28,9 @@ $config = [
             'clients' => [
                 'google' => [
                     'class' => 'yii\authclient\clients\Google',
-                    'clientId' => '425138559645-82jehbe38vplgr2o99nce8bk3l65fgmh.apps.googleusercontent.com',
-                    'clientSecret' => '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',
-                    'returnUrl' => 'https://www.ikjimpex.com/invotyx/site/auth?authclient=google',
+                    'clientId' => 'CLIENT_ID',
+                    'clientSecret' => 'CLIENT_SECRET',
+                    'returnUrl' => 'https://part1pk.com/site/auth?authclient=google',
                 ],
             ],
         ],
@@ -93,6 +93,10 @@ $config = [
                 '/contact' => 'site/contact',
                 '/login' => 'site/login',
                 '/admin/login' => 'site/admin-login',
+                '/privacy-policy' => 'site/privacy-policy',
+                '/terms-and-conditions' => 'site/terms-and-conditions',
+                '/refund-policy' => 'site/refund-policy',
+                '/service-policy' => 'site/service-policy',
 
                 // User Panel
 
@@ -101,6 +105,7 @@ $config = [
                 'user/dashboard' => 'user/default/index',
                 'user/update-profile' => 'user/default/update-profile',
                 'user/analytics' => 'user/default/analytics',
+
                 //Orthopedic Exam
                 'user/orthopedic-exam/start-exam/<id:\w+>' => 'user/orthopedic-exam/start-exam',
                 'user/orthopedic-exam/take-exam/<attempt:\d+>/<passkey:[a-zA-Z0-9_-]+>' => 'user/orthopedic-exam/take-exam',
@@ -112,6 +117,9 @@ $config = [
 
     ],
     'params' => $params,
+    'as singleDevice' => [
+        'class' => \app\components\SingleDeviceAccess::class,
+    ],
 ];
 
 if (YII_ENV_DEV) {

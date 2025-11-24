@@ -2,6 +2,8 @@
 namespace app\modules\admin\controllers;
 
 use app\models\Chapters;
+use app\models\OrganSystems;
+use app\models\Subjects;
 use app\models\Topics;
 use Yii;
 use yii\web\Controller;
@@ -74,6 +76,26 @@ class HierarchyController extends AdminBaseController
             ? ['success' => true, 'message' => 'Added Chapter']
             : ['success' => false, 'message' => 'Chapter couldnt be added'];
     }
+    public function actionAddOrganSystem()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $data = Yii::$app->request->post();
+        $model = new OrganSystems();
+        $model->name = $data['name'];
+        return $model->save()
+            ? ['success' => true, 'message' => 'Added Organ System']
+            : ['success' => false, 'message' => 'Organ System couldnt be added'];
+    }
+    public function actionAddSubject()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $model = new Subjects();
+        $model->name = Yii::$app->request->post('name');
+        return $model->save()
+            ? ['success' => true, 'message' => 'Added Subject']
+            : ['success' => false, 'message' => 'Subject couldnt be added'];
+    }
+
     public function actionDeleteChapter()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
@@ -105,6 +127,41 @@ class HierarchyController extends AdminBaseController
         }
         if ($model->delete()) {
             return ['success' => true, 'message' => 'Topic deleted'];
+        } else {
+            return ['success' => false, 'message' => 'Delete failed'];
+        }
+    }
+    public function actionDeleteSubject()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $id = Yii::$app->request->post('id');
+        if (!$id) {
+            return ['success' => false, 'message' => 'Missing Subject ID'];
+        }
+        $model = Subjects::findOne($id);
+        if (!$model) {
+            return ['success' => false, 'message' => 'Subject not found'];
+        }
+        if ($model->delete()) {
+            return ['success' => true, 'message' => 'Subject deleted'];
+        } else {
+            return ['success' => false, 'message' => 'Delete failed'];
+        }
+    }
+
+    public function actionDeleteOrganSystem()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $id = Yii::$app->request->post('id');
+        if (!$id) {
+            return ['success' => false, 'message' => 'Missing Organ System ID'];
+        }
+        $model = OrganSystems::findOne($id);
+        if (!$model) {
+            return ['success' => false, 'message' => 'Organ System not found'];
+        }
+        if ($model->delete()) {
+            return ['success' => true, 'message' => 'Organ System deleted'];
         } else {
             return ['success' => false, 'message' => 'Delete failed'];
         }

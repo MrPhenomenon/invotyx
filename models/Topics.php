@@ -9,11 +9,8 @@ use Yii;
  *
  * @property int $id
  * @property string $name
- * @property int $chapter_id
- *
- * @property Chapters $chapter
+
  * @property Mcqs[] $mcqs
- * @property MockExamDistribution[] $mockExamDistributions
  * @property ExamSpecialties[] $specialties
  */
 class Topics extends \yii\db\ActiveRecord
@@ -34,10 +31,8 @@ class Topics extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'chapter_id'], 'required'],
-            [['chapter_id'], 'integer'],
+            [['name',], 'required'],
             [['name'], 'string', 'max' => 100],
-            [['chapter_id'], 'exist', 'skipOnError' => true, 'targetClass' => Chapters::class, 'targetAttribute' => ['chapter_id' => 'id']],
         ];
     }
 
@@ -49,18 +44,7 @@ class Topics extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'name' => 'Name',
-            'chapter_id' => 'Chapter ID',
         ];
-    }
-
-    /**
-     * Gets query for [[Chapter]].
-     *
-     * @return \yii\db\ActiveQuery
-     */
-    public function getChapter()
-    {
-        return $this->hasOne(Chapters::class, ['id' => 'chapter_id']);
     }
 
     /**
@@ -71,16 +55,6 @@ class Topics extends \yii\db\ActiveRecord
     public function getMcqs()
     {
         return $this->hasMany(Mcqs::class, ['topic_id' => 'id']);
-    }
-
-    /**
-     * Gets query for [[MockExamDistributions]].
-     *
-     * @return \yii\db\ActiveQuery
-     */
-    public function getMockExamDistributions()
-    {
-        return $this->hasMany(MockExamDistribution::class, ['topic_id' => 'id']);
     }
 
     /**

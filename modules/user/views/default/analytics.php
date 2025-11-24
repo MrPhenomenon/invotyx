@@ -171,7 +171,7 @@ $this->registerCss("
                 <div class="card-body">
                     <i class="fas fa-layer-group icon"></i>
                     <h6>Total Exams Taken</h6>
-                    <h3 class="metric-value"><?= Html::encode($totalExams) ?></h3>
+                    <h3 class="metric-value"><?= Html::encode($totalExams) ?? '0' ?></h3>
                 </div>
             </div>
         </div>
@@ -181,7 +181,7 @@ $this->registerCss("
                 <div class="card-body">
                     <i class="fas fa-question-circle icon"></i>
                     <h6>Total Questions Attempted</h6>
-                    <h3 class="metric-value"><?= Html::encode($totalQuestions) ?></h3>
+                    <h3 class="metric-value"><?= Html::encode($totalQuestions) ?? '0' ?></h3>
                 </div>
             </div>
         </div>
@@ -200,7 +200,7 @@ $this->registerCss("
                 <div class="card-body">
                     <i class="fas fa-clock icon"></i>
                     <h6>Average Time Per MCQ</h6>
-                    <h3 class="metric-value"><?= $avgTimePerMcq ?></h3>
+                    <h3 class="metric-value"><?= $avgTimePerMcq ?? '0s' ?></h3>
                 </div>
             </div>
         </div>

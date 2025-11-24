@@ -65,6 +65,7 @@ $js = <<<JS
             contentType: false,
             success: function (res) {
                 res.success ? window.location.href = "$adminUrl" : alert(res.message);
+                hideloader();
             }
         });
     })

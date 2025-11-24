@@ -14,7 +14,7 @@ $this->title = 'Pricing';
         <div class="col-xl-3 col-md-6 d-flex">
           <div
             class="pricing-item shadow p-4 w-100 d-flex flex-column <?= $index === 0 ? 'featured' : '' ?> <?= !$plan['active'] ? 'opacity-50' : '' ?>"
-            style="<?= $index === 0 ? 'scale: 1.05; z-index: 9;' : '' ?> <?= !$plan['active'] ? 'pointer-events: none;' : '' ?>">
+            style="<?= $index === 0 ? 'z-index: 9;' : '' ?> <?= !$plan['active'] ? 'pointer-events: none;' : '' ?>">
 
             <div class="mb-3 text-center">
               <h3><?= htmlspecialchars($plan['name']) ?></h3>
@@ -22,7 +22,7 @@ $this->title = 'Pricing';
                   days</span></h4>
             </div>
 
-            <ul class="list-unstyled flex-grow-1">
+            <ul class="list-unstyled flex-grow-1 text-start">
               <?php
               $decoded = json_decode($plan['features_json'], true);
 
@@ -44,10 +44,15 @@ $this->title = 'Pricing';
             </ul>
 
             <div class="btn-wrap mt-3 text-center">
-              <a href="<?= Url::to(['/register']) ?>">
-                <label class="btn btn-outline-primary px-4" for="plan-<?= $plan['id'] ?>"><?= $plan['active'] == 1 ? 'Register Now' : 'Coming Soon' ?></label>
-              </a>
+              <?php if ($plan['active'] == 1): ?>
+                <a href="<?= Url::to(['/register']) ?>">
+                  <label class="btn btn-outline-primary px-4" for="plan-<?= $plan['id'] ?>">Register Now</label>
+                </a>
+              <?php else: ?>
+                <button class="btn btn-outline-secondary px-4" disabled>Coming Soon</button>
+              <?php endif; ?>
             </div>
+
           </div>
         </div>
       <?php endforeach; ?>

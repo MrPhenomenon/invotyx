@@ -32,6 +32,8 @@ use Yii;
  * @property int|null $randomize_questions Whether questions were randomized
  * @property int|null $include_bookmarked Whether bookmarked questions were included
  * @property string|null $tags_used JSON array of selected tags (unseen, attemptedWrong, etc.)
+ * @property int|null $study_plan_day_id
+ * 
  *
  * @property ExamType $examType
  * @property ExamSpecialties $specialty
@@ -69,7 +71,7 @@ class ExamSessions extends \yii\db\ActiveRecord
             [['include_bookmarked'], 'default', 'value' => 0],
             [['part_number'], 'default', 'value' => 1],
             [['user_id', 'mode', 'exam_type', 'specialty_id', 'mcq_ids'], 'required'],
-            [['user_id', 'exam_type', 'specialty_id', 'total_questions', 'time_spent_seconds', 'correct_count', 'breaches', 'part_number', 'mock_group_id', 'time_limit_minutes', 'randomize_questions', 'include_bookmarked'], 'integer'],
+            [['user_id', 'exam_type', 'specialty_id', 'total_questions', 'time_spent_seconds', 'correct_count', 'breaches', 'part_number', 'mock_group_id', 'time_limit_minutes', 'randomize_questions', 'include_bookmarked', 'study_plan_day_id'], 'integer'],
             [['mode', 'mcq_ids', 'status', 'organ_systems_used', 'difficulty_level', 'name'], 'string'],
             [['topics_used', 'start_time', 'end_time', 'updated_at', 'tags_used'], 'safe'],
             [['accuracy'], 'number'],

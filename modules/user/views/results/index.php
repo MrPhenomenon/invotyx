@@ -38,8 +38,10 @@ $badgeClasses = [
                                     class="btn btn-sm btn-primary rounded-3 w-100 w-md-auto">
                                     View Result <i class="bi bi-arrow-right-circle ms-1"></i>
                                 </a>
-                            <?php elseif ($session->status === 'InProgress'): ?>
-                                <a href="<?= Url::to(['/user/mcq/start', 'session_id' => $session->id]) ?>"
+                            <?php elseif ($session->status === 'InProgress'): 
+                                $url = $session->isModeMock() ? ['/user/mock-exam/take', 'session' => $session->id] : ['/user/mcq/start', 'session_id' => $session->id];
+                                ?>
+                                <a href="<?= Url::to($url) ?>"
                                     class="btn btn-sm btn-warning rounded-3 w-100 w-md-auto">
                                     Resume <i class="bi bi-play-circle ms-1"></i>
                                 </a>

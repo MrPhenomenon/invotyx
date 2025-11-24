@@ -270,7 +270,7 @@ CSS);
                         Quick Actions
                     </h4>
 
-                    <?php if ($studyPlanDayToday && !in_array($studyPlanDayToday->status, [StudyPlanDays::STATUS_COMPLETED, StudyPlanDays::STATUS_SKIPPED])): ?>
+                    <?php if ($studyPlanDayToday): ?>
                         <div class="p-3 mb-4 bg-light border rounded-3">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <h6 class="mb-0">
@@ -278,16 +278,17 @@ CSS);
                                     <small class="text-muted">(Day
                                         <?= Html::encode($studyPlanDayToday->day_number) ?>)</small>
                                 </h6>
-                                <?php if ($studyPlanDayToday->is_mock_exam): ?>
-                                    <span class="badge bg-info text-white">Mock Exam</span>
-                                <?php endif; ?>
                             </div>
 
                             <p class="mb-2">
                                 <strong>Total MCQs:</strong>
-                                <span class="badge bg-warning text-dark">
-                                    <?= $studyPlanDayToday->new_mcqs + $studyPlanDayToday->review_mcqs + $studyPlanDayToday->redistributed_skipped_mcqs ?>
-                                </span>
+                                <?php if ($studyPlanDayToday->is_mock_exam): ?>
+                                    <span class="badge bg-info text-white">Mock Exam</span>
+                                <?php else: ?>
+                                    <span class="badge bg-warning text-dark">
+                                        <?= $studyPlanDayToday->new_mcqs + $studyPlanDayToday->review_mcqs + $studyPlanDayToday->redistributed_skipped_mcqs ?>
+                                    </span>
+                                <?php endif; ?>
                             </p>
 
                             <?php if (!empty($groupedSubjects)): ?>
@@ -312,16 +313,37 @@ CSS);
                             <?php endif; ?>
 
                             <div class="row pt-2">
-                                <?php if ($currentExamSession): ?>
+                                <?php if ($currentExamSession):
+                                    $resumeUrl = $studyPlanDayToday->is_mock_exam == 1 ? Url::to(['mock-exam/take', 'session' => $currentExamSession->id]) : Url::to(['mcq/start', 'session_id' => $currentExamSession->id]);
+                                    ?>
                                     <div class="col-12">
                                         <?= Html::a(
                                             '<i class="fas fa-play me-2"></i>Resume Today\'s Exam',
-                                            ['mcq/start', 'session_id' => $currentExamSession->id],
+                                            $resumeUrl,
                                             ['class' => 'btn btn-success w-100', 'title' => 'Resume Today\'s Exam']
                                         )
                                             ?>
                                     </div>
+                                <?php elseif ($studyPlanDayToday->status == StudyPlanDays::STATUS_COMPLETED): ?>
+                                    <div class="col-12">
+                                        <?= Html::a(
+                                            '<i class="fas fa-check me-2"></i>Today\'s Exam Completed',
+                                            ['/'],
+                                            ['class' => 'btn btn-success w-100 disabled']
+                                        )
+                                            ?>
+                                    </div>
+                                <?php elseif ($studyPlanDayToday->is_mock_exam): ?>
+                                    <div class="col-12">
+                                        <?= Html::a(
+                                            '<i class="fas fa-play me-2"></i>Start Mock Exam',
+                                            ['exam/start-mock'],
+                                            ['class' => 'btn btn-outline-primary w-100']
+                                        )
+                                            ?>
+                                    </div>
                                 <?php else: ?>
+
                                     <div class="col-12 col-lg-6">
                                         <?= Html::a(
                                             '<i class="fas fa-play me-2"></i>Start in Practice Mode',
@@ -342,6 +364,7 @@ CSS);
                             </div>
                         </div>
                     <?php endif; ?>
+
 
                     <div class="mt-auto d-grid gap-2">
                         <?= Html::a('<i class="fas fa-plus-circle me-2"></i>Start New Exam', ['exam/'], ['class' => 'btn btn-outline-primary btn-lg']) ?>
@@ -463,7 +486,7 @@ CSS);
                 <?php else: ?>
                     <div class="alert alert-info text-center py-4 rounded-3 shadow-sm">
                         No completed exams found yet. <br>
-                        <?= Html::a('View your achievements here!', ['/results/index'], ['class' => 'alert-link mt-2 d-inline-block']) ?>
+                        <?= Html::a('View your achievements here!', ['results/'], ['class' => 'alert-link mt-2 d-inline-block']) ?>
                     </div>
                 <?php endif; ?>
             </div>
@@ -471,15 +494,24 @@ CSS);
     </div>
 </div>
 
-<?php if (Yii::$app->session->hasFlash('ask_tutorial')) {
-    $this->registerJs('showAskTutorialModal();');
+<?php
+$js = '';
+if (Yii::$app->session->hasFlash('ask_tutorial') && Yii::$app->session->hasFlash('show_notice')) {
+    $js = 'showNoticeModal(function() { showAskTutorialModal(); });';
+} elseif (Yii::$app->session->hasFlash('ask_tutorial')) {
+    $js = 'showAskTutorialModal();';
+} elseif (Yii::$app->session->hasFlash('show_notice')) {
+    $js = 'showNoticeModal();';
+}
+if ($js) {
+    $this->registerJs($js);
 }
 ?>
 
 
 <?php
 $trendLabels = json_encode(array_map(fn($row) => date('M d', strtotime($row['end_time'])), $accuracyTrend));
-$trendData = json_encode(array_map(fn($row) => round((float)$row['accuracy']), $accuracyTrend));
+$trendData = json_encode(array_map(fn($row) => round((float) $row['accuracy']), $accuracyTrend));
 
 $js = <<<JS
 var options = {

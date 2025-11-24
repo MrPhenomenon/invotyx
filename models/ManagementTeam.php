@@ -138,12 +138,6 @@ class ManagementTeam extends \yii\db\ActiveRecord implements IdentityInterface
                         'url' => ['exam-analytics/index'],
                         'roles' => ['Super Admin'],
                     ],
-                    [
-                        'label' => 'Trust Breach Monitoring (NF)',
-                        'icon' => 'bi bi-exclamation-triangle',
-                        'url' => ['default/trust-breach-monitoring'],
-                        'roles' => ['Super Admin'],
-                    ],
                 ],
             ],
             'subscriptions' => [

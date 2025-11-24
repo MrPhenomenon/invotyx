@@ -168,6 +168,8 @@ $(function() {
         e.preventDefault();
       
         const btn = $(this);
+
+        $('.full-mcq-input').val('');
         $('#mcq-id').val(btn.data('mcq-id'));
         $('[name="mcq_question_id"]').val(btn.data('question-id'));
         $('[name="mcq_topic_id"]').val(btn.data('topic-id')).trigger('change');
@@ -214,6 +216,70 @@ $(function() {
         });
     });
 });
+
+$('#updateModal').on('click', '.btn-parse-mcq', function () {
+    const modal = $('#updateModal');
+    const text = modal.find('.full-mcq-input').val();
+
+    const idMatch = text.match(/Question ID:\s*(.+)/i);
+    const questionMatch = text.match(/Question:\s*([\s\S]*?)(?=\nOrgan System:|\n[A-E]\.|$)/i);
+
+    const organMatch = text.match(/Organ System:\s*(.+)/i);
+    const subjectMatch = text.match(/Subject:\s*(.+)/i);
+    const chapterMatch = text.match(/Chapter:\s*(.+)/i);
+    const topicMatch = text.match(/Topic:\s*(.+)/i);
+
+    const optionMatches = {};
+    ['A', 'B', 'C', 'D', 'E'].forEach(letter => {
+        const regex = new RegExp(letter + '\\.\\s*(.+?)(?=\\n[A-E]\\. |\\nAnswer:|\\nExplanation:|\\nReference:|\\n|$)', 's');
+        const match = text.match(regex);
+        if (match) optionMatches[letter.toLowerCase()] = match[1].trim();
+    });
+
+    const answerMatch = text.match(/Answer:\s*([A-E])/i);
+    const explanationMatch = text.match(/Explanation:\s*([\s\S]*?)(?=\nReference:|$)/i);
+    const referenceMatch = text.match(/Reference:\s*([\s\S]*?)(?=\nDifficulty Level:|$)/i);
+    const difficultyMatch = text.match(/Difficulty Level:\s*(.+)/i);
+    const tagsMatch = text.match(/Tags:\s*(.+)/i);
+
+    // Fill fields
+    if (idMatch) modal.find('input[name="mcq_question_id"]').val(idMatch[1].trim());
+    if (questionMatch) modal.find('textarea[name="mcq_question_text"]').val(questionMatch[1].trim());
+
+    for (const [key, val] of Object.entries(optionMatches)) {
+        modal.find('input[name="mcq_option_' + key + '"]').val(val);
+    }
+
+    if (answerMatch)
+        modal.find('select[name="mcq_correct_option"]').val(answerMatch[1].toLowerCase());
+
+    if (explanationMatch)
+        modal.find('textarea[name="mcq_explanation"]').val(explanationMatch[1].trim());
+
+    if (referenceMatch)
+        modal.find('input[name="mcq_reference"]').val(referenceMatch[1].trim());
+
+    if (tagsMatch)
+        modal.find('input[name="mcq_tags"]').val(tagsMatch[1].trim());
+
+    // Dropdown selection helper
+    const setDropdown = (select, value) => {
+        value = value.trim().toLowerCase();
+        select.find('option').each(function () {
+            if ($(this).text().trim().toLowerCase() === value) {
+                $(this).prop('selected', true);
+            }
+        });
+    };
+
+    if (organMatch) setDropdown(modal.find('select[name="mcq_organ_system_id"]'), organMatch[1]);
+    if (subjectMatch) setDropdown(modal.find('select[name="mcq_subject_id"]'), subjectMatch[1]);
+    if (chapterMatch) setDropdown(modal.find('select[name="mcq_chapter_id"]'), chapterMatch[1]);
+    if (topicMatch) setDropdown(modal.find('select[name="mcq_topic_id"]'), topicMatch[1]);
+
+    showToast('MCQ parsed successfully.', 'success');
+});
+
 JS;
 $this->registerJS($js, yii\web\View::POS_END);
 ?>
