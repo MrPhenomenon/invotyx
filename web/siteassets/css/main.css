@@ -2264,8 +2264,26 @@ p {
   color: var(--default-color);
   line-height: 1.7;
 }
+.accordion-button{
+  box-shadow: none !important;
+}
+.collapsing {
+  transition: height 0.35s ease !important;
+}
 
+/* 2. Apply animation to the INNER content, not the outer collapse div */
+.collapse-inner {
+  opacity: 0;
+  transform: translateY(-15px);
+  /* Smooth transition for fading in/out */
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
 
+/* 3. When the parent is open (.show), make the inner content visible */
+.collapse.show .collapse-inner {
+  opacity: 1;
+  transform: translateY(0);
+}
 /* --- Hero Section --- */
 .hero-section-new {
   background-color: var(--primary-brand-color);
@@ -2365,13 +2383,13 @@ p {
   display: inline-block;
 }
 
-.section-heading-new::after {
+.section-subheading::after {
   content: '';
   display: block;
-  width: 60px; /* Shorter underline */
-  height: 3px; /* Thinner underline */
-  background-color: var(--secondary-accent-color);
-  margin: 12px auto 0; /* Reduced margin */
+  width: 60px;
+  height: 3px;
+  background-color: var(--primary-brand-color);
+  margin: 12px auto 0;
   border-radius: 2px;
 }
 
@@ -2456,8 +2474,8 @@ p {
 }
 
 .cta-section-new p {
-  font-size: 1.1rem; /* Reduced from 1.2rem */
-  max-width: 700px; /* Constrained width */
+  font-size: 1.1rem;
+  max-width: 850px;
   margin: 0 auto 35px auto;
   color: rgba(255, 255, 255, 0.85);
   line-height: 1.7;
@@ -2467,9 +2485,9 @@ p {
   display: inline-block;
   background-color: var(--secondary-accent-color);
   color: var(--primary-brand-color);
-  padding: 14px 40px; /* Reduced padding */
+  padding: 14px 40px;
   border-radius: 40px;
-  font-size: 1.1rem; /* Reduced font size */
+  font-size: 1.1rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.8px;
