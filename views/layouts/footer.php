@@ -14,7 +14,8 @@
         </div>
       </div>
 
-      <div class="col-lg-3 col-md-6 footer-links">
+
+      <div class="col-lg-2 col-md-6 footer-links">
         <h4 class="text-white">Useful Links</h4>
         <ul>
           <li><a href="/">Home</a></li>
@@ -22,7 +23,8 @@
           <li><a href="/pricing">Pricing</a></li>
         </ul>
       </div>
-      <div class="col-lg-3 col-md-6 footer-links">
+
+      <div class="col-lg-2 col-md-6 footer-links">
         <h4 class="text-white">Policies</h4>
         <ul>
           <li><a href="/terms-and-conditions">Terms & Conditions</a></li>
@@ -31,8 +33,15 @@
           <li><a href="/refund-policy">Return & Refund Policy</a></li>
         </ul>
       </div>
-
-      <div class="col-lg-3 col-md-12 footer-contact-details">
+      <div class="col-lg-3 col-md-6 footer-links">
+        <h4 class="text-white">Guides</h4>
+        <ul>
+          <li><a href="/">How to Pass FCPS Part 1 in First Attempt (3-Month Plan)</a></li>
+          <li><a href="/about">JCAT Syllabus & Exam Pattern 2026: MD/MS & MDS (Official Breakdown)</a></li>
+          <li><a href="/pricing">CPSP FCPS Part 1 Syllabus 2026: Official Changes & Exam Schedule</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-md-12 footer-contact-details">
         <h4 class="text-white">More Info</h4>
         <p><strong>Address:</strong> <br> <span class="text-white-50">Office No. 2, 1st floor Ayesha Clinic Building, KRL Road
             Rawalpindi</span></p>

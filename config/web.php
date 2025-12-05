@@ -97,6 +97,7 @@ $config = [
                 '/terms-and-conditions' => 'site/terms-and-conditions',
                 '/refund-policy' => 'site/refund-policy',
                 '/service-policy' => 'site/service-policy',
+                'guides/<slug:[\w\-]+>' => 'guides/view',
 
                 // User Panel
 

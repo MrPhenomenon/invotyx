@@ -18,6 +18,9 @@ use yii\helpers\Url;
         <li><a href="<?= Url::to(['/about']) ?>"
             class="<?= Yii::$app->controller->id === 'site' && Yii::$app->controller->action->id === 'about' ? 'active' : '' ?>">About</a>
         </li>
+        <li><a href="<?= Url::to(['/guides']) ?>"
+            class="<?= Yii::$app->controller->id === 'guides' ? 'active' : '' ?>">Guides</a>
+        </li>
         <li><a href="<?= Url::to(['/pricing']) ?>"
             class="<?= Yii::$app->controller->id === 'site' && Yii::$app->controller->action->id === 'pricing' ? 'active' : '' ?>">Pricing</a>
         </li>

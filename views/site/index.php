@@ -8,7 +8,6 @@ $this->title = 'Part1PK | FCPS Part 1 & MD/MS Preparation App | 2026 Syllabus';
 $this->params['meta_description'] = 'Pass FCPS Part 1 and MD/MS exams with Pakistan’s #1 AI Practice App. 10,000+ verified MCQs, error-free past papers, and performance analytics. Affordable & smart.';
 ?>
 
-<!-- SECTION 1: HERO -->
 <section id="hero" class="hero-section-new p-0">
   <div class="container" style="max-width: 1500px">
     <div class="row align-items-center gy-5">
